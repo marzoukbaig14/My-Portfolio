@@ -37,10 +37,10 @@ export default function Hero() {
         <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
           <div className="text-center">
             <h1 className="text-5xl font-semibold tracking-tight text-gray-900 sm:text-7xl">
-              Hi, I'm <span className="text-indigo-600">Your Name</span>
+              Hi, I&apos;m a software developer. <span className="text-indigo-600">Muhammad Marzouk Baig</span>
             </h1>
             <p className="mt-8 text-lg font-medium text-gray-500 sm:text-xl">
-              I build modern, scalable web apps using React and Next.js.
+              I built this modern web apps using React and Next.js.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <a

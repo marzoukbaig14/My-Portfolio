@@ -35,7 +35,7 @@ export default function Experience() {
               <ul className="list-disc list-inside mt-2 text-white/80 space-y-1 text-sm">
                 <li> Developed a Python SDK for the Client Interfacing Team, allowing access to 1010data tables</li>
                 <li> SDK allowed graphical query visualizations via Python-to-XML 
-translation for real-time integration in 1010's GUI</li>
+translation for real-time integration in 1010&apos;s GUI</li>
                 <li>Worked with existing API endpoints, enhancing usability, streamlining operations, and reducing code size </li>
                 <li>Collaborated with Product and Client Interfacing Teams to develop Tech Demos for various teams within the company </li>
                 <li>Wrote detailed documentation, incorporating examples, visualizations, and tailored use-cases, for developers and users</li>

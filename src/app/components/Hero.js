@@ -1,3 +1,5 @@
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+
 export default function Hero() {
   return (
     <section id="hero" className="bg-white relative overflow-hidden">
@@ -52,6 +54,15 @@ export default function Hero() {
               <a href="#contact" className="text-sm font-semibold text-gray-900">
                 Contact Me <span aria-hidden="true">→</span>
               </a>
+              <a
+  href="/Muhammad Marzouk Baig---Resume.pdf"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-indigo-600 transition"
+>
+  <ArrowTopRightOnSquareIcon className="h-5 w-5" />
+  View Resume
+</a>
             </div>
           </div>
         </div>

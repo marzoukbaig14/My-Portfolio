@@ -1,6 +1,6 @@
 "use client";
 
-// comments
+// comments more comments
 export default function Experience() {
   return (
     <section
@@ -21,7 +21,7 @@ export default function Experience() {
               <p className="text-xs text-indigo-200 mt-1">Jul 2023 – Dec 2024</p>
               <ul className="list-disc list-inside mt-2 text-white/80 space-y-1 text-sm">
                 <li>Delivered technical support to faculty, staff, and students, resolving 100+ hardware and software issues monthly</li>
-                <li>Designed and developed application widgets to automate network-based workflows like printing software</li>
+                <li>Designed and developed application widgets to automate network based workflows like campus wide printing software</li>
                 <li>Digitized IT documentation platform, boosting knowledge sharing by 30% and reducing training time for new employees.</li>
               </ul>
             </div>

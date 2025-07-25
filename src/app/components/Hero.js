@@ -3,25 +3,6 @@ import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 export default function Hero() {
   return (
     <section id="hero" className="bg-white relative overflow-hidden">
-      {/* <header className="absolute inset-x-0 top-0 z-50">
-        <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
-          <div className="flex lg:flex-1">
-            <a href="#" className="-m-1.5 p-1.5">
-              <span className="sr-only">Your Company</span>
-              <img
-                className="h-8 w-auto"
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                alt=""
-              />
-            </a>
-          </div>
-          <div className="hidden lg:flex lg:gap-x-12">
-            <a href="about" className="text-sm font-semibold text-gray-900">About</a>
-            <a href="projects" className="text-sm font-semibold text-gray-900">Projects</a>
-            <a href="contact" className="text-sm font-semibold text-gray-900">Contact</a>
-          </div>
-        </nav>
-      </header> */}
 
       <div className="relative isolate px-6 pt-32 lg:px-8">
         <div
@@ -55,7 +36,7 @@ export default function Hero() {
                 Contact Me <span aria-hidden="true">→</span>
               </a>
               <a
-  href="/Muhammad Marzouk Baig---Resume.pdf"
+  href="/Muhammad Marzouk Baig__Resume.pdf"
   target="_blank"
   rel="noopener noreferrer"
   className="flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-indigo-600 transition"

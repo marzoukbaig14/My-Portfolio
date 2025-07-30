@@ -13,7 +13,7 @@ export default function Experience() {
         </h2>
 
         <div className="relative border-l border-white/20 pl-12 space-y-12">
-          {/* Experience 1 */}
+          {/* Experience - 1 */}
           <div className="relative group">
             <div className="absolute -left-8 top-2 w-4 h-4 bg-indigo-500 border-2 border-white rounded-full shadow-md group-hover:scale-110 transition" />
             <div>
@@ -27,7 +27,7 @@ export default function Experience() {
             </div>
           </div>
 
-          {/* Experience 2 */}
+          {/* Experience - 2 */}
           <div className="relative group">
             <div className="absolute -left-8 top-2 w-4 h-4 bg-indigo-500 border-2 border-white rounded-full shadow-md group-hover:scale-110 transition" />
             <div>
@@ -44,7 +44,7 @@ translation for real-time integration in 1010&apos;s GUI</li>
             </div>
           </div>
 
-          {/* Experience 3 */}
+          {/* Experience - 3 */}
           <div className="relative group">
             <div className="absolute -left-8 top-2 w-4 h-4 bg-indigo-500 border-2 border-white rounded-full shadow-md group-hover:scale-110 transition" />
             <div>

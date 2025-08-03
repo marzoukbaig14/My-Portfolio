@@ -56,13 +56,13 @@ export default function Contact() {
 
       {/* Social Icons */}
       <div className="mt-10 flex justify-center gap-8 text-2xl">
-        <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer">
+        <a href="https://github.com/marzoukbaig14" target="_blank" rel="noopener noreferrer">
           <FaGithub className="hover:text-purple-500 transition" />
         </a>
-        <a href="https://linkedin.com/in/yourusername" target="_blank" rel="noopener noreferrer">
+        <a href="https://linkedin.com/in/muhammadmarzoukbaig" target="_blank" rel="noopener noreferrer">
           <FaLinkedin className="hover:text-purple-500 transition" />
         </a>
-        <a href="https://facebook.com/yourusername" target="_blank" rel="noopener noreferrer">
+        <a href="https://facebook.com/marzookbaig/" target="_blank" rel="noopener noreferrer">
           <FaFacebook className="hover:text-purple-500 transition" />
         </a>
       </div>

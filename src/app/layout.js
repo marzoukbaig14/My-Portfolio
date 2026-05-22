@@ -1,6 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Head from "next/head";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,19 +12,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Marzouk's Portfolio",
-  description: "Portfolio built with Next.js",
+  title: "Muhammad Marzouk Baig",
+  description: "ML Engineer and Applied Researcher. MS AI at Northeastern.",
+  icons: { icon: "/favicon.ico" },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <Head>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
       </body>
     </html>

@@ -1,6 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { profile } from '@/data/profile';
 
 export default function About() {
   return (
@@ -25,13 +26,7 @@ export default function About() {
           About Me
         </motion.h2>
 
-        {[
-          "Hi, I’m Muhammad Marzouk Baig.",
-          "I’m a Computer Science graduate (University of Rochester, Dec 2024) with expertise in data structures, algorithms, and software engineering.",
-          "I’ve built Python modules, worked with APIs, and developed mobile and web applications. I thrive on solving complex technical challenges and designing robust solutions while maintaining proper documentation.",
-          "I’m passionate about writing clean, maintainable code, collaborating on meaningful projects, and learning new technologies.",
-          "When I’m not coding, I enjoy exploring the evolving tech landscape, playing cricket, and reading history."
-        ].map((text, i) => (
+        {profile.about.map((text, i) => (
           <motion.p
             key={i}
             className="text-base sm:text-lg md:text-xl leading-relaxed text-gray-800 max-w-2xl"
@@ -54,7 +49,7 @@ export default function About() {
       >
         <Image
           src="/images/my-profile-picture.jpg"
-          alt="Muhammad Marzouk Baig"
+          alt={profile.name}
           width={288}
           height={432}
           className="rounded-2xl shadow-2xl object-cover border-4 border-indigo-300"
@@ -63,4 +58,3 @@ export default function About() {
     </section>
   );
 }
-// animation ...

@@ -36,7 +36,7 @@ export default function Projects() {
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
 
         <h2 style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '3rem' }}>
-          <span style={{ color: 'var(--accent)' }}>//</span> projects
+          <span style={{ color: 'var(--accent)' }}>//</span>{' projects'}
         </h2>
 
         {featured && (

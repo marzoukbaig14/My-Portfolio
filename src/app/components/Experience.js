@@ -15,7 +15,7 @@ export default function Experience() {
           transition={{ duration: 0.6 }}
           style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '3rem' }}
         >
-          <span style={{ color: 'var(--accent)' }}>//</span> experience
+          <span style={{ color: 'var(--accent)' }}>//</span>{' experience'}
         </motion.h2>
 
         <div style={{ position: 'relative', paddingLeft: 'clamp(1.5rem, 3vw, 2.5rem)', borderLeft: '1px solid var(--border)' }}>

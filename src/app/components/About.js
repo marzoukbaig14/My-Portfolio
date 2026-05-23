@@ -26,7 +26,7 @@ export default function About() {
           transition={{ duration: 0.6 }}
           style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '3rem' }}
         >
-          <span style={{ color: 'var(--accent)' }}>//</span> about
+          <span style={{ color: 'var(--accent)' }}>//</span>{' about'}
         </motion.h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(2rem, 5vw, 4rem)', alignItems: 'start' }}>

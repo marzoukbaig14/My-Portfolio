@@ -35,7 +35,7 @@ export default function Contact() {
           transition={{ duration: 0.6 }}
           style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1rem' }}
         >
-          <span style={{ color: 'var(--accent)' }}>//</span> contact
+          <span style={{ color: 'var(--accent)' }}>//</span>{' contact'}
         </motion.h2>
 
         <motion.p
@@ -59,7 +59,7 @@ export default function Contact() {
             {state.succeeded ? (
               <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '12px', padding: '2rem', textAlign: 'center' }}>
                 <div style={{ fontSize: '32px', marginBottom: '1rem' }}>✓</div>
-                <p style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', color: '#22c55e' }}>Message sent. I'll get back to you soon.</p>
+                <p style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', color: '#22c55e' }}>Message sent. {"I'll get back to you soon."}</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

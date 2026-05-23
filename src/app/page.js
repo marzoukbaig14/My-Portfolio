@@ -4,11 +4,13 @@ import Projects from './components/Projects.js'
 import Contact from './components/Contact.js'
 import Navbar from './components/Navbar.js'
 import Experience from './components/Experience.js'
+import CommandPalette from './components/CommandPalette.js'
 
 export default function Home() {
   return (
     <>
       <Navbar />
+      <CommandPalette />
       <main className="flex flex-col mt-16">
         <Hero />
         <About />

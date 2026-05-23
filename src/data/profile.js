@@ -1,6 +1,6 @@
 export const profile = {
   name: "Muhammad Marzouk Baig",
-  headline: "I do ML engineering with a real software engineering background. Currently doing research on combinatorial optimization at Northeastern.",
+  headline: "I do ML engineering with a real software engineering background. Currently doing research on combinatorial optimization at Northeastern",
   about: [
     "I'm Muhammad. First-year MS AI student at Northeastern, came in with a CS undergrad from Rochester and a few years across software engineering, data science, and ML.",
     "What I think makes me a bit different is that the software engineering background sits underneath everything else. I've built production tools, worked with real codebases and real APIs, and I think carefully about system design even when the work is mostly modeling. That means I can contribute at both the modeling and the engineering layer of a project.",

@@ -1,60 +1,145 @@
-import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+'use client';
+import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { profile } from '@/data/profile';
+import NeuralBackground from '@/app/components/NeuralBackground';
+
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&';
+const ROLE = 'ML Engineer & Applied Researcher';
 
 export default function Hero() {
+  const [displayName, setDisplayName] = useState('');
+  const [displayRole, setDisplayRole] = useState('');
+  const [displayHeadline, setDisplayHeadline] = useState('');
+  const [nameTyped, setNameTyped] = useState(false);
+  const [roleTyped, setRoleTyped] = useState(false);
+  const [headlineTyped, setHeadlineTyped] = useState(false);
+  const [showCtas, setShowCtas] = useState(false);
+  const scrambleRef = useRef(null);
+
+  useEffect(() => {
+    let i = 0;
+    const start = setTimeout(() => {
+      const nameInterval = setInterval(() => {
+        setDisplayName(profile.name.slice(0, i + 1));
+        i++;
+        if (i >= profile.name.length) {
+          clearInterval(nameInterval);
+          setNameTyped(true);
+          setTimeout(() => {
+            let j = 0;
+            const roleInterval = setInterval(() => {
+              setDisplayRole(ROLE.slice(0, j + 1));
+              j++;
+              if (j >= ROLE.length) {
+                clearInterval(roleInterval);
+                setRoleTyped(true);
+                setTimeout(() => {
+                  let k = 0;
+                  const headlineInterval = setInterval(() => {
+                    setDisplayHeadline(profile.headline.slice(0, k + 1));
+                    k++;
+                    if (k >= profile.headline.length) {
+                      clearInterval(headlineInterval);
+                      setHeadlineTyped(true);
+                      setTimeout(() => setShowCtas(true), 400);
+                    }
+                  }, 18);
+                }, 300);
+              }
+            }, 60);
+          }, 400);
+        }
+      }, 90);
+    }, 600);
+    return () => clearTimeout(start);
+  }, []);
+
+  const handleScramble = () => {
+    if (!nameTyped) return;
+    let iter = 0;
+    clearInterval(scrambleRef.current);
+    scrambleRef.current = setInterval(() => {
+      setDisplayName(
+        profile.name.split('').map((ch, i) => {
+          if (ch === ' ') return ' ';
+          if (i < iter) return profile.name[i];
+          return CHARS[Math.floor(Math.random() * CHARS.length)];
+        }).join('')
+      );
+      iter += 0.5;
+      if (iter >= profile.name.length) {
+        clearInterval(scrambleRef.current);
+        setDisplayName(profile.name);
+      }
+    }, 30);
+  };
+
+  const cursor = (visible) => visible ? (
+    <span style={{ display: 'inline-block', width: '11px', height: '1em', background: '#fef8f8fe', marginLeft: '3px', verticalAlign: 'text-top', animation: 'blink 0.8s infinite' }} />
+  ) : null;
+
   return (
-    <section id="hero" className="bg-white relative overflow-hidden">
-      <div className="relative isolate px-6 pt-32 lg:px-8">
-        <div
-          className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
-          aria-hidden="true"
-        >
-          <div
-            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-40 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-            style={{
-              clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)'
-            }}
-          />
-        </div>
+    <section id="hero" style={{ background: 'var(--bg-primary)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(5rem, 10vh, 8rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
 
-        <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
-          <div className="text-center">
-            <h1 className="text-5xl font-semibold tracking-tight text-gray-900 sm:text-7xl">
-              Hi, I&apos;m {profile.name}
-            </h1>
-            <p className="mt-4 text-2xl font-semibold text-indigo-500">
-              ML Engineer & Applied Researcher
-            </p>
-            <p className="mt-6 text-lg font-medium text-gray-500 sm:text-xl">
-              {profile.headline}
-            </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
-              <a href="#projects" className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition">
-                View Projects
-              </a>
-              <a href="#contact" className="text-sm font-semibold text-gray-900">
-                Contact Me <span aria-hidden="true">→</span>
-              </a>
-              <a href={profile.resume} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-indigo-600 transition">
-                <ArrowTopRightOnSquareIcon className="h-5 w-5" />
-                View Resume
-              </a>
-            </div>
+      <NeuralBackground />
+
+      <div style={{ position: 'absolute', top: '30%', left: '50%', transform: 'translateX(-50%)', width: '70vw', maxWidth: '900px', height: '35vh', background: 'radial-gradient(ellipse, rgba(124,111,255,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+      <div style={{ maxWidth: '860px', width: '100%', position: 'relative', zIndex: 1 }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+
+          <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(13px, 1.8vw, 16px)', color: '#22c55e', marginBottom: '1.5rem' }}>
+            ~/marzouk $
           </div>
-        </div>
 
-        <div
-          className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
-          aria-hidden="true"
-        >
-          <div
-            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
-            style={{
-              clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)'
-            }}
-          />
-        </div>
+          <h1
+            onMouseEnter={handleScramble}
+            style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(28px, 5vw, 56px)', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.1, marginBottom: '0.75rem', cursor: 'default', userSelect: 'none', minHeight: '1.2em' }}
+          >
+            {displayName}
+            {!nameTyped && cursor(true)}
+          </h1>
+
+          <p style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(14px, 2vw, 20px)', color: 'var(--accent)', marginBottom: '1.75rem', minHeight: '1.4em' }}>
+            {displayRole}
+            {nameTyped && !roleTyped && cursor(true)}
+          </p>
+
+          <p style={{ fontSize: 'clamp(14px, 1.8vw, 18px)', color: 'var(--text-secondary)', lineHeight: 1.75, maxWidth: '620px', marginBottom: '2.5rem', minHeight: '3em' }}>
+            {displayHeadline}
+            {roleTyped && cursor(true)}
+          </p>
+
+          {showCtas && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', alignItems: 'center' }}
+            >
+              <a href="#projects"
+                style={{ background: 'var(--accent)', color: '#fff', fontSize: 'clamp(13px, 1.5vw, 15px)', fontWeight: 600, padding: '11px 26px', borderRadius: '8px', textDecoration: 'none', transition: 'background 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--accent-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'var(--accent)'}
+              >View Projects</a>
+              <a href="#contact"
+                style={{ color: 'var(--text-secondary)', fontSize: 'clamp(13px, 1.5vw, 15px)', fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+              >Contact Me →</a>
+              <a href={profile.resume} target="_blank" rel="noopener noreferrer"
+                style={{ color: 'var(--text-secondary)', fontSize: 'clamp(13px, 1.5vw, 15px)', fontWeight: 500, textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+              >Resume ↗</a>
+            </motion.div>
+          )}
+
+        </motion.div>
       </div>
+
+      <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
     </section>
   );
 }

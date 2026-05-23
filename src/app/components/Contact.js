@@ -24,7 +24,7 @@ export default function Contact() {
   });
 
   return (
-    <section id="experience" style={{ background: 'rgba(13,13,18,0.65)', padding: '...', position: 'relative', overflow: 'hidden' }}>
+    <section id="experience" style={{ background: 'rgba(13,13,18,0.65)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
       <SectionBackground />
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
 

@@ -2,6 +2,7 @@
 import { useRef } from 'react';
 import Image from 'next/image';
 import { projects } from '@/data/projects';
+import SectionBackground from '@/app/components/SectionBackground';
 
 function TiltCard({ children, style }) {
   const ref = useRef(null);
@@ -32,8 +33,9 @@ const tier2 = projects.filter(p => p.tier === 'tier2');
 
 export default function Projects() {
   return (
-    <section id="projects" style={{ background: 'var(--bg-primary)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative'}}>
-      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+    <section id="projects" style={{ background: 'rgba(13,13,18,0.65)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
+      <SectionBackground />
+      <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         <h2 style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '3rem' }}>
           <span style={{ color: 'var(--accent)' }}>//</span>{' projects'}

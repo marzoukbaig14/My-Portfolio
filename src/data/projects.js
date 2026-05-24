@@ -7,7 +7,7 @@ export const projects = [
     tags: ["Python", "PyTorch", "GPU", "Genetic Algorithms", "Combinatorial Optimization", "Research"],
     tier: "featured",
     github: "https://github.com/marzoukbaig14/MKP-using-Genetic-Algorithm",
-    paper: "https://github.com/marzoukbaig14/MKP-using-Genetic-Algorithm/blob/main/docs/proposal/Before%20The%20Search%20Begins.pdf",
+    paper: "https://github.com/marzoukbaig14/MKP-using-Genetic-Algorithm",
     image: null
   },
   {
@@ -17,9 +17,42 @@ export const projects = [
     description: "Built end-to-end for United Way of Southern Maine. First phase was a data pipeline on public municipal grant records: extraction, cleaning, EDA, and statistical analysis of funding trends and category allocation. Second phase extended it into NLP on open-ended community survey responses. spaCy for preprocessing and named entity recognition, BART-large-MNLI from Hugging Face for zero-shot thematic classification, and chi-square, logistic regression, PCA, and K-Means in scikit-learn for cross-segment pattern finding. Findings went to a non-technical client.",
     tags: ["Python", "spaCy", "Hugging Face", "BART", "scikit-learn", "NLP"],
     tier: "tier1",
-    github: "https://github.com/marzoukbaig14",
+    github: "https://github.com/myhott163com/united_way_final",
     paper: null,
     image: "/images/analyis-i.png"
+  },
+  {
+    id: "gpt-zero",
+    title: "GPT from Scratch",
+    subtitle: "Independent project. 2025.",
+    description: "Character-level GPT built from scratch in PyTorch. No wrapper libraries, no abstractions, no shortcuts. Just the attention mechanism, the math, and backprop. Implemented every component independently — tokenization, positional encoding, multi-head self-attention, feedforward layers, the works. If you want to actually understand how transformers work, you have to build one.",
+    tags: ["Python", "PyTorch", "Transformers", "Deep Learning", "NLP"],
+    tier: "tier1",
+    github: "https://github.com/marzoukbaig14/gpt-zero",
+    paper: null,
+    image: null
+  },
+  {
+    id: "micrograd",
+    title: "Autograd Engine from Scratch",
+    subtitle: "Independent project. 2025.",
+    description: "A scalar-valued autograd engine and neural network library built from scratch in Python. Implements backpropagation over a dynamically built DAG — no PyTorch, no NumPy for the core engine. Gives you real appreciation for what automatic differentiation actually does under the hood. Built to understand, not to use.",
+    tags: ["Python", "Autograd", "Backpropagation", "Neural Networks"],
+    tier: "tier2",
+    github: "https://github.com/marzoukbaig14/micrograd",
+    paper: null,
+    image: null
+  },
+  {
+    id: "nanoLM",
+    title: "nanoLM — Language Model from Scratch",
+    subtitle: "Independent project. 2025.",
+    description: "Character-level language model built from the ground up, starting from a bigram baseline and progressively building up to a full transformer. More educational deep-dive than production model — the point was understanding exactly what changes at each step of the architecture, not benchmarking against GPT-4.",
+    tags: ["Python", "PyTorch", "Transformers", "Language Models"],
+    tier: "tier2",
+    github: "https://github.com/marzoukbaig14/nanoLM",
+    paper: null,
+    image: null
   },
   {
     id: "gentrification",
@@ -27,31 +60,9 @@ export const projects = [
     subtitle: "Independent research, University of Rochester. Fall 2023 to Fall 2024.",
     description: "Quantitative study on whether proximity to private universities in Monroe County, NY correlates with neighborhood-level gentrification indicators in Rochester. Full pipeline: data acquisition from public census and geospatial sources, cleaning and feature engineering on demographic variables, cross-validated logistic and linear regression in scikit-learn, results visualization. The interesting part was figuring out the right operationalization of gentrification before any modeling.",
     tags: ["Python", "scikit-learn", "Pandas", "Geospatial", "Regression"],
-    tier: "tier1",
+    tier: "tier2",
     github: "https://github.com/marzoukbaig14",
     paper: null,
     image: "/images/analyis-i.png"
-  },
-  {
-    id: "1010data-sdk",
-    title: "1010data Python SDK",
-    subtitle: "SWE Intern, 1010data NYC. Summer 2022.",
-    description: "Designed and built a pip-installable Python library that mirrored the Pandas API. Method calls were translated to 1010data's proprietary XML query language via a translation algorithm I wrote from scratch. Integrated end-to-end: SSO auth, custom REST endpoints I added to the internal stack, server-side execution, live results in the 1010data GUI. The new endpoints replaced a Selenium prototype that had failed security review and cut codebase size by over 30%.",
-    tags: ["Python", "REST API", "OOP", "XML", "SSO"],
-    tier: "tier2",
-    github: "https://github.com/marzoukbaig14",
-    paper: null,
-    image: null
-  },
-  {
-    id: "dvcs-rust",
-    title: "Distributed Version Control System",
-    subtitle: "Collaborative project, University of Rochester. Fall 2023.",
-    description: "A distributed version control system built from scratch in Rust with a small team. Modular architecture across independently developed components for object storage, commit history, branching, merging, and conflict detection. My focus was conflict resolution and distributed state consistency across nodes.",
-    tags: ["Rust", "Distributed Systems", "Systems Programming"],
-    tier: "tier2",
-    github: "https://github.com/marzoukbaig14",
-    paper: null,
-    image: "/images/dvcs.png"
   }
 ];

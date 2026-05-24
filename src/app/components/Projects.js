@@ -80,9 +80,13 @@ export default function Projects() {
           {tier1.map(project => (
             <TiltCard key={project.id}>
               <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', height: '100%' }}>
-                {project.image && (
+                {project.image ? (
                   <div style={{ position: 'relative', width: '100%', height: '160px' }}>
                     <Image src={project.image} alt={project.title} fill style={{ objectFit: 'cover', opacity: 0.7 }} />
+                  </div>
+                ) : (
+                  <div style={{ width: '100%', height: '160px', background: 'linear-gradient(135deg, rgba(124,111,255,0.12) 0%, rgba(13,13,18,0.9) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '32px', color: 'rgba(124,111,255,0.3)' }}>{'{ }'}</span>
                   </div>
                 )}
                 <div style={{ padding: '1.25rem' }}>

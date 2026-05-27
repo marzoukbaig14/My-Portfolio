@@ -1,8 +1,21 @@
 'use client';
 import { useRef } from 'react';
-import Image from 'next/image';
 import { projects } from '@/data/projects';
-import SectionBackground from '@/app/components/SectionBackground';
+
+function ProjectImage({ command = '$ python train.py' }) {
+  return (
+    <div style={{ width: '100%', height: '160px', background: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)', display: 'flex', gap: '6px' }}>
+        {['#e05252','#e0b752','#52e07a'].map(c => (
+          <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, opacity: 0.7 }} />
+        ))}
+      </div>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'rgba(var(--accent-rgb), 0.5)' }}>{command}</span>
+      </div>
+    </div>
+  );
+}
 
 function TiltCard({ children, style }) {
   const ref = useRef(null);
@@ -34,7 +47,6 @@ const tier2 = projects.filter(p => p.tier === 'tier2');
 export default function Projects() {
   return (
     <section id="projects" style={{ background: 'rgba(13,13,18,0.65)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
-      <SectionBackground />
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         <h2 style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '3rem' }}>
@@ -44,7 +56,7 @@ export default function Projects() {
         {featured && (
           <TiltCard style={{ marginBottom: '2rem' }}>
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'clamp(1.5rem, 3vw, 2.5rem)', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: 0, right: 0, width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(124,111,255,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', top: 0, right: 0, width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(var(--accent-rgb), 0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
                 <div>
                   <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>Featured Research</span>
@@ -69,7 +81,7 @@ export default function Projects() {
               <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: '1.5rem', maxWidth: '720px' }}>{featured.description}</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {featured.tags.map(tag => (
-                  <span key={tag} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', padding: '4px 12px', borderRadius: '20px', background: 'var(--accent-muted)', color: 'var(--accent)', border: '1px solid rgba(124,111,255,0.2)' }}>{tag}</span>
+                  <span key={tag} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', padding: '4px 12px', borderRadius: '20px', background: 'var(--accent-muted)', color: 'var(--accent)', border: '1px solid rgba(var(--accent-rgb), 0.2)' }}>{tag}</span>
                 ))}
               </div>
             </div>
@@ -80,15 +92,7 @@ export default function Projects() {
           {tier1.map(project => (
             <TiltCard key={project.id}>
               <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', height: '100%' }}>
-                {project.image ? (
-                  <div style={{ position: 'relative', width: '100%', height: '160px' }}>
-                    <Image src={project.image} alt={project.title} fill style={{ objectFit: 'cover', opacity: 0.7 }} />
-                  </div>
-                ) : (
-                  <div style={{ width: '100%', height: '160px', background: 'linear-gradient(135deg, rgba(124,111,255,0.12) 0%, rgba(13,13,18,0.9) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '32px', color: 'rgba(124,111,255,0.3)' }}>{'{ }'}</span>
-                  </div>
-                )}
+                <ProjectImage command={project.command} />
                 <div style={{ padding: '1.25rem' }}>
                   <h3 style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>{project.title}</h3>
                   <p style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px' }}>{project.subtitle}</p>

@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { profile } from '@/data/profile';
-import SectionBackground from '@/app/components/SectionBackground';
 
 export default function About() {
   const [glitching, setGlitching] = useState(false);
@@ -15,8 +14,8 @@ export default function About() {
   };
 
   return (
-    <section id="about" style={{ background: 'rgba(17,17,22,0.65)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
-      <SectionBackground />
+    <section id="about" style={{ background: 'rgba(13,13,18,0.65)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
+      
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         <motion.h2
@@ -45,12 +44,12 @@ export default function About() {
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', flexWrap: 'wrap' }}>
               <a href={profile.socials.github} target="_blank" rel="noopener noreferrer"
-                style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', color: 'var(--accent)', textDecoration: 'none', border: '1px solid rgba(124,111,255,0.3)', borderRadius: '6px', padding: '6px 16px', transition: 'all 0.2s' }}
+                style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', color: 'var(--accent)', textDecoration: 'none', border: '1px solid rgba(var(--accent-rgb), 0.3)', borderRadius: '6px', padding: '6px 16px', transition: 'all 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'var(--accent-muted)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >GitHub ↗</a>
               <a href={profile.socials.linkedin} target="_blank" rel="noopener noreferrer"
-                style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', color: 'var(--accent)', textDecoration: 'none', border: '1px solid rgba(124,111,255,0.3)', borderRadius: '6px', padding: '6px 16px', transition: 'all 0.2s' }}
+                style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', color: 'var(--accent)', textDecoration: 'none', border: '1px solid rgba(var(--accent-rgb), 0.3)', borderRadius: '6px', padding: '6px 16px', transition: 'all 0.2s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'var(--accent-muted)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >LinkedIn ↗</a>
@@ -73,6 +72,7 @@ export default function About() {
                 alt={profile.name}
                 width={320}
                 height={420}
+                priority
                 style={{
                   width: '100%',
                   height: 'auto',

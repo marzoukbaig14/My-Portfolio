@@ -8,9 +8,11 @@
   --text-primary: #f0f0f0;
   --text-secondary: #888899;
   --text-muted: #444458;
-  --accent: #7c6fff;
-  --accent-hover: #6a5dee;
-  --accent-muted: rgba(124, 111, 255, 0.15);
+  --accent: #16c5e8;
+  --accent-hover: #0fb1d1;
+  --accent-muted: rgba(22, 197, 232, 0.15);
+  --accent-rgb: 22, 197, 232;
+  --edge-rgb: 200, 200, 220;
 }
 
 @theme inline {

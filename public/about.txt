@@ -1,6 +1,6 @@
 This favicon was generated using the following font:
 
-- Font Title: Handjet
+- Font Title: Birthstone
 - Font Author: undefined
-- Font Source: https://fonts.gstatic.com/s/handjet/v21/oY1n8eXHq7n1OnbQrOY_2FrEwYEMLlcdP1mCtZaLaTutCwcIhGZ0lGU0akFcO3XFHTmaUkUsEHFAH2A.ttf
-- Font License: undefined
+- Font Source: https://fonts.gstatic.com/s/birthstone/v15/8AtsGs2xO4yLRhy87sv_HLn5jRfZHzM.ttf
+- Font License: undefined)

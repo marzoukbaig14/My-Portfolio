@@ -1,13 +1,11 @@
 'use client';
 import { motion } from 'framer-motion';
 import { experience } from '@/data/experience';
-import SectionBackground from '@/app/components/SectionBackground';
 
 export default function Experience() {
   return (
-    <section id="experience" style={{ background: 'rgba(13,13,18,0.65)', padding: '...', position: 'relative', overflow: 'hidden' }}>
-      <SectionBackground />
-        <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+    <section id="experience" style={{ background: 'rgba(13,13,18,0.65)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -28,10 +26,10 @@ export default function Experience() {
               transition={{ duration: 0.5, delay: i * 0.1 }}
               style={{ position: 'relative', marginBottom: i < experience.length - 1 ? '3rem' : 0 }}
             >
-              <div style={{ position: 'absolute', left: 'clamp(-1.9rem, -2.7vw, -2.9rem)', top: '6px', width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent)', border: '2px solid var(--bg-primary)', boxShadow: '0 0 0 3px rgba(124,111,255,0.2)' }} />
+              <div style={{ position: 'absolute', left: 'clamp(-1.9rem, -2.7vw, -2.9rem)', top: '6px', width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent)', border: '2px solid var(--bg-primary)', boxShadow: '0 0 0 3px rgba(var(--accent-rgb), 0.2)' }} />
 
               <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: 'clamp(1.25rem, 2.5vw, 1.75rem)', transition: 'border-color 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(124,111,255,0.4)'}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(var(--accent-rgb), 0.4)'}
                 onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', marginBottom: '0.75rem' }}>

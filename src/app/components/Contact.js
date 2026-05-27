@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useForm, ValidationError } from '@formspree/react';
 import { profile } from '@/data/profile';
-import SectionBackground from '@/app/components/SectionBackground';
 
 export default function Contact() {
   const [state, handleSubmit] = useForm("mkgwgova");
@@ -24,8 +23,8 @@ export default function Contact() {
   });
 
   return (
-    <section id="experience" style={{ background: 'rgba(13,13,18,0.65)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
-      <SectionBackground />
+    <section id="experience" style={{ background: 'rgb(0, 0, 0)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
+
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         <motion.h2

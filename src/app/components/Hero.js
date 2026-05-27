@@ -44,14 +44,14 @@ export default function Hero() {
                       setHeadlineTyped(true);
                       setTimeout(() => setShowCtas(true), 400);
                     }
-                  }, 18);
+                  }, 12); // headline typing speed
                 }, 300);
               }
-            }, 60);
+            }, 18); // role typing speed
           }, 400);
         }
-      }, 90);
-    }, 600);
+      }, 50); // name typing speed
+    }, 100);
     return () => clearTimeout(start);
   }, []);
 

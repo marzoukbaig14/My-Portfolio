@@ -9,34 +9,46 @@ export default function NeuralBackground() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    let width, height, animId;
+    let width, height, animId, nodes = [];
+    let lastFrame = 0;
+    const TARGET_FPS = 30;
+    const FRAME_INTERVAL = 1000 / TARGET_FPS;
+
+    const initNodes = () => {
+      const count = Math.min(70, Math.max(40, Math.floor((width * height) / 25000)));
+      nodes = Array.from({ length: count }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 1.2,
+        vy: (Math.random() - 0.5) * 1.2,
+        radius: Math.random() * 2 + 1.5,
+        pulse: Math.random() * Math.PI * 2,
+      }));
+    };
 
     const resize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
+      initNodes();
     };
 
     resize();
 
-    const NODE_COUNT = Math.max(60, Math.floor((width * height) / 10000));
     const MAX_DIST = 180;
+    const MAX_DIST_SQ = MAX_DIST * MAX_DIST;
+    const VISIBLE_THRESHOLD_SQ = MAX_DIST_SQ * 0.65;
 
-    const nodes = Array.from({ length: NODE_COUNT }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 1.2,
-      vy: (Math.random() - 0.5) * 1.2,
-      radius: Math.random() * 2 + 1.5,
-      pulse: Math.random() * Math.PI * 2,
-    }));
+    function draw(timestamp) {
+      animId = requestAnimationFrame(draw);
+      if (timestamp - lastFrame < FRAME_INTERVAL) return;
+      lastFrame = timestamp;
 
-    function draw() {
       ctx.clearRect(0, 0, width, height);
 
       for (const node of nodes) {
         node.x += node.vx;
         node.y += node.vy;
-        node.pulse += 0.02;
+        node.pulse += 0.04;
         if (node.x < 0 || node.x > width) node.vx *= -1;
         if (node.y < 0 || node.y > height) node.vy *= -1;
         node.x = Math.max(0, Math.min(width, node.x));
@@ -47,8 +59,9 @@ export default function NeuralBackground() {
         for (let j = i + 1; j < nodes.length; j++) {
           const dx = nodes[i].x - nodes[j].x;
           const dy = nodes[i].y - nodes[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < MAX_DIST) {
+          const distSq = dx * dx + dy * dy;
+          if (distSq < VISIBLE_THRESHOLD_SQ) {
+            const dist = Math.sqrt(distSq);
             const opacity = (1 - dist / MAX_DIST) * 0.25;
             ctx.beginPath();
             ctx.moveTo(nodes[i].x, nodes[i].y);
@@ -67,16 +80,30 @@ export default function NeuralBackground() {
         ctx.fillStyle = 'rgba(124, 111, 255, 0.55)';
         ctx.fill();
       }
-
-      animId = requestAnimationFrame(draw);
     }
 
-    draw();
+    const handleVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animId);
+      } else {
+        lastFrame = 0;
+        animId = requestAnimationFrame(draw);
+      }
+    };
+
+    animId = requestAnimationFrame(draw);
 
     window.addEventListener('resize', resize);
+    document.addEventListener('fullscreenchange', resize);
+    document.addEventListener('webkitfullscreenchange', resize);
+    document.addEventListener('visibilitychange', handleVisibility);
+
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', resize);
+      document.removeEventListener('fullscreenchange', resize);
+      document.removeEventListener('webkitfullscreenchange', resize);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, []);
 

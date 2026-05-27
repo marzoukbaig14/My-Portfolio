@@ -17,8 +17,20 @@ export default function SmoothScroll() {
     }
     requestAnimationFrame(raf);
 
+    const handleAnchorClick = (e) => {
+      const href = e.target.closest('a')?.getAttribute('href');
+      if (href?.startsWith('#')) {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) lenis.scrollTo(target);
+      }
+    };
+
+    document.addEventListener('click', handleAnchorClick);
+
     return () => {
       lenis.destroy();
+      document.removeEventListener('click', handleAnchorClick);
     };
   }, []);
 

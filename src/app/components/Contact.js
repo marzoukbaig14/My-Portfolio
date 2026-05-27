@@ -23,7 +23,7 @@ export default function Contact() {
   });
 
   return (
-    <section id="experience" style={{ background: 'rgb(0, 0, 0)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
+    <section id="contact" style={{ background: 'rgba(13,13,18,0.65)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
 
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
@@ -127,7 +127,7 @@ export default function Contact() {
             ].map(item => (
               <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer"
                 style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '10px', padding: '1rem 1.25rem', textDecoration: 'none', transition: 'border-color 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(124,111,255,0.4)'}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(var(--accent-rgb), 0.4)'}
                 onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
               >
                 <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{item.label}</span>

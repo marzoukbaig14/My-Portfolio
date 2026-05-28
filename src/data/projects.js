@@ -7,7 +7,7 @@ export const projects = [
     tags: ["Python", "PyTorch", "GPU", "Genetic Algorithms", "Combinatorial Optimization", "Research"],
     tier: "featured",
     github: "https://github.com/marzoukbaig14/MKP-using-Genetic-Algorithm",
-    paper: "https://github.com/marzoukbaig14/MKP-using-Genetic-Algorithm",
+    paper: "/paper.pdf",
     command: "$ python ga_init.py"
   },
   {

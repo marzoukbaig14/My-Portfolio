@@ -65,6 +65,7 @@ export default function About() {
           >
             <div
               onMouseEnter={triggerGlitch}
+              onTouchStart={triggerGlitch}
               style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border)', width: '100%', maxWidth: '320px', cursor: 'pointer' }}
             >
               <Image

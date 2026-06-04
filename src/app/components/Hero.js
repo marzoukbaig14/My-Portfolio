@@ -92,6 +92,7 @@ export default function Hero() {
 
           <h1
             onMouseEnter={handleScramble}
+            onTouchStart={handleScramble}
             style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(28px, 5vw, 56px)', fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.1, marginBottom: '0.75rem', cursor: 'default', userSelect: 'none', minHeight: '1.2em' }}
           >
             {displayName}

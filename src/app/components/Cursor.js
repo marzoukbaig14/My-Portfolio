@@ -8,8 +8,19 @@ export default function Cursor() {
   const ringPosRef = useRef({ x: -100, y: -100 });
   const [visible, setVisible] = useState(false);
   const [clicking, setClicking] = useState(false);
+  const [isFinePointer, setIsFinePointer] = useState(false);
 
   useEffect(() => {
+    const mq = window.matchMedia('(pointer: fine)');
+    setIsFinePointer(mq.matches);
+    const onChange = (e) => setIsFinePointer(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!isFinePointer) return;
+
     let animId;
 
     const onMove = (e) => {
@@ -51,11 +62,13 @@ export default function Cursor() {
       window.removeEventListener('mouseup', onUp);
       cancelAnimationFrame(animId);
     };
-  }, []);
+  }, [isFinePointer]);
+
+  if (!isFinePointer) return null;
 
   return (
     <>
-      <style>{`* { cursor: none !important; }`}</style>
+      <style>{`@media (pointer: fine) { * { cursor: none !important; } }`}</style>
       <div ref={dotRef} style={{ position: 'fixed', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)', pointerEvents: 'none', zIndex: 99999, opacity: visible ? 1 : 0, transform: clicking ? 'scale(0.6)' : 'scale(1)', transition: 'opacity 0.2s, transform 0.1s', left: '-100px', top: '-100px' }} />
       <div ref={ringRef} style={{ position: 'fixed', width: '32px', height: '32px', borderRadius: '50%', border: '1px solid rgba(124,111,255,0.6)', pointerEvents: 'none', zIndex: 99998, opacity: visible ? 1 : 0, transform: clicking ? 'scale(1.4)' : 'scale(1)', transition: 'opacity 0.2s, transform 0.15s', left: '-100px', top: '-100px' }} />
     </>

@@ -41,9 +41,15 @@ function TiltCard({ children, style }) {
   );
 }
 
-const featured = projects.find(p => p.tier === 'featured');
-const tier1 = projects.filter(p => p.tier === 'tier1');
-const tier2 = projects.filter(p => p.tier === 'tier2');
+// Hard launch gate: the Committed card only shows when NEXT_PUBLIC_COMMITTED_ENABLED
+// is "true" (Preview on, Production off). The flag is inlined at build time,
+// so production builds simply never include the card.
+const committedEnabled = process.env.NEXT_PUBLIC_COMMITTED_ENABLED === 'true';
+const visibleProjects = projects.filter(p => p.id !== 'committed' || committedEnabled);
+
+const featured = visibleProjects.find(p => p.tier === 'featured');
+const tier1 = visibleProjects.filter(p => p.tier === 'tier1');
+const tier2 = visibleProjects.filter(p => p.tier === 'tier2');
 
 export default function Projects() {
   return (

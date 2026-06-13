@@ -5,6 +5,7 @@ import StorySections from './StorySections.js';
 import SmoothScroll from '../components/SmoothScroll.js';
 import Cursor from '../components/Cursor.js';
 import ScrollProgress from '../components/ScrollProgress.js';
+import { notFound } from 'next/navigation';
 
 // noindex: this page is not public yet. The contract says don't publicize
 // until the fine-tune is ready, so we keep it out of search indexes even on
@@ -16,6 +17,13 @@ export const metadata = {
 };
 
 export default function CommittedPage() {
+  // Hard launch gate: the route is only reachable when NEXT_PUBLIC_COMMITTED_ENABLED
+  // is "true" (set on in the Vercel Preview env, off in Production). With it
+  // off, this returns 404 so the page is dark in production even if merged.
+  if (process.env.NEXT_PUBLIC_COMMITTED_ENABLED !== 'true') {
+    notFound();
+  }
+
   return (
     <>
       <CommittedBackground />

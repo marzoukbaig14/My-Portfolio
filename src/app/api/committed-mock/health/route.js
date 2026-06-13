@@ -5,5 +5,9 @@
 export const dynamic = 'force-dynamic';
 
 export function GET() {
+  // Same launch gate as the page: dark in production unless explicitly enabled.
+  if (process.env.NEXT_PUBLIC_COMMITTED_ENABLED !== 'true') {
+    return new Response('Not Found', { status: 404 });
+  }
   return Response.json({ status: 'ok' }, { status: 200 });
 }

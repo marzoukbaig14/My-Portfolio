@@ -49,6 +49,11 @@ Set the backend URL via the `NEXT_PUBLIC_COMMITTED_API_URL` environment variable
 local mock at `/api/committed-mock` that returns the same shape, so the page
 runs with no backend configured.
 
-> Not public yet: the page is `noindex` and is not linked from production. The
-> Committed projects card lives on this branch/preview only — do not merge to
-> production until the fine-tuned model is ready.
+### Launch gate
+
+The whole demo is behind `NEXT_PUBLIC_COMMITTED_ENABLED`. Set it to `"true"`
+to expose the `/committed` route, the mock API, and the Committed projects
+card; leave it unset/`"false"` and the route **404s** and the card is not
+rendered. Enable it in Vercel's **Preview** environment and keep it **off** in
+**Production** so the preview stays reviewable while production stays dark
+until launch. The page is also `noindex`. For local dev, set it in `.env.local`.

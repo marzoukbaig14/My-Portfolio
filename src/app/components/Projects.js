@@ -1,5 +1,6 @@
 'use client';
 import { useRef } from 'react';
+import Link from 'next/link';
 import { projects } from '@/data/projects';
 
 function ProjectImage({ command = '$ python train.py' }) {
@@ -102,9 +103,14 @@ export default function Projects() {
                       <span key={tag} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '10px', padding: '3px 10px', borderRadius: '20px', background: 'var(--accent-muted)', color: 'var(--accent)' }}>{tag}</span>
                     ))}
                   </div>
-                  {project.github && (
-                    <a href={project.github} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>View on GitHub →</a>
-                  )}
+                  <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                    {project.github && (
+                      <a href={project.github} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>View on GitHub →</a>
+                    )}
+                    {project.demo && (
+                      <Link href={project.demo} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>Try the live demo →</Link>
+                    )}
+                  </div>
                 </div>
               </div>
             </TiltCard>

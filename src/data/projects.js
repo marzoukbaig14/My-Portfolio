@@ -1,4 +1,23 @@
 export const projects = [
+  // ──────────────────────────────────────────────────────────────────────
+  // Committed — live demo card. DO NOT MERGE TO PRODUCTION until the human
+  // confirms the fine-tuned model is ready (CLAUDE.md rule 7). It lives on
+  // the branch/preview only. Description and tags are PLACEHOLDER; the human
+  // owns the final copy. The `demo` field points at the internal /committed
+  // route (Projects.js renders it as a "live demo" link).
+  // ──────────────────────────────────────────────────────────────────────
+  {
+    id: "committed",
+    title: "Committed",
+    subtitle: "Fine-tuned commit-message model. 2026.",
+    description: "[placeholder] A small model fine-tuned to turn code diffs into Conventional Commit messages, with a live in-browser demo. The human writes the final description.",
+    tags: ["PyTorch", "Transformers", "Fine-tuning", "NLP"],
+    tier: "tier1",
+    github: null,
+    paper: null,
+    demo: "/committed",
+    command: "$ git commit -m \"feat: ...\""
+  },
   {
     id: "mkp-ga",
     title: "Generating Function Initialization for Genetic Algorithms",

@@ -1,5 +1,6 @@
 'use client';
 import { useRef } from 'react';
+import Link from 'next/link';
 import { projects } from '@/data/projects';
 
 function ProjectImage({ command = '$ python train.py' }) {
@@ -40,9 +41,15 @@ function TiltCard({ children, style }) {
   );
 }
 
-const featured = projects.find(p => p.tier === 'featured');
-const tier1 = projects.filter(p => p.tier === 'tier1');
-const tier2 = projects.filter(p => p.tier === 'tier2');
+// Hard launch gate: the Committed card only shows when NEXT_PUBLIC_COMMITTED_ENABLED
+// is "true" (Preview on, Production off). The flag is inlined at build time,
+// so production builds simply never include the card.
+const committedEnabled = process.env.NEXT_PUBLIC_COMMITTED_ENABLED === 'true';
+const visibleProjects = projects.filter(p => p.id !== 'committed' || committedEnabled);
+
+const featured = visibleProjects.find(p => p.tier === 'featured');
+const tier1 = visibleProjects.filter(p => p.tier === 'tier1');
+const tier2 = visibleProjects.filter(p => p.tier === 'tier2');
 
 export default function Projects() {
   return (
@@ -102,9 +109,14 @@ export default function Projects() {
                       <span key={tag} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '10px', padding: '3px 10px', borderRadius: '20px', background: 'var(--accent-muted)', color: 'var(--accent)' }}>{tag}</span>
                     ))}
                   </div>
-                  {project.github && (
-                    <a href={project.github} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>View on GitHub →</a>
-                  )}
+                  <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                    {project.github && (
+                      <a href={project.github} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>View on GitHub →</a>
+                    )}
+                    {project.demo && (
+                      <Link href={project.demo} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>Try the live demo →</Link>
+                    )}
+                  </div>
                 </div>
               </div>
             </TiltCard>

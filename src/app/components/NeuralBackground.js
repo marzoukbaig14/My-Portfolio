@@ -17,6 +17,10 @@ export default function NeuralBackground() {
     const accentRgb = hexToRgb(accentHex);
     const edgeRgb = getComputedStyle(document.documentElement).getPropertyValue('--edge-rgb').trim() || '200, 200, 220';
 
+    // Respect prefers-reduced-motion: when set, we paint a single static frame
+    // and never start the animation loop. Checked once on mount.
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     let width, height, animId, nodes = [];
     let lastFrame = 0;
     const TARGET_FPS = 30;
@@ -34,23 +38,18 @@ export default function NeuralBackground() {
       }));
     };
 
+    const MAX_DIST = 200;
+    const VISIBLE_THRESHOLD_SQ = MAX_DIST * MAX_DIST * 0.65;
+
     const resize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
       initNodes();
+      if (prefersReduced) paintFrame(); // keep the static frame correct on resize
     };
-    resize();
 
-    const MAX_DIST = 200;
-    const VISIBLE_THRESHOLD_SQ = MAX_DIST * MAX_DIST * 0.65;
-
-    function draw(timestamp) {
-      animId = requestAnimationFrame(draw);
-      if (timestamp - lastFrame < FRAME_INTERVAL) return;
-      lastFrame = timestamp;
-
-      ctx.clearRect(0, 0, width, height);
-
+    // Advance node positions one tick. Skipped entirely under reduced motion.
+    function integrate() {
       for (const node of nodes) {
         node.x += node.vx;
         node.y += node.vy;
@@ -60,6 +59,12 @@ export default function NeuralBackground() {
         node.x = Math.max(0, Math.min(width, node.x));
         node.y = Math.max(0, Math.min(height, node.y));
       }
+    }
+
+    // Draw the current node/edge state. Used by both the animation loop and
+    // the single static frame rendered under reduced motion.
+    function paintFrame() {
+      ctx.clearRect(0, 0, width, height);
 
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
@@ -86,6 +91,23 @@ export default function NeuralBackground() {
         ctx.fillStyle = `rgba(${accentRgb}, 0.95)`;
         ctx.fill();
       }
+    }
+
+    resize();
+
+    function draw(timestamp) {
+      animId = requestAnimationFrame(draw);
+      if (timestamp - lastFrame < FRAME_INTERVAL) return;
+      lastFrame = timestamp;
+      integrate();
+      paintFrame();
+    }
+
+    // Reduced motion: resize() has already painted one static frame. Keep it
+    // correct across resizes and skip the animation loop entirely.
+    if (prefersReduced) {
+      window.addEventListener('resize', resize);
+      return () => window.removeEventListener('resize', resize);
     }
 
     const handleVisibility = () => {

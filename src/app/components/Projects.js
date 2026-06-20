@@ -48,7 +48,10 @@ const committedEnabled = process.env.NEXT_PUBLIC_COMMITTED_ENABLED === 'true';
 const visibleProjects = projects.filter(p => p.id !== 'committed' || committedEnabled);
 
 const featured = visibleProjects.find(p => p.tier === 'featured');
-const tier1 = visibleProjects.filter(p => p.tier === 'tier1');
+// Committed is the interactive centerpiece — pulled out of the tier1 grid and
+// rendered as its own elevated, whole-card-clickable demo card below.
+const committed = visibleProjects.find(p => p.id === 'committed');
+const tier1 = visibleProjects.filter(p => p.tier === 'tier1' && p.id !== 'committed');
 const tier2 = visibleProjects.filter(p => p.tier === 'tier2');
 
 export default function Projects() {
@@ -92,6 +95,50 @@ export default function Projects() {
                 ))}
               </div>
             </div>
+          </TiltCard>
+        )}
+
+        {/* Committed — elevated centerpiece. Whole card links to the live demo;
+            the GitHub link sits above the overlay so it stays independently clickable. */}
+        {committed && (
+          <TiltCard style={{ marginBottom: '2rem' }}>
+            <div style={{ position: 'relative', background: 'var(--bg-card)', border: '1px solid rgba(var(--accent-rgb), 0.5)', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 0 0 1px rgba(var(--accent-rgb), 0.15), 0 16px 50px rgba(var(--accent-rgb), 0.12)' }}>
+              <ProjectImage command={committed.command} />
+              <div style={{ padding: 'clamp(1.25rem, 2.5vw, 2rem)' }}>
+                <div style={{ marginBottom: '12px' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                    <span className="committed-live-dot" style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />
+                    live demo
+                  </span>
+                </div>
+                <h3 style={{ fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>{committed.title}</h3>
+                <p style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px' }}>{committed.subtitle}</p>
+                <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: '1rem', maxWidth: '640px' }}>{committed.description}</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '1.25rem' }}>
+                  {committed.tags.map(tag => (
+                    <span key={tag} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', padding: '4px 12px', borderRadius: '20px', background: 'var(--accent-muted)', color: 'var(--accent)', border: '1px solid rgba(var(--accent-rgb), 0.2)' }}>{tag}</span>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  {/* Primary CTA: sits below the overlay, so clicking it follows the whole-card link to the demo. */}
+                  <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', fontWeight: 600, color: 'var(--accent)' }}>Try the live demo →</span>
+                  {committed.github && (
+                    <a href={committed.github} target="_blank" rel="noopener noreferrer" style={{ position: 'relative', zIndex: 2, fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
+                      onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+                    >View on GitHub →</a>
+                  )}
+                </div>
+              </div>
+              {/* Stretched link: makes the entire card a link to the demo. */}
+              <Link href={committed.demo} aria-label={`${committed.title} — open the live demo`} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+            </div>
+            <style>{`
+              @media (prefers-reduced-motion: no-preference) {
+                .committed-live-dot { animation: committedPulse 1.8s ease-in-out infinite; }
+              }
+              @keyframes committedPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+            `}</style>
           </TiltCard>
         )}
 

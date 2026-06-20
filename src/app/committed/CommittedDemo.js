@@ -5,7 +5,7 @@ import { examples } from './examples';
 import { generateMessage, pingHealth, usingMock } from './api';
 
 // Tunables — the human can adjust these once the real model/limits are known.
-const COLD_START_HINT_MS = 4000;   // after this long with no reply, show the "waking" copy
+const COLD_START_HINT_MS = 8000;   // only after this long with no reply do we show the "waking" copy
 const REQUEST_TIMEOUT_MS = 90_000; // give a cold Space room to wake before giving up
 const MAX_DIFF_CHARS = 6000;       // rough proxy for the training token cap (single-file diffs)
 const TYPE_SPEED_MS = 16;          // typewriter reveal speed, per character
@@ -94,7 +94,7 @@ export default function CommittedDemo() {
     if (!trimmed || isGenerating) return;
 
     setStatus('generating');
-    setColdStart(!warm); // if health hasn't confirmed warm yet, assume a cold start
+    setColdStart(false); // start optimistic; only the latency timer below promotes to the cold-start copy
     setResult('');
     setTyped('');
     setErrorMsg('');
@@ -118,8 +118,9 @@ export default function CommittedDemo() {
       if (controller.signal.aborted) {
         setErrorMsg('The model took too long to respond. It may still be waking up — try again in a moment.');
       } else {
-        // A blocked browser call is almost always CORS, fixed on the backend side.
-        setErrorMsg('Could not reach the model. If this is the hosted demo, the Space may be asleep or blocking the request (CORS). Try again shortly.');
+        // Prefer the backend's own message (surfaced by generateMessage on a
+        // non-2xx); fall back to a generic line for true network/CORS failures.
+        setErrorMsg(err?.message || 'Could not reach the model. Please try again.');
       }
       setStatus('error');
     } finally {
@@ -286,7 +287,7 @@ export default function CommittedDemo() {
                 <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', color: 'var(--text-secondary)' }}>
                   {coldStart
                     ? <span>waking the model — first run can take ~30–60s{blinkCursor}</span>
-                    : <span>thinking{blinkCursor}</span>}
+                    : <span>generating…{blinkCursor}</span>}
                 </div>
               )}
 

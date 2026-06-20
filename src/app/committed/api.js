@@ -48,7 +48,17 @@ export async function generateMessage(diff, signal) {
   });
 
   if (!res.ok) {
-    throw new Error(`Backend responded ${res.status}`);
+    // The Space (FastAPI) returns errors as { detail: string } — surface that
+    // real message (e.g. "That doesn't look like a code diff…") so a handled
+    // 400 reads differently from a true network/CORS failure.
+    let detail;
+    try {
+      const body = await res.json();
+      detail = body?.detail;
+    } catch {
+      detail = null;
+    }
+    throw new Error(detail || `Backend responded ${res.status}`);
   }
 
   const data = await res.json();

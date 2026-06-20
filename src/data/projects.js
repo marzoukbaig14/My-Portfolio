@@ -1,19 +1,15 @@
 export const projects = [
-  // ──────────────────────────────────────────────────────────────────────
-  // Committed — live demo card. DO NOT MERGE TO PRODUCTION until the human
-  // confirms the fine-tuned model is ready (CLAUDE.md rule 7). It lives on
-  // the branch/preview only. Description and tags are PLACEHOLDER; the human
-  // owns the final copy. The `demo` field points at the internal /committed
-  // route (Projects.js renders it as a "live demo" link).
-  // ──────────────────────────────────────────────────────────────────────
+  // Committed — live demo card, rendered when NEXT_PUBLIC_COMMITTED_ENABLED is
+  // "true". `demo` points at the internal /committed route (Projects.js renders
+  // it as "Try the live demo →"); `github` renders as "View on GitHub →".
   {
     id: "committed",
     title: "Committed",
     subtitle: "Fine-tuned commit-message model. 2026.",
-    description: "[placeholder] A small model fine-tuned to turn code diffs into Conventional Commit messages, with a live in-browser demo. The human writes the final description.",
-    tags: ["PyTorch", "Transformers", "Fine-tuning", "NLP"],
+    description: "Fine-tuned a 1.7B language model (QLoRA) to write Conventional Commit messages from code diffs — runs locally so your code never leaves your machine.",
+    tags: ["Fine-tuning", "LLMs", "MLOps", "Docker"],
     tier: "tier1",
-    github: null,
+    github: "https://github.com/marzoukbaig14/Committed",
     paper: null,
     demo: "/committed",
     command: "$ git commit -m \"feat: ...\""

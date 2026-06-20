@@ -5,7 +5,7 @@ import { examples } from './examples';
 import { generateMessage, pingHealth, usingMock } from './api';
 
 // Tunables — the human can adjust these once the real model/limits are known.
-const COLD_START_HINT_MS = 8000;   // only after this long with no reply do we show the "waking" copy
+const COLD_START_HINT_MS = 10000;  // only on a not-yet-warm call, and only after this long with no reply, do we show the "waking" copy
 const REQUEST_TIMEOUT_MS = 90_000; // give a cold Space room to wake before giving up
 const MAX_DIFF_CHARS = 6000;       // rough proxy for the training token cap (single-file diffs)
 const TYPE_SPEED_MS = 16;          // typewriter reveal speed, per character
@@ -35,12 +35,16 @@ export default function CommittedDemo() {
   const [result, setResult] = useState('');
   const [typed, setTyped] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [suggestExamples, setSuggestExamples] = useState(false);
   const [copied, setCopied] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
 
   const abortRef = useRef(null);
   const coldTimerRef = useRef(null);
   const typeTimerRef = useRef(null);
+  // Once the model has returned a result this session it is warm; we use this
+  // to never show the "waking" notice again, regardless of how long a call takes.
+  const hasWarmedRef = useRef(false);
 
   // Honor reduced-motion: it gates the typewriter and the blinking cursor.
   useEffect(() => {
@@ -98,11 +102,16 @@ export default function CommittedDemo() {
     setResult('');
     setTyped('');
     setErrorMsg('');
+    setSuggestExamples(false);
     setCopied(false);
 
-    // If the reply is slow, surface the cold-start message even if we thought warm.
+    // A genuine cold start is only possible before the model's first reply. Once
+    // it has answered this session it is warm, so we don't arm the timer at all —
+    // a slow warm call just keeps saying "generating…".
     clearTimeout(coldTimerRef.current);
-    coldTimerRef.current = setTimeout(() => setColdStart(true), COLD_START_HINT_MS);
+    if (!hasWarmedRef.current) {
+      coldTimerRef.current = setTimeout(() => setColdStart(true), COLD_START_HINT_MS);
+    }
 
     const controller = new AbortController();
     abortRef.current = controller;
@@ -110,6 +119,7 @@ export default function CommittedDemo() {
 
     try {
       const message = await generateMessage(trimmed, controller.signal);
+      hasWarmedRef.current = true; // model has answered — no cold-start notice on later calls
       setWarm(true);
       setResult(message);
       setStatus('result');
@@ -121,6 +131,9 @@ export default function CommittedDemo() {
         // Prefer the backend's own message (surfaced by generateMessage on a
         // non-2xx); fall back to a generic line for true network/CORS failures.
         setErrorMsg(err?.message || 'Could not reach the model. Please try again.');
+        // A 4xx means the input itself was rejected (e.g. not a diff) — nudge
+        // toward the ready-made examples. Network/5xx errors get no such hint.
+        if (err?.status >= 400 && err?.status < 500) setSuggestExamples(true);
       }
       setStatus('error');
     } finally {
@@ -309,8 +322,13 @@ export default function CommittedDemo() {
               )}
 
               {status === 'error' && (
-                <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', color: '#f87171', lineHeight: 1.6 }}>
-                  {errorMsg}
+                <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', lineHeight: 1.6 }}>
+                  <span style={{ color: '#f87171' }}>{errorMsg}</span>
+                  {suggestExamples && (
+                    <div style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
+                      Try one of the example diffs above.
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>

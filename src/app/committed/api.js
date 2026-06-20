@@ -58,7 +58,9 @@ export async function generateMessage(diff, signal) {
     } catch {
       detail = null;
     }
-    throw new Error(detail || `Backend responded ${res.status}`);
+    const error = new Error(detail || `Backend responded ${res.status}`);
+    error.status = res.status; // lets the UI distinguish a 4xx input rejection from a network failure
+    throw error;
   }
 
   const data = await res.json();

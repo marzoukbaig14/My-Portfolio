@@ -5,7 +5,9 @@ import { examples } from './examples';
 import { generateMessage, pingHealth, usingMock } from './api';
 
 // Tunables — the human can adjust these once the real model/limits are known.
-const COLD_START_HINT_MS = 5000;   // only on a not-yet-warm (first) call, and only after this long with no reply, do we show the "waking" copy
+const HEALTH_TIMEOUT_MS = 4000;    // a slow/hanging /health ping means the Space is cold or asleep
+const HEALTH_COLD_POLL_MS = 5000;  // while cold, re-check often to catch the wake-up (and nudge it awake)
+const HEALTH_WARM_POLL_MS = 20_000;// while warm, re-check lazily in case the Space dozes off
 const REQUEST_TIMEOUT_MS = 90_000; // give a cold Space room to wake before giving up
 const MAX_DIFF_CHARS = 6000;       // rough proxy for the training token cap (single-file diffs)
 const TYPE_SPEED_MS = 16;          // typewriter reveal speed, per character
@@ -40,11 +42,8 @@ export default function CommittedDemo() {
   const [reduceMotion, setReduceMotion] = useState(false);
 
   const abortRef = useRef(null);
-  const coldTimerRef = useRef(null);
   const typeTimerRef = useRef(null);
-  // Once the model has returned a result this session it is warm; we use this
-  // to never show the "waking" notice again, regardless of how long a call takes.
-  const hasWarmedRef = useRef(false);
+  const pollTimerRef = useRef(null);
 
   // Honor reduced-motion: it gates the typewriter and the blinking cursor.
   useEffect(() => {
@@ -55,16 +54,31 @@ export default function CommittedDemo() {
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  // Pre-warm the Space on mount so the first real generate is more likely warm.
+  // Read the model's real readiness from /health and keep it current. This —
+  // not request latency — is what decides whether we show the "waking up"
+  // notice. A fast 200 with model_loaded:true is warm; anything else (slow,
+  // failing, asleep, or model_loaded:false) is cold. Polling also nudges an
+  // asleep Space awake: fast while cold to catch the wake-up, lazy once warm.
   useEffect(() => {
     let cancelled = false;
-    pingHealth().then((ok) => { if (!cancelled && ok) setWarm(true); });
-    return () => { cancelled = true; };
+
+    const check = async () => {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), HEALTH_TIMEOUT_MS);
+      const { modelLoaded } = await pingHealth(controller.signal);
+      clearTimeout(t);
+      if (cancelled) return;
+      setWarm(modelLoaded);
+      pollTimerRef.current = setTimeout(check, modelLoaded ? HEALTH_WARM_POLL_MS : HEALTH_COLD_POLL_MS);
+    };
+
+    check();
+    return () => { cancelled = true; clearTimeout(pollTimerRef.current); };
   }, []);
 
   // Clean up timers / in-flight request on unmount.
   useEffect(() => () => {
-    clearTimeout(coldTimerRef.current);
+    clearTimeout(pollTimerRef.current);
     clearInterval(typeTimerRef.current);
     abortRef.current?.abort();
   }, []);
@@ -98,20 +112,14 @@ export default function CommittedDemo() {
     if (!trimmed || isGenerating) return;
 
     setStatus('generating');
-    setColdStart(false); // start optimistic; only the latency timer below promotes to the cold-start copy
+    // Health (model_loaded), not latency, decides the copy: if the Space isn't
+    // known-warm, this call will pay the cold-boot cost, so show the waking notice.
+    setColdStart(!warm);
     setResult('');
     setTyped('');
     setErrorMsg('');
     setSuggestExamples(false);
     setCopied(false);
-
-    // A genuine cold start is only possible before the model's first reply. Once
-    // it has answered this session it is warm, so we don't arm the timer at all —
-    // a slow warm call just keeps saying "generating…".
-    clearTimeout(coldTimerRef.current);
-    if (!hasWarmedRef.current) {
-      coldTimerRef.current = setTimeout(() => setColdStart(true), COLD_START_HINT_MS);
-    }
 
     const controller = new AbortController();
     abortRef.current = controller;
@@ -119,8 +127,7 @@ export default function CommittedDemo() {
 
     try {
       const message = await generateMessage(trimmed, controller.signal);
-      hasWarmedRef.current = true; // model has answered — no cold-start notice on later calls
-      setWarm(true);
+      setWarm(true); // a successful generate proves the model is loaded
       setResult(message);
       setStatus('result');
       runTypewriter(message);
@@ -138,7 +145,6 @@ export default function CommittedDemo() {
       setStatus('error');
     } finally {
       clearTimeout(timeout);
-      clearTimeout(coldTimerRef.current);
       abortRef.current = null;
     }
   };

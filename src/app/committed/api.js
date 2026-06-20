@@ -25,14 +25,20 @@ export function getEndpoints() {
   return endpoints;
 }
 
-// Pre-warm / liveness check. Returns true on a 200, false otherwise. Never
-// throws — a cold or unreachable Space is an expected, handled state.
+// Readiness check. Returns { ok, modelLoaded }:
+//   ok          — the Space answered 200 (liveness, unchanged contract).
+//   modelLoaded — the model is actually in the container's memory (readiness).
+// Never throws — a cold, asleep, or unreachable Space is an expected state and
+// surfaces as { ok: false, modelLoaded: false } (including on an aborted/timed-
+// out signal), which the UI reads as "cold".
 export async function pingHealth(signal) {
   try {
     const res = await fetch(endpoints.health, { method: 'GET', signal });
-    return res.ok;
+    if (!res.ok) return { ok: false, modelLoaded: false };
+    const data = await res.json().catch(() => ({}));
+    return { ok: true, modelLoaded: data?.model_loaded === true };
   } catch {
-    return false;
+    return { ok: false, modelLoaded: false };
   }
 }
 

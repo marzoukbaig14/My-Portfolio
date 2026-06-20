@@ -9,5 +9,7 @@ export function GET() {
   if (process.env.NEXT_PUBLIC_COMMITTED_ENABLED !== 'true') {
     return new Response('Not Found', { status: 404 });
   }
-  return Response.json({ status: 'ok' }, { status: 200 });
+  // The mock is always in-process and instant, so it is always "loaded".
+  // Mirrors the real Space's shape: { status, model_loaded }.
+  return Response.json({ status: 'ok', model_loaded: true }, { status: 200 });
 }

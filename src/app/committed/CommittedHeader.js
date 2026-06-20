@@ -10,7 +10,9 @@ import Link from 'next/link';
 const sectionLinks = [
   { label: 'How it works', href: '#how-it-works' },
   { label: 'Results', href: '#results' },
+  { label: 'Samples', href: '#sample-outputs' },
   { label: 'Run locally', href: '#run-locally' },
+  { label: 'Built with', href: '#built-with' },
 ];
 
 export default function CommittedHeader() {

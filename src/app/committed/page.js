@@ -47,9 +47,10 @@ export default function CommittedPage() {
               Conventional Commit messages from your code diffs.
             </p>
             <p style={{ fontSize: 'clamp(14px, 1.7vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '620px' }}>
-              {/* [placeholder] one or two lines of framing — the human's words. */}
-              [placeholder] A short line of framing goes here. Paste a diff below, or try one of the
-              examples, and Committed writes the commit subject for you.
+              An end-to-end machine learning system — data curation, fine-tuning, evaluation, and
+              serving — built to turn a code diff into a clean Conventional Commit message. It runs
+              locally on a quantized 1.7B model, so your diffs never leave your machine. Paste a diff
+              below, or try one of the examples, and Committed writes the commit subject for you.
             </p>
           </div>
         </section>

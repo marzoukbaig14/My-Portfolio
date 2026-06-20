@@ -1,11 +1,10 @@
 'use client';
 import { motion } from 'framer-motion';
 
-// Story sections beneath the tool. Everything here is PLACEHOLDER scaffolding:
-// the layout and structure are real and on-theme, but the human owns the
-// narrative, the real metrics, the curated sample outputs, and the final
-// links. Anywhere you see [placeholder] or an em-dash stat, that is a slot to
-// fill — no real numbers are invented here.
+// Story sections beneath the tool: how it works, results (with the real eval
+// numbers and the honest specificity regression), sample outputs, run-it-locally,
+// and the built-with stack + links. Copy and metrics here are the project's real,
+// final content.
 
 const sectionStyle = {
   background: 'rgba(13,13,18,0.65)',
@@ -37,7 +36,7 @@ const reveal = {
 };
 
 const cardStyle = { background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.5rem' };
-const placeholderTag = { fontFamily: 'var(--font-geist-mono), monospace', fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em', border: '1px solid var(--border)', borderRadius: '4px', padding: '2px 8px' };
+const inlineCode = { fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.9em', color: 'var(--accent)', background: 'var(--accent-muted)', borderRadius: '4px', padding: '1px 6px' };
 
 export default function StorySections() {
   return (
@@ -47,10 +46,15 @@ export default function StorySections() {
         <div style={innerStyle}>
           <SectionHeading>how it works</SectionHeading>
           <motion.div {...reveal}>
-            <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '640px', marginBottom: '1.75rem' }}>
-              [placeholder] Committed is a small model fine-tuned to turn a code diff into a single
-              Conventional Commit subject line. Describe the data, the base model, and the training setup
-              here — the human writes this section.
+            <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px', marginBottom: '1.75rem' }}>
+              Committed is a complete pipeline, not just a model. I started from CommitChronicle —
+              roughly 10.7M real GitHub commits — and wrote a filter to extract clean, single-file diffs
+              paired with well-formed Conventional Commit subjects, normalizing them into a consistent
+              training target. I fine-tuned Qwen3-1.7B with QLoRA on the result, evaluated it against the
+              un-tuned base model on a multi-metric harness with an LLM judge I validated against my own
+              hand-ratings, then served it locally through llama.cpp with grammar-constrained decoding
+              that guarantees every output is syntactically valid. Data, training, evaluation, and serving
+              are all here.
             </p>
             {/* Pipeline motif, on-theme and content-agnostic. */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px' }}>
@@ -70,24 +74,79 @@ export default function StorySections() {
         <div style={innerStyle}>
           <SectionHeading>results</SectionHeading>
           <motion.div {...reveal}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.5rem' }}>
-              <span style={placeholderTag}>placeholder metrics</span>
-              <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-muted)' }}>real numbers from the eval go here</span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
+            <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px', marginBottom: '1.75rem' }}>
+              I evaluated the fine-tune against the un-tuned Qwen3-1.7B base on a 442-example test
+              sample, scored by an LLM judge on four orthogonal axes. The headline numbers are reweighted
+              to the true commit-type distribution of the test split, so they reflect realistic
+              deployment behavior.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
               {[
-                { label: 'well-formed rate', hint: 'syntax-valid outputs' },
-                { label: 'type accuracy', hint: 'vs. reference type' },
-                { label: 'eval set size', hint: 'held-out diffs' },
-                { label: 'base model', hint: 'params / family' },
+                { value: '0.637', label: 'type accuracy', hint: 'deployment-reweighted' },
+                { value: '0.471', label: 'conjunctive pass-rate', hint: 'all four axes pass' },
+                { value: '2.188', label: 'graded mean (0–3)', hint: 'LLM-judge score' },
+                { value: 'Qwen3-1.7B', label: 'base model', hint: 'fine-tuned with QLoRA' },
               ].map(stat => (
                 <div key={stat.label} style={{ ...cardStyle, padding: '1.25rem' }}>
-                  <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(24px, 4vw, 34px)', fontWeight: 700, color: 'var(--accent)', lineHeight: 1 }}>—</div>
+                  <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(20px, 3.2vw, 30px)', fontWeight: 700, color: 'var(--accent)', lineHeight: 1.1, wordBreak: 'break-word' }}>{stat.value}</div>
                   <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-primary)', marginTop: '10px' }}>{stat.label}</div>
                   <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>{stat.hint}</div>
                 </div>
               ))}
             </div>
+
+            {/* Before/after: un-tuned base → fine-tune, on the LLM-judge axes. */}
+            <div style={{ ...cardStyle, padding: 0, overflow: 'hidden', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '12px', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <span>metric</span>
+                <span style={{ textAlign: 'right' }}>base</span>
+                <span style={{ textAlign: 'right' }}>fine-tuned</span>
+              </div>
+              {[
+                { metric: 'Type correctness', base: '0.33', tuned: '0.81' },
+                { metric: 'Faithfulness', base: '0.43', tuned: '0.86' },
+                { metric: 'Completeness', base: '0.52', tuned: '0.73' },
+                { metric: 'Specificity', base: '0.81', tuned: '0.71' },
+                { metric: 'Type accuracy (deployment-reweighted)', base: '0.131', tuned: '0.637' },
+                { metric: 'Conjunctive pass-rate', base: '0.181', tuned: '0.471' },
+                { metric: 'Graded mean (0–3)', base: '1.207', tuned: '2.188' },
+              ].map((row, i, arr) => (
+                <div key={row.metric} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '12px', padding: '10px 16px', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', alignItems: 'center' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>{row.metric}</span>
+                  <span style={{ textAlign: 'right', color: 'var(--text-muted)' }}>{row.base}</span>
+                  <span style={{ textAlign: 'right', color: 'var(--accent)', fontWeight: 600 }}>{row.tuned}</span>
+                </div>
+              ))}
+            </div>
+
+            <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px', marginBottom: '1.25rem' }}>
+              The base model&apos;s dominant failure mode was &ldquo;feat-collapse&rdquo;: it labeled
+              roughly 95% of all diffs as <code style={inlineCode}>feat</code>, regardless of what the
+              change actually did. Because <code style={inlineCode}>fix</code> commits alone make up about
+              49% of real-world commits, a model that almost never predicts{' '}
+              <code style={inlineCode}>fix</code> scores worse on type than a trivial
+              always-guess-<code style={inlineCode}>fix</code> baseline (0.489) — and the un-tuned base,
+              at 0.131, did exactly that. Fine-tuning broke the collapse and lifted type accuracy well
+              above the trivial floor.
+            </p>
+
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.75, maxWidth: '700px', marginBottom: '1.25rem' }}>
+              One axis regressed: specificity dropped from 0.81 to 0.71. The fine-tune learned the terse,
+              normalized subject style of the training targets so well that it sometimes produces messages
+              slightly more generic than the base model&apos;s wordier output. It&apos;s a real trade-off,
+              traceable to a normalization choice in the training data, and the next training iteration
+              targets it directly. I report it because a portfolio that only shows the wins isn&apos;t an
+              honest evaluation.
+            </p>
+
+            <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px' }}>
+              An LLM judge is only trustworthy if it agrees with a human. I hand-rated 50 examples blind
+              and measured the judge against them: raw agreement ran 0.68–0.84 across the four axes
+              (Cohen&apos;s κ 0.25–0.54), strongest on completeness. That&apos;s a fair-to-moderate proxy —
+              good enough to trust for relative comparisons, with the honest caveat that n=50 gives wide
+              confidence intervals.
+            </p>
           </motion.div>
         </div>
       </section>
@@ -97,17 +156,39 @@ export default function StorySections() {
         <div style={innerStyle}>
           <SectionHeading>sample outputs</SectionHeading>
           <motion.div {...reveal} style={{ display: 'grid', gap: '1rem' }}>
-            <span style={{ ...placeholderTag, alignSelf: 'flex-start' }}>placeholder pairs</span>
             {[
-              { file: 'src/auth/session.ts', msg: 'feat(auth): expire idle sessions after 30m' },
-              { file: 'lib/parser.py', msg: 'fix(parser): handle empty input without raising' },
+              {
+                language: 'Python',
+                diff: `@@ -1639,7 +1639,7 @@ def moveaxis(a, source, destination):
+ >>> np.transpose(x).shape
+ (5, 4, 3)
+->>> np.swapaxis(x, 0, -1).shape
++>>> np.swapaxes(x, 0, -1).shape
+ (5, 4, 3)
+ >>> np.moveaxis(x, [0, 1], [-1, -2]).shape
+ (5, 4, 3)`,
+                msg: 'docs: Fix typo in np.swapaxis docstring',
+              },
+              {
+                language: 'C#',
+                diff: `@@ -20,13 +20,17 @@ public partial class RestClient {
+ /// <param name="request">Request to be executed</param>
+-public RestResponse Execute(RestRequest request) => AsyncHelpers.RunSync(() => ExecuteAsync(request));
++/// <param name="cancellationToken">The cancellation token</param>
++public RestResponse Execute(RestRequest request, CancellationToken cancellationToken = default)
++    => AsyncHelpers.RunSync(() => ExecuteAsync(request, cancellationToken));`,
+                msg: 'feat(RestClient): add support for cancellation tokens',
+              },
             ].map(pair => (
-              <div key={pair.file} style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
-                <div style={{ padding: '10px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-muted)' }}>
-                  {pair.file}
+              <div key={pair.msg} style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-muted)' }}>
+                  <span>input diff</span>
+                  <span>{pair.language}</span>
                 </div>
-                <div style={{ padding: '16px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', color: 'var(--text-primary)' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>$ </span>{pair.msg}
+                <pre style={{ margin: 0, padding: '16px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', lineHeight: 1.7, color: 'var(--text-secondary)', overflowX: 'auto', whiteSpace: 'pre' }}>{pair.diff}</pre>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px', padding: '14px 16px', borderTop: '1px solid var(--border)', background: 'rgba(var(--accent-rgb), 0.04)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', color: 'var(--text-primary)' }}>
+                  <span style={{ color: 'var(--accent)' }}>$ committed →</span>
+                  {pair.msg}
                 </div>
               </div>
             ))}
@@ -121,19 +202,22 @@ export default function StorySections() {
           <SectionHeading>run it locally</SectionHeading>
           <motion.div {...reveal}>
             <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '640px', marginBottom: '1.5rem' }}>
-              [placeholder] The model is small enough to run on your own machine — no diff leaves your laptop.
-              The human fills in the real install and usage steps.
+              Committed runs entirely on your machine — no API, no diff ever leaving your laptop.
+              Install it from the repo, pipe a diff in, and get a commit message back:
             </p>
             <div style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
               <div style={{ display: 'flex', gap: '6px', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
                 {['#e05252', '#e0b752', '#52e07a'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, opacity: 0.7 }} />)}
               </div>
               <pre style={{ margin: 0, padding: '16px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', lineHeight: 1.8, color: 'var(--text-secondary)', overflowX: 'auto' }}>
-{`# [placeholder commands]
-$ pip install committed        # or the real distribution
-$ git diff | committed         # prints a Conventional Commit subject`}
+{`pip install git+https://github.com/marzoukbaig14/Committed.git
+git diff | committed`}
               </pre>
             </div>
+            <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-muted)', lineHeight: 1.8, maxWidth: '640px', marginTop: '1.25rem' }}>
+              The model is a quantized GGUF served through llama.cpp on CPU; the first run downloads it
+              once (~1 GB), then it&apos;s fully offline. The hosted demo above runs the identical model.
+            </p>
           </motion.div>
         </div>
       </section>
@@ -144,18 +228,20 @@ $ git diff | committed         # prints a Conventional Commit subject`}
           <SectionHeading>built with</SectionHeading>
           <motion.div {...reveal}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '1.75rem' }}>
-              {/* [placeholder] representative stack — the human confirms the real list. */}
-              {['PyTorch', 'Transformers', 'LoRA / PEFT', 'Hugging Face', 'FastAPI', 'Next.js'].map(tag => (
+              {['Qwen3-1.7B', 'QLoRA / PEFT', 'llama.cpp', 'GBNF grammar', 'FastAPI', 'Docker', 'Hugging Face', 'Next.js'].map(tag => (
                 <span key={tag} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', padding: '4px 12px', borderRadius: '20px', background: 'var(--accent-muted)', color: 'var(--accent)', border: '1px solid rgba(var(--accent-rgb), 0.2)' }}>{tag}</span>
               ))}
             </div>
-            {/* Inert placeholder links — rendered as chips, not anchors, so no
-                fabricated URLs ship. The human swaps these for real hrefs. */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-              {['GitHub repo', 'Model card', 'Write-up'].map(label => (
-                <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', padding: '8px 16px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px dashed var(--border)', color: 'var(--text-muted)' }}>
-                  {label} <span style={{ fontSize: '10px' }}>(link TBD)</span>
-                </span>
+              {[
+                { label: 'GitHub repo', href: 'https://github.com/marzoukbaig14/Committed' },
+                { label: 'Model card (adapter)', href: 'https://huggingface.co/marzoukbaig14/committed-qwen3-1.7b-lora' },
+                { label: 'Model card (GGUF)', href: 'https://huggingface.co/marzoukbaig14/committed-gguf' },
+              ].map(link => (
+                <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', padding: '8px 16px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'border-color 0.2s, color 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                >{link.label} <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>↗</span></a>
               ))}
             </div>
           </motion.div>

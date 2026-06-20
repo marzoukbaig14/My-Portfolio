@@ -57,7 +57,7 @@ export default function CommittedHeader() {
       </div>
 
       <style>{`
-        @media (max-width: 640px) { .committed-nav-links { display: none !important; } }
+        @media (max-width: 768px) { .committed-nav-links { display: none !important; } }
       `}</style>
     </nav>
   );

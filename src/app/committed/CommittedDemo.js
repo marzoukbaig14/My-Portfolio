@@ -5,7 +5,7 @@ import { examples } from './examples';
 import { generateMessage, pingHealth, usingMock } from './api';
 
 // Tunables — the human can adjust these once the real model/limits are known.
-const COLD_START_HINT_MS = 10000;  // only on a not-yet-warm call, and only after this long with no reply, do we show the "waking" copy
+const COLD_START_HINT_MS = 5000;   // only on a not-yet-warm (first) call, and only after this long with no reply, do we show the "waking" copy
 const REQUEST_TIMEOUT_MS = 90_000; // give a cold Space room to wake before giving up
 const MAX_DIFF_CHARS = 6000;       // rough proxy for the training token cap (single-file diffs)
 const TYPE_SPEED_MS = 16;          // typewriter reveal speed, per character

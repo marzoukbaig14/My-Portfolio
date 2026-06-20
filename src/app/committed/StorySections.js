@@ -167,6 +167,7 @@ export default function StorySections() {
  (5, 4, 3)
  >>> np.moveaxis(x, [0, 1], [-1, -2]).shape
  (5, 4, 3)`,
+                base: 'feat(additional-function): Add `swapaxes` function with same behavior as `swapaxis` but using `swapaxes` notation. 📦',
                 msg: 'docs: Fix typo in np.swapaxis docstring',
               },
               {
@@ -177,6 +178,7 @@ export default function StorySections() {
 +/// <param name="cancellationToken">The cancellation token</param>
 +public RestResponse Execute(RestRequest request, CancellationToken cancellationToken = default)
 +    => AsyncHelpers.RunSync(() => ExecuteAsync(request, cancellationToken));`,
+                base: 'feat(adds-parameter): Adds a `CancellationToken` parameter to `Execute` and `DownloadStream` methods, allowing for cancellation support. 📦',
                 msg: 'feat(RestClient): add support for cancellation tokens',
               },
             ].map(pair => (
@@ -186,9 +188,15 @@ export default function StorySections() {
                   <span>{pair.language}</span>
                 </div>
                 <pre style={{ margin: 0, padding: '16px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', lineHeight: 1.7, color: 'var(--text-secondary)', overflowX: 'auto', whiteSpace: 'pre' }}>{pair.diff}</pre>
-                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px', padding: '14px 16px', borderTop: '1px solid var(--border)', background: 'rgba(var(--accent-rgb), 0.04)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', color: 'var(--text-primary)' }}>
-                  <span style={{ color: 'var(--accent)' }}>$ committed →</span>
-                  {pair.msg}
+                {/* Base (un-tuned) output — de-emphasized; raw, incl. the feat-collapse mislabel. */}
+                <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '10px', padding: '12px 16px', borderTop: '1px solid var(--border)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', lineHeight: 1.6 }}>
+                  <span style={{ flexShrink: 0, color: 'var(--text-muted)' }}>base Qwen3-1.7B →</span>
+                  <span style={{ color: 'var(--text-muted)' }}>{pair.base}</span>
+                </div>
+                {/* Fine-tune output — emphasized; what Committed produces. */}
+                <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '10px', padding: '12px 16px', borderTop: '1px solid var(--border)', background: 'rgba(var(--accent-rgb), 0.06)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', lineHeight: 1.6 }}>
+                  <span style={{ flexShrink: 0, color: 'var(--accent)', fontWeight: 600 }}>committed →</span>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{pair.msg}</span>
                 </div>
               </div>
             ))}

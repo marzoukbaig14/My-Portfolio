@@ -7,13 +7,13 @@ import Cursor from '../components/Cursor.js';
 import ScrollProgress from '../components/ScrollProgress.js';
 import { notFound } from 'next/navigation';
 
-// noindex: this page is not public yet. The contract says don't publicize
-// until the fine-tune is ready, so we keep it out of search indexes even on
-// the Vercel preview. Remove this when the human is ready to launch.
+// Indexable: the fine-tune is launched and the page content is final, so we
+// let search engines crawl it. (The route is still build-gated by
+// NEXT_PUBLIC_COMMITTED_ENABLED — that's separate from this robots metadata.)
 export const metadata = {
   title: 'Committed — live demo',
   description: 'A small fine-tuned model that writes Conventional Commit messages from code diffs.',
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
 };
 
 export default function CommittedPage() {

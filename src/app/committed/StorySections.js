@@ -128,7 +128,7 @@ export default function StorySections() {
               <div style={{ display: 'flex', gap: '6px', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
                 {['#e05252', '#e0b752', '#52e07a'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, opacity: 0.7 }} />)}
               </div>
-              <pre style={{ margin: 0, padding: '16px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', lineHeight: 1.8, color: 'var(--text-secondary)', overflowX: 'auto' }}>
+              <pre style={{ margin: 0, padding: '16px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', lineHeight: 1.8, color: 'var(--text-secondary)', overflowX: 'auto' }}>
 {`# [placeholder commands]
 $ pip install committed        # or the real distribution
 $ git diff | committed         # prints a Conventional Commit subject`}

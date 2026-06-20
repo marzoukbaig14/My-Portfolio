@@ -245,6 +245,7 @@ git diff | committed`}
                 { label: 'GitHub repo', href: 'https://github.com/marzoukbaig14/Committed' },
                 { label: 'Model card (adapter)', href: 'https://huggingface.co/marzoukbaig14/committed-qwen3-1.7b-lora' },
                 { label: 'Model card (GGUF)', href: 'https://huggingface.co/marzoukbaig14/committed-gguf' },
+                { label: 'Dataset', href: 'https://huggingface.co/datasets/marzoukbaig14/committed-train' },
               ].map(link => (
                 <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', padding: '8px 16px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'border-color 0.2s, color 0.2s' }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}

@@ -1,0 +1,3 @@
+# Normalize line endings: store LF in the repo, check out native locally.
+# Stops the LF<->CRLF churn/warnings on shared Windows/macOS machines.
+* text=auto eol=lf

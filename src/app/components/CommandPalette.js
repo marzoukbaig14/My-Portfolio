@@ -57,7 +57,7 @@ export default function CommandPalette() {
   const handleSelect = (item) => {
     setOpen(false);
     if (item.external) {
-      window.open(item.href, '_blank');
+      window.open(item.href, '_blank', 'noopener,noreferrer');
     } else {
       document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' });
     }

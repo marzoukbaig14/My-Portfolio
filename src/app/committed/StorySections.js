@@ -1,5 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
+import { CodeBlock } from '../components/CodeHighlight';
 
 // Story sections beneath the tool: how it works, results (with the real eval
 // numbers and the honest specificity regression), sample outputs, run-it-locally,
@@ -187,7 +188,7 @@ export default function StorySections() {
                   <span>input diff</span>
                   <span>{pair.language}</span>
                 </div>
-                <pre style={{ margin: 0, padding: '16px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', lineHeight: 1.7, color: 'var(--text-secondary)', overflowX: 'auto', whiteSpace: 'pre' }}>{pair.diff}</pre>
+                <CodeBlock code={pair.diff} lang={pair.language === 'C#' ? 'csharp' : 'python'} diff style={{ fontSize: '13px', lineHeight: 1.7 }} />
                 {/* Base (un-tuned) output: de-emphasized; raw, incl. the feat-collapse mislabel. */}
                 <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '10px', padding: '12px 16px', borderTop: '1px solid var(--border)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', lineHeight: 1.6 }}>
                   <span style={{ flexShrink: 0, color: 'var(--text-muted)' }}>base Qwen3-1.7B →</span>
@@ -217,10 +218,12 @@ export default function StorySections() {
               <div style={{ display: 'flex', gap: '6px', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
                 {['#e05252', '#e0b752', '#52e07a'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, opacity: 0.7 }} />)}
               </div>
-              <pre style={{ margin: 0, padding: '16px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', lineHeight: 1.8, color: 'var(--text-secondary)', overflowX: 'auto' }}>
-{`pip install git+https://github.com/marzoukbaig14/Committed.git
+              <CodeBlock
+                code={`pip install git+https://github.com/marzoukbaig14/Committed.git
 git diff | committed`}
-              </pre>
+                lang="shell"
+                style={{ fontSize: '14px', lineHeight: 1.8 }}
+              />
             </div>
             <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-muted)', lineHeight: 1.8, maxWidth: '640px', marginTop: '1.25rem' }}>
               The model is a quantized GGUF served through llama.cpp on CPU; the first run downloads it

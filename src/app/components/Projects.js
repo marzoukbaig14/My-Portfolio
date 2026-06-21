@@ -2,6 +2,7 @@
 import { useRef } from 'react';
 import Link from 'next/link';
 import { projects } from '@/data/projects';
+import { CommandLine } from './CodeHighlight';
 
 function ProjectImage({ command = '$ python train.py' }) {
   return (
@@ -12,7 +13,7 @@ function ProjectImage({ command = '$ python train.py' }) {
         ))}
       </div>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'rgba(var(--accent-rgb), 0.5)' }}>{command}</span>
+        <CommandLine text={command} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px' }} />
       </div>
     </div>
   );

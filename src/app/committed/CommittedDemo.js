@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { examples } from './examples';
 import { generateMessage, pingHealth, usingMock } from './api';
+import { HighlightedDiffInput } from '../components/CodeHighlight';
 
 // Tunables: the human can adjust these once the real model/limits are known.
 const HEALTH_TIMEOUT_MS = 4000;    // a slow/hanging /health ping means the Space is cold or asleep
@@ -225,38 +226,14 @@ export default function CommittedDemo() {
             </div>
           </div>
 
-          {/* Diff input */}
-          {/* data-lenis-prevent opts this element out of the Lenis smooth-scroll
-              wheel hijack, so the mouse wheel scrolls the textarea's own content
-              (a long diff) instead of the page. */}
-          <textarea
+          {/* Diff input: live syntax highlighting via a transparent textarea
+              layered over a highlighted overlay (see HighlightedDiffInput). */}
+          <HighlightedDiffInput
             value={diff}
             onChange={e => setDiff(e.target.value)}
             placeholder={'Paste a single-file diff here, or pick an example above…\n\n@@ -1,3 +1,4 @@'}
-            spellCheck={false}
-            aria-label="Code diff input"
             rows={12}
-            data-lenis-prevent
-            style={{
-              width: '100%',
-              background: 'var(--bg-primary)',
-              border: '1px solid var(--border)',
-              borderRadius: '10px',
-              padding: '14px 16px',
-              color: 'var(--text-primary)',
-              fontFamily: 'var(--font-geist-mono), monospace',
-              fontSize: '13px',
-              lineHeight: 1.6,
-              outline: 'none',
-              resize: 'vertical',
-              transition: 'border-color 0.2s',
-              whiteSpace: 'pre',
-              overflowWrap: 'normal',
-              overflowX: 'auto',
-              overflowY: 'auto',
-            }}
-            onFocus={e => e.currentTarget.style.borderColor = 'var(--accent)'}
-            onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
+            ariaLabel="Code diff input"
           />
 
           {/* Input meta: char count + gentle nudges */}

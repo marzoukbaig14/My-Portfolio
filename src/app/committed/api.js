@@ -21,10 +21,6 @@ const endpoints = usingMock
   ? { generate: '/api/committed-mock/generate', health: '/api/committed-mock/health' }
   : { generate: `${BASE}/generate`, health: `${BASE}/health` };
 
-export function getEndpoints() {
-  return endpoints;
-}
-
 // Readiness check. Returns { ok, modelLoaded }:
 //   ok          : the Space answered 200 (liveness, unchanged contract).
 //   modelLoaded : the model is actually in the container's memory (readiness).

@@ -10,6 +10,8 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // Build output and deps are not ours to lint.
+  { ignores: [".next/**", "out/**", "node_modules/**"] },
   ...compat.extends("next/core-web-vitals"),
   {
     rules: {

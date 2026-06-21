@@ -15,7 +15,7 @@ export default function ScrollProgress() {
   }, []);
 
   return (
-    <div style={{
+    <div aria-hidden="true" style={{
       position: 'fixed',
       top: 0,
       left: 0,

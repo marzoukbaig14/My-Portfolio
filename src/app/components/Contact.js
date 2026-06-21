@@ -68,6 +68,7 @@ export default function Contact() {
                     type="text"
                     name="name"
                     placeholder="Your name"
+                    aria-label="Your name"
                     required
                     style={inputStyle('name')}
                     onFocus={() => setFocused('name')}
@@ -80,6 +81,7 @@ export default function Contact() {
                     type="email"
                     name="email"
                     placeholder="Your email"
+                    aria-label="Your email"
                     required
                     style={inputStyle('email')}
                     onFocus={() => setFocused('email')}
@@ -92,6 +94,7 @@ export default function Contact() {
                     id="message"
                     name="message"
                     placeholder="Your message"
+                    aria-label="Your message"
                     required
                     rows={5}
                     style={inputStyle('message')}

@@ -18,6 +18,7 @@ export default function CommandPalette() {
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef(null);
   const overlayRef = useRef(null);
+  const restoreRef = useRef(null);
 
   const filtered = commands.filter(c =>
     c.label.toLowerCase().includes(query.toLowerCase())
@@ -42,9 +43,14 @@ export default function CommandPalette() {
 
   useEffect(() => {
     if (open) {
+      // Remember what had focus so we can hand it back when the palette closes.
+      restoreRef.current = document.activeElement;
       inputRef.current?.focus();
       setQuery('');
       setActiveIndex(0);
+    } else if (restoreRef.current) {
+      restoreRef.current.focus?.();
+      restoreRef.current = null;
     }
   }, [open]);
 
@@ -68,7 +74,11 @@ export default function CommandPalette() {
   return (
     <div
       ref={overlayRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Command menu"
       onClick={(e) => { if (e.target === overlayRef.current) setOpen(false); }}
+      onKeyDown={(e) => { if (e.key === 'Tab') { e.preventDefault(); inputRef.current?.focus(); } }}
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)', zIndex: 1000, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 'clamp(80px, 15vh, 180px)' }}
     >
       <div style={{ width: '100%', maxWidth: '540px', margin: '0 1rem', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.6)' }}>
@@ -81,6 +91,7 @@ export default function CommandPalette() {
             onChange={e => { setQuery(e.target.value); setActiveIndex(0); }}
             onKeyDown={handleKeyDown}
             placeholder="Search or navigate..."
+            aria-label="Search commands and navigation"
             style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-primary)', fontSize: '15px', fontFamily: 'var(--font-geist-mono), monospace' }}
           />
           <span style={{ fontSize: '11px', color: 'var(--text-muted)', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '4px', padding: '2px 8px', fontFamily: 'monospace' }}>esc</span>

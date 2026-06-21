@@ -17,6 +17,14 @@ export default function SmoothScroll() {
     }
     requestAnimationFrame(raf);
 
+    // This component remounts on every client-side route change, and a fresh
+    // Lenis instance inherits the previous route's window scroll position. On a
+    // long page like /committed that means the page can open scrolled partway
+    // down. Snap to the top on mount, unless the URL targets an anchor.
+    if (!window.location.hash) {
+      lenis.scrollTo(0, { immediate: true });
+    }
+
     const handleAnchorClick = (e) => {
       const href = e.target.closest('a')?.getAttribute('href');
       if (href?.startsWith('#')) {

@@ -3,15 +3,14 @@ import CommittedHeader from './CommittedHeader.js';
 import CommittedDemo from './CommittedDemo.js';
 import StorySections from './StorySections.js';
 import SmoothScroll from '../components/SmoothScroll.js';
-import Cursor from '../components/Cursor.js';
 import ScrollProgress from '../components/ScrollProgress.js';
 import { notFound } from 'next/navigation';
 
 // Indexable: the fine-tune is launched and the page content is final, so we
 // let search engines crawl it. (The route is still build-gated by
-// NEXT_PUBLIC_COMMITTED_ENABLED — that's separate from this robots metadata.)
+// NEXT_PUBLIC_COMMITTED_ENABLED, which is separate from this robots metadata.)
 export const metadata = {
-  title: 'Committed — live demo',
+  title: 'Committed: live demo',
   description: 'A small fine-tuned model that writes Conventional Commit messages from code diffs.',
   robots: { index: true, follow: true },
 };
@@ -28,7 +27,6 @@ export default function CommittedPage() {
     <>
       <CommittedBackground />
       <SmoothScroll />
-      <Cursor />
       <ScrollProgress />
       <CommittedHeader />
 
@@ -47,8 +45,8 @@ export default function CommittedPage() {
               Conventional Commit messages from your code diffs.
             </p>
             <p style={{ fontSize: 'clamp(14px, 1.7vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '620px' }}>
-              An end-to-end machine learning system — data curation, fine-tuning, evaluation, and
-              serving — built to turn a code diff into a clean Conventional Commit message. It runs
+              An end-to-end machine learning system (data curation, fine-tuning, evaluation, and
+              serving) built to turn a code diff into a clean Conventional Commit message. It runs
               locally on a quantized 1.7B model, so your diffs never leave your machine. Paste a diff
               below, or try one of the examples, and Committed writes the commit subject for you.
             </p>

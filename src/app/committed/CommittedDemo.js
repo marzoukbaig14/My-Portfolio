@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { examples } from './examples';
 import { generateMessage, pingHealth, usingMock } from './api';
 
-// Tunables — the human can adjust these once the real model/limits are known.
+// Tunables: the human can adjust these once the real model/limits are known.
 const HEALTH_TIMEOUT_MS = 4000;    // a slow/hanging /health ping means the Space is cold or asleep
 const HEALTH_COLD_POLL_MS = 5000;  // while cold, re-check often to catch the wake-up (and nudge it awake)
 const HEALTH_WARM_POLL_MS = 20_000;// while warm, re-check lazily in case the Space dozes off
@@ -13,7 +13,7 @@ const MAX_DIFF_CHARS = 6000;       // rough proxy for the training token cap (si
 const TYPE_SPEED_MS = 16;          // typewriter reveal speed, per character
 
 // Conventional Commit subject grammar: type(scope)!: subject
-// We use this twice — to render the "well-formed" badge and to highlight the
+// We use this twice, to render the "well-formed" badge and to highlight the
 // type/scope. A match means the syntax is valid; it does NOT mean the type is
 // the right call. We never claim more than "well-formed".
 const CC_RE = /^([a-z]+)(\(([^)]+)\))?(!)?:\s(.+)$/i;
@@ -54,8 +54,8 @@ export default function CommittedDemo() {
     return () => mq.removeEventListener('change', onChange);
   }, []);
 
-  // Read the model's real readiness from /health and keep it current. This —
-  // not request latency — is what decides whether we show the "waking up"
+  // Read the model's real readiness from /health and keep it current. This,
+  // not request latency, is what decides whether we show the "waking up"
   // notice. A fast 200 with model_loaded:true is warm; anything else (slow,
   // failing, asleep, or model_loaded:false) is cold. Polling also nudges an
   // asleep Space awake: fast while cold to catch the wake-up, lazy once warm.
@@ -133,12 +133,12 @@ export default function CommittedDemo() {
       runTypewriter(message);
     } catch (err) {
       if (controller.signal.aborted) {
-        setErrorMsg('The model took too long to respond. It may still be waking up — try again in a moment.');
+        setErrorMsg('The model took too long to respond. It may still be waking up. Try again in a moment.');
       } else {
         // Prefer the backend's own message (surfaced by generateMessage on a
         // non-2xx); fall back to a generic line for true network/CORS failures.
         setErrorMsg(err?.message || 'Could not reach the model. Please try again.');
-        // A 4xx means the input itself was rejected (e.g. not a diff) — nudge
+        // A 4xx means the input itself was rejected (e.g. not a diff), so nudge
         // toward the ready-made examples. Network/5xx errors get no such hint.
         if (err?.status >= 400 && err?.status < 500) setSuggestExamples(true);
       }
@@ -195,7 +195,7 @@ export default function CommittedDemo() {
           <div style={{ display: 'flex', gap: '6px' }}>
             {dotColors.map(c => <div key={c} style={{ width: '11px', height: '11px', borderRadius: '50%', background: c, opacity: 0.7 }} />)}
           </div>
-          <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-muted)', marginLeft: '4px' }}>committed — generate</span>
+          <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-muted)', marginLeft: '4px' }}>committed - generate</span>
           {/* Connection indicator: honest about whether we're on the mock or a live backend. */}
           <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)' }}>
             <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: warm ? '#22c55e' : 'var(--text-muted)', boxShadow: warm ? '0 0 6px #22c55e' : 'none' }} />
@@ -208,7 +208,7 @@ export default function CommittedDemo() {
           {/* Example chips */}
           <div style={{ marginBottom: '1rem' }}>
             <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px' }}>
-              {/* PLACEHOLDER examples — the human curates the real ones from the test split. */}
+              {/* PLACEHOLDER examples: the human curates the real ones from the test split. */}
               try an example
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -226,6 +226,9 @@ export default function CommittedDemo() {
           </div>
 
           {/* Diff input */}
+          {/* data-lenis-prevent opts this element out of the Lenis smooth-scroll
+              wheel hijack, so the mouse wheel scrolls the textarea's own content
+              (a long diff) instead of the page. */}
           <textarea
             value={diff}
             onChange={e => setDiff(e.target.value)}
@@ -233,6 +236,7 @@ export default function CommittedDemo() {
             spellCheck={false}
             aria-label="Code diff input"
             rows={12}
+            data-lenis-prevent
             style={{
               width: '100%',
               background: 'var(--bg-primary)',
@@ -249,6 +253,7 @@ export default function CommittedDemo() {
               whiteSpace: 'pre',
               overflowWrap: 'normal',
               overflowX: 'auto',
+              overflowY: 'auto',
             }}
             onFocus={e => e.currentTarget.style.borderColor = 'var(--accent)'}
             onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
@@ -258,8 +263,8 @@ export default function CommittedDemo() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginTop: '10px', minHeight: '20px' }}>
             <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: tooLong ? '#e0b752' : 'var(--text-muted)' }}>
               {diff.length.toLocaleString()} chars
-              {tooMany && <span style={{ color: '#e0b752', marginLeft: '12px' }}>· multiple files detected — Committed was trained on single-file diffs</span>}
-              {tooLong && <span style={{ color: '#e0b752', marginLeft: '12px' }}>· long input — the model only saw diffs under its token cap</span>}
+              {tooMany && <span style={{ color: '#e0b752', marginLeft: '12px' }}>· multiple files detected: Committed was trained on single-file diffs</span>}
+              {tooLong && <span style={{ color: '#e0b752', marginLeft: '12px' }}>· long input: the model only saw diffs under its token cap</span>}
             </div>
 
             <button
@@ -305,7 +310,7 @@ export default function CommittedDemo() {
               {status === 'generating' && (
                 <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', color: 'var(--text-secondary)' }}>
                   {coldStart
-                    ? <span>waking the model — first run can take ~30–60s{blinkCursor}</span>
+                    ? <span>waking the model, first run can take ~30–60s{blinkCursor}</span>
                     : <span>generating…{blinkCursor}</span>}
                 </div>
               )}
@@ -340,10 +345,10 @@ export default function CommittedDemo() {
             </motion.div>
           )}
 
-          {/* Privacy line — honest about the network round-trip vs. the offline model. */}
+          {/* Privacy line: honest about the network round-trip vs. the offline model. */}
           <p style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.7, marginTop: '1.25rem' }}>
             This hosted demo sends your diff over the network to the model Space to generate a message.
-            The model itself is small and runs fully offline — if you would rather not send code anywhere,{' '}
+            The model itself is small and runs fully offline. If you would rather not send code anywhere,{' '}
             <a href="#run-locally" style={{ color: 'var(--accent)', textDecoration: 'none' }}>run it locally</a>.
           </p>
         </div>

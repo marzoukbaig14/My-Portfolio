@@ -26,6 +26,10 @@ endpoints, two JSON shapes). It never imports backend code. That decoupling is
 what lets the frontend run against a local mock when the Space is asleep or not
 yet deployed.
 
+The frontend is **TypeScript (strict mode)**. React components are `.tsx`,
+framework-free logic is `.ts`, and shared data shapes are expressed as
+interfaces (see "Types" below).
+
 ---
 
 ## 1. The frontend repo (what lives here)
@@ -33,52 +37,66 @@ yet deployed.
 ```
 my-portfolio/
 ├─ src/app/
-│  ├─ layout.js              Root layout: fonts, <html>, global metadata
+│  ├─ layout.tsx             Root layout: fonts, <html>, global metadata, JSON-LD
 │  ├─ globals.css            Design tokens (CSS vars: --accent, --bg-*, etc.)
-│  ├─ page.js                HOME PAGE — composes the sections below
+│  ├─ page.tsx               HOME PAGE — composes the sections below
+│  ├─ robots.ts  sitemap.ts  SEO route handlers
+│  ├─ opengraph-image.tsx    Code-generated 1200x630 social card (twitter-image reuses it)
 │  │
 │  ├─ components/            Home-page building blocks (all 'use client')
-│  │  ├─ Hero.js             Typewriter intro
-│  │  ├─ About.js            ┐ read their text from src/data/* (not hardcoded)
-│  │  ├─ Experience.js       │
-│  │  ├─ Projects.js         ┘ renders project cards (incl. the Committed card)
-│  │  ├─ Contact.js          Formspree form
-│  │  ├─ Navbar.js           Fixed nav + Cmd-K trigger
-│  │  ├─ CommandPalette.js   Cmd-K overlay
-│  │  ├─ NeuralBackground.js Canvas node-graph (shared by home + /committed)
-│  │  ├─ SmoothScroll.js     Lenis wrapper (resets scroll to top on route mount)
-│  │  ├─ ScrollProgress.js   Top progress bar
-│  │  ├─ CodeHighlight.js    [*] Renders highlighted code (maps tokens to colors)
-│  │  └─ highlightTokens.js  [*] PURE tokenizer (no React) — unit-tested
+│  │  ├─ Hero.tsx            Typewriter intro
+│  │  ├─ About.tsx           ┐ read their text from src/data/* (not hardcoded)
+│  │  ├─ Experience.tsx      │
+│  │  ├─ Projects.tsx        ┘ renders project cards (incl. the Committed card)
+│  │  ├─ Contact.tsx         Formspree form
+│  │  ├─ Navbar.tsx          Fixed nav + Cmd-K trigger
+│  │  ├─ CommandPalette.tsx  Cmd-K overlay
+│  │  ├─ NeuralBackground.tsx Canvas node-graph (shared by home + /committed)
+│  │  ├─ SmoothScroll.tsx    Lenis wrapper (resets scroll to top on route mount)
+│  │  ├─ ScrollProgress.tsx  Top progress bar
+│  │  ├─ CodeHighlight.tsx   [*] Renders highlighted code (maps tokens to colors)
+│  │  └─ highlightTokens.ts  [*] PURE tokenizer + token types (no React) — unit-tested
 │  │
 │  ├─ committed/             THE /committed ROUTE (the demo)
-│  │  ├─ page.js             Route entry + 404 gate + intro copy
-│  │  ├─ CommittedHeader.js  Sub-page nav
-│  │  ├─ CommittedDemo.js    [*] The interactive tool (state machine)
-│  │  ├─ CommittedBackground.js  Lazy-loads NeuralBackground
-│  │  ├─ StorySections.js    How-it-works / results / samples / run-locally
-│  │  ├─ examples.js         The example diffs loaded by the chips
-│  │  ├─ api.js              [*] CLIENT-SIDE API WRAPPER (talks to system #2)
-│  │  └─ cc.js               [*] Conventional-Commit helpers — unit-tested
+│  │  ├─ page.tsx            Route entry + 404 gate + intro copy
+│  │  ├─ CommittedHeader.tsx Sub-page nav
+│  │  ├─ CommittedDemo.tsx   [*] The interactive tool (state machine)
+│  │  ├─ CommittedBackground.tsx  Lazy-loads NeuralBackground
+│  │  ├─ StorySections.tsx   How-it-works / results / samples / run-locally
+│  │  ├─ examples.ts         The example diffs loaded by the chips
+│  │  ├─ api.ts              [*] CLIENT-SIDE API WRAPPER (talks to system #2)
+│  │  └─ cc.ts               [*] Conventional-Commit helpers — unit-tested
 │  │
 │  └─ api/committed-mock/    LOCAL FALLBACK BACKEND (same shapes as the Space)
-│     ├─ generate/route.js   POST mock: heuristic commit message
-│     └─ health/route.js     GET mock: always {status:'ok', model_loaded:true}
+│     ├─ generate/route.ts   POST mock: heuristic commit message
+│     └─ health/route.ts     GET mock: always {status:'ok', model_loaded:true}
 │
-├─ src/data/                 CONTENT (data, not code — easy to edit)
-│  ├─ profile.js   projects.js   experience.js
+├─ src/data/                 CONTENT (typed data, not code — easy to edit)
+│  ├─ profile.ts   projects.ts   experience.ts   (each exports an interface)
+├─ src/lib/site.ts           Canonical site URL (env-resolved) for metadata/sitemap
 │
 ├─ tests/                    Vitest (Node) + components (jsdom)
+├─ tsconfig.json             TypeScript config (strict)
 ├─ .env.production           NEXT_PUBLIC_COMMITTED_* (committed; public-only)
 └─ next.config / eslint / vitest configs
 ```
 
 `[*]` marks the files most worth reading to understand the demo:
-[CodeHighlight.js](src/app/components/CodeHighlight.js),
-[highlightTokens.js](src/app/components/highlightTokens.js),
-[CommittedDemo.js](src/app/committed/CommittedDemo.js),
-[api.js](src/app/committed/api.js),
-[cc.js](src/app/committed/cc.js).
+[CodeHighlight.tsx](src/app/components/CodeHighlight.tsx),
+[highlightTokens.ts](src/app/components/highlightTokens.ts),
+[CommittedDemo.tsx](src/app/committed/CommittedDemo.tsx),
+[api.ts](src/app/committed/api.ts),
+[cc.ts](src/app/committed/cc.ts).
+
+### Types (where the contracts live)
+
+- **Token model** in [highlightTokens.ts](src/app/components/highlightTokens.ts):
+  `CodeToken`, `ShellToken`, `DiffLine`, `ShellLine`, `Comment`. The pure
+  tokenizers return these; `CodeHighlight.tsx` maps token `type` to colors.
+- **Data shapes** in `src/data/*`: `Project`, `Profile`, `Job`. A malformed
+  entry (e.g. a bad `tier`) fails at build, not at runtime.
+- **API shapes** in [api.ts](src/app/committed/api.ts): `HealthStatus` and
+  `ApiError` (an `Error` that carries the HTTP `status`).
 
 ---
 
@@ -86,13 +104,13 @@ my-portfolio/
 
 ```
 You type in the diff box
-   │  (CommittedDemo.js holds `diff` in React state; the box is
+   │  (CommittedDemo.tsx holds `diff` in React state; the box is
    │   HighlightedDiffInput — a transparent textarea over a highlighted <pre>)
    ▼
-Click "Generate"  → handleGenerate()                         [CommittedDemo.js]
+Click "Generate"  → handleGenerate()                         [CommittedDemo.tsx]
    │  sets status='generating', starts a 90s AbortController timeout
    ▼
-generateMessage(diff, signal)                                [committed/api.js]
+generateMessage(diff, signal)                                [committed/api.ts]
    │  fetch(endpoints.generate, { POST, body: {diff} })
    │
    │  endpoints is decided ONCE at module load:
@@ -100,15 +118,15 @@ generateMessage(diff, signal)                                [committed/api.js]
    │    unset?                              ──▶ `/api/committed-mock/generate`
    ▼
 ┌── Real Space (system #2) ───────────┐  OR  ┌── Local mock (in this repo) ───┐
-│ FastAPI receives {diff}             │      │ route.js: buildMessage(diff)    │
+│ FastAPI receives {diff}             │      │ route.ts: buildMessage(diff)    │
 │ llama.cpp runs Qwen3-1.7B (GGUF)    │      │ a heuristic (ext→type, signals  │
 │ GBNF grammar forces valid CC syntax │      │ →subject). Not a model.         │
 │ returns { message: "feat: ..." }    │      │ returns { message }             │
 └─────────────────────────────────────┘      └─────────────────────────────────┘
    ▼
-Back in CommittedDemo.js:
+Back in CommittedDemo.tsx:
    • success → status='result', runTypewriter() reveals it char by char,
-               renderHighlighted() colors type/scope, isWellFormed() badge   [cc.js]
+               renderHighlighted() colors type/scope, isWellFormed() badge   [cc.ts]
    • 4xx     → shows the backend's own detail message + "try an example"
    • timeout/network → friendly "still waking up" message
 ```
@@ -116,13 +134,13 @@ Back in CommittedDemo.js:
 In parallel, a second loop polls health:
 
 ```
-useEffect → pingHealth(signal) every 5s (cold) / 20s (warm)   [committed/api.js]
+useEffect → pingHealth(signal) every 5s (cold) / 20s (warm)   [committed/api.ts]
    GET /health → { model_loaded } → drives the "connecting / ready" dot
    This is why a sleeping HF Space gets nudged awake and the UI knows.
 ```
 
 Key design idea: **readiness (`/health`), not latency, decides the "waking up"
-copy.** That is the `warm` / `coldStart` logic in `CommittedDemo.js`.
+copy.** That is the `warm` / `coldStart` logic in `CommittedDemo.tsx`.
 
 ---
 
@@ -132,9 +150,9 @@ One env var, `NEXT_PUBLIC_COMMITTED_ENABLED`, gates three things, all checking
 `=== 'true'`:
 
 ```
-page.js          → notFound() (404) if not enabled
-api/.../route.js → 404 if not enabled
-Projects.js      → hides the Committed card if not enabled
+page.tsx         → notFound() (404) if not enabled
+api/.../route.ts → 404 if not enabled
+Projects.tsx     → hides the Committed card if not enabled
 ```
 
 `NEXT_PUBLIC_` means it is inlined into the browser bundle at build time.
@@ -148,7 +166,7 @@ fine. A real secret must never go there.
 ## 4. The ML pipeline (system #3, external repo, documented on the site)
 
 This is the educational core. The frontend's
-[StorySections.js](src/app/committed/StorySections.js) documents it; the code
+[StorySections.tsx](src/app/committed/StorySections.tsx) documents it; the code
 lives in the separate `Committed` repo.
 
 ```
@@ -179,10 +197,10 @@ SERVE two ways (identical model):
 **Why the GBNF grammar matters:** llama.cpp with a grammar _constrains decoding_
 so the model can only emit tokens that form a valid `type(scope): subject`. That
 is how the demo guarantees well-formed output regardless of the model's
-confidence. The frontend's "well-formed" badge ([cc.js](src/app/committed/cc.js))
+confidence. The frontend's "well-formed" badge ([cc.ts](src/app/committed/cc.ts))
 is a client-side double-check of that same grammar.
 
-Artifacts (all linked from the "built with" section of `StorySections.js`):
+Artifacts (all linked from the "built with" section of `StorySections.tsx`):
 GitHub repo, LoRA adapter card, GGUF card, and dataset card on Hugging Face.
 
 ---
@@ -191,18 +209,19 @@ GitHub repo, LoRA adapter card, GGUF card, and dataset card on Hugging Face.
 
 ```
 tests/
-├─ highlightTokens.test.js   pure tokenizer (node)      ─┐
-├─ cc.test.js                CC helpers (node)            │ 30 logic tests
-├─ mockGenerate.test.js      mock classifier (node)       │ (fast, no DOM)
-├─ api.test.js               API wrapper, mocked fetch    ─┘
+├─ highlightTokens.test.ts   pure tokenizer (node)      ─┐
+├─ cc.test.ts                CC helpers (node)            │ 30 logic tests
+├─ mockGenerate.test.ts      mock classifier (node)       │ (fast, no DOM)
+├─ api.test.ts               API wrapper, mocked fetch    ─┘
 └─ components/               jsdom + Testing Library      ─┐ 7 render tests
-   ├─ CodeHighlight.test.jsx render → colored spans        │
-   └─ Projects.test.jsx      data → cards render          ─┘
+   ├─ CodeHighlight.test.tsx render → colored spans        │
+   └─ Projects.test.tsx      data → cards render          ─┘
 ```
 
 Run with `npm test`. The split (pure logic in Node, components in jsdom) is what
-keeps the suite fast. See [tests/](tests/) and
-[vitest.config.mjs](vitest.config.mjs).
+keeps the suite fast. Type-check with `npx tsc --noEmit`. See [tests/](tests/)
+and [vitest.config.mjs](vitest.config.mjs). CI runs lint + test + build on every
+push and PR (`.github/workflows/ci.yml`).
 
 ---
 
@@ -222,5 +241,5 @@ GET {BASE}/health
 
 `BASE` is `NEXT_PUBLIC_COMMITTED_API_URL`, or the same-origin
 `/api/committed-mock` when that variable is unset. Contract logic lives in
-[api.js](src/app/committed/api.js); the mock that mirrors it lives in
+[api.ts](src/app/committed/api.ts); the mock that mirrors it lives in
 [api/committed-mock/](src/app/api/committed-mock/).

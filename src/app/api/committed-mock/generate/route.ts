@@ -8,17 +8,17 @@
 export const dynamic = 'force-dynamic';
 
 // Map a file extension to a default Conventional Commit type.
-const TYPE_BY_EXT = {
+const TYPE_BY_EXT: Record<string, string> = {
   md: 'docs', mdx: 'docs', rst: 'docs', txt: 'docs',
   css: 'style', scss: 'style', less: 'style',
   json: 'chore', yml: 'chore', yaml: 'chore', toml: 'chore',
 };
 
-export function parseDiff(diff) {
+export function parseDiff(diff: string) {
   const pathMatch = diff.match(/\+\+\+ b\/(\S+)/) || diff.match(/diff --git a\/\S+ b\/(\S+)/);
   const path = pathMatch ? pathMatch[1] : '';
   const file = path.split('/').pop() || '';
-  const ext = file.includes('.') ? file.split('.').pop().toLowerCase() : '';
+  const ext = file.includes('.') ? (file.split('.').pop() || '').toLowerCase() : '';
   const base = file.replace(/\.[^.]+$/, '');
   const dir = path.split('/').slice(-2, -1)[0] || '';
 
@@ -29,7 +29,7 @@ export function parseDiff(diff) {
   return { path, file, ext, base, dir, isNewFile, added, removed };
 }
 
-export function buildMessage(diff) {
+export function buildMessage(diff: string): string {
   const { ext, base, dir, isNewFile, added, removed } = parseDiff(diff);
 
   // Tests take precedence regardless of extension.
@@ -64,7 +64,7 @@ export function buildMessage(diff) {
   return `${type}(${scope}): ${subject}`;
 }
 
-export async function POST(request) {
+export async function POST(request: Request) {
   // Same launch gate as the page: dark in production unless explicitly enabled.
   if (process.env.NEXT_PUBLIC_COMMITTED_ENABLED !== 'true') {
     return new Response('Not Found', { status: 404 });

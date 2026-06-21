@@ -1,11 +1,21 @@
 // Pure, framework-free tokenizers for the lightweight syntax highlighter.
 // They return plain token descriptors ({ type, value }) whose values, when
 // concatenated, reproduce the input exactly. Keeping this logic free of React
-// lets both the renderer (CodeHighlight.js) and the unit tests share it.
+// lets both the renderer (CodeHighlight.tsx) and the unit tests share it.
+
+export type Comment = 'slash' | 'hash' | 'both' | 'none';
+export type CodeTokenType = 'comment' | 'string' | 'number' | 'keyword' | 'function' | 'plain';
+export type ShellTokenType = 'command' | 'flag' | 'string' | 'op' | 'plain';
+export type DiffKind = 'hunk' | 'meta' | 'add' | 'del' | 'context';
+
+export interface CodeToken { type: CodeTokenType; value: string; }
+export interface ShellToken { type: ShellTokenType; value: string; }
+export interface DiffLine { kind: DiffKind; sign: string; tokens: CodeToken[]; }
+export interface ShellLine { prompt: string; isPy: boolean; tokens: Array<CodeToken | ShellToken>; }
 
 // Combined keyword set across the languages that appear on the site (Python,
 // C#, JS/TS). A shared set is good enough for generic highlighting.
-export const KEYWORDS = new Set([
+export const KEYWORDS = new Set<string>([
   // Python
   'def', 'class', 'return', 'if', 'elif', 'else', 'for', 'while', 'in', 'import',
   'from', 'as', 'with', 'try', 'except', 'finally', 'raise', 'lambda', 'yield',
@@ -23,7 +33,7 @@ export const KEYWORDS = new Set([
   'export', 'then',
 ]);
 
-export function commentFor(lang) {
+export function commentFor(lang: string): Comment {
   if (['csharp', 'cs', 'js', 'ts', 'java', 'c', 'cpp'].includes(lang)) return 'slash';
   if (['python', 'py', 'shell', 'bash', 'sh', 'ruby', 'yaml'].includes(lang)) return 'hash';
   if (lang === 'none') return 'none';
@@ -33,9 +43,9 @@ export function commentFor(lang) {
 // A regex with stable capture-group order regardless of comment style, so the
 // scan loop can read groups by index. `\b\B` never matches and is used to keep
 // a group present-but-disabled when a given comment kind doesn't apply.
-function buildRe(comment) {
+function buildRe(comment: Comment): RegExp {
   const block = comment === 'slash' || comment === 'both' ? '\\/\\*[\\s\\S]*?\\*\\/' : '\\b\\B';
-  let line;
+  let line: string;
   if (comment === 'slash') line = '\\/\\/[^\\n]*';
   else if (comment === 'hash') line = '#[^\\n]*';
   else if (comment === 'both') line = '(?:\\/\\/|#)[^\\n]*';
@@ -48,12 +58,11 @@ function buildRe(comment) {
   return new RegExp(`(${block})|(${line})|(${str})|(${num})|(${ident})|(${ws})|(${other})`, 'g');
 }
 
-// Tokenize a run of code. `comment` is one of 'slash' | 'hash' | 'both' | 'none'.
-// Types: comment | string | number | keyword | function | plain.
-export function tokenizeCode(code, comment = 'both') {
+// Tokenize a run of code. Types: comment | string | number | keyword | function | plain.
+export function tokenizeCode(code: string, comment: Comment = 'both'): CodeToken[] {
   const re = buildRe(comment);
-  const out = [];
-  let m;
+  const out: CodeToken[] = [];
+  let m: RegExpExecArray | null;
   while ((m = re.exec(code)) !== null) {
     const [, block, line, str, num, ident] = m;
     const full = m[0];
@@ -72,10 +81,10 @@ export function tokenizeCode(code, comment = 'both') {
 }
 
 // One shell command without a prompt. Types: command | flag | string | op | plain.
-export function tokenizeShellInline(text) {
+export function tokenizeShellInline(text: string): ShellToken[] {
   const re = /("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(\|\||&&|[|&><])|(\s+)|(\S+)/g;
-  const out = [];
-  let m;
+  const out: ShellToken[] = [];
+  let m: RegExpExecArray | null;
   let cmdSeen = false;
   while ((m = re.exec(text)) !== null) {
     const [, str, op, ws, word] = m;
@@ -89,9 +98,9 @@ export function tokenizeShellInline(text) {
   return out;
 }
 
-// One shell/REPL line: { prompt, isPy, tokens }. A `>>>` prompt means the rest
-// is Python, so it is tokenized as code; otherwise it is tokenized as shell.
-export function tokenizeShellLine(line) {
+// One shell/REPL line. A `>>>` prompt means the rest is Python, so it is
+// tokenized as code; otherwise it is tokenized as shell.
+export function tokenizeShellLine(line: string): ShellLine {
   const pm = line.match(/^(\s*)(\$|>>>|#)(\s+)/);
   if (pm) {
     const rest = line.slice(pm[0].length);
@@ -101,9 +110,9 @@ export function tokenizeShellLine(line) {
   return { prompt: '', isPy: false, tokens: tokenizeShellInline(line) };
 }
 
-// Diff lines: { kind, sign, tokens }. kind is hunk | meta | add | del | context.
-export function tokenizeDiff(code, comment = 'both') {
-  return code.split('\n').map((line) => {
+// Diff lines. kind is hunk | meta | add | del | context.
+export function tokenizeDiff(code: string, comment: Comment = 'both'): DiffLine[] {
+  return code.split('\n').map((line): DiffLine => {
     if (/^@@/.test(line)) return { kind: 'hunk', sign: '', tokens: [{ type: 'plain', value: line }] };
     if (/^(diff --git|index |--- |\+\+\+ )/.test(line)) return { kind: 'meta', sign: '', tokens: [{ type: 'plain', value: line }] };
     if (line.startsWith('+')) return { kind: 'add', sign: '+', tokens: tokenizeCode(line.slice(1), comment) };

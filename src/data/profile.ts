@@ -1,4 +1,12 @@
-export const profile = {
+export interface Profile {
+  name: string;
+  headline: string;
+  about: string[];
+  socials: { github: string; linkedin: string; email: string };
+  resume: string;
+}
+
+export const profile: Profile = {
   name: "Muhammad Marzouk Baig",
   headline: "I do ML engineering with a real software engineering background. Currently doing research on combinatorial optimization at Northeastern",
   about: [

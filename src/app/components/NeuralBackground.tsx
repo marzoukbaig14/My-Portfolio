@@ -1,15 +1,18 @@
 'use client';
 import { useEffect, useRef } from 'react';
 
+type GraphNode = { x: number; y: number; vx: number; vy: number; radius: number; pulse: number };
+
 export default function NeuralBackground() {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const hexToRgb = (hex) => {
+    const hexToRgb = (hex: string) => {
       const h = hex.trim().replace('#', '');
       return `${parseInt(h.slice(0,2),16)}, ${parseInt(h.slice(2,4),16)}, ${parseInt(h.slice(4,6),16)}`;
     };
@@ -21,7 +24,10 @@ export default function NeuralBackground() {
     // and never start the animation loop. Checked once on mount.
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    let width, height, animId, nodes = [];
+    let width = 0;
+    let height = 0;
+    let animId = 0;
+    let nodes: GraphNode[] = [];
     let lastFrame = 0;
     const TARGET_FPS = 30;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
@@ -64,6 +70,7 @@ export default function NeuralBackground() {
     // Draw the current node/edge state. Used by both the animation loop and
     // the single static frame rendered under reduced motion.
     function paintFrame() {
+      if (!ctx) return;
       ctx.clearRect(0, 0, width, height);
 
       for (let i = 0; i < nodes.length; i++) {
@@ -95,7 +102,7 @@ export default function NeuralBackground() {
 
     resize();
 
-    function draw(timestamp) {
+    function draw(timestamp: number) {
       animId = requestAnimationFrame(draw);
       if (timestamp - lastFrame < FRAME_INTERVAL) return;
       lastFrame = timestamp;

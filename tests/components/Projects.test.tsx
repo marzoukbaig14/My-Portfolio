@@ -5,10 +5,10 @@ import { render, screen, cleanup } from '@testing-library/react';
 // next/link needs the App Router runtime; for a render smoke test a plain
 // anchor stand-in is enough.
 vi.mock('next/link', () => ({
-  default: ({ children, href }) => <a href={href}>{children}</a>,
+  default: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a>,
 }));
 
-import Projects from '../../src/app/components/Projects.js';
+import Projects from '../../src/app/components/Projects';
 
 afterEach(cleanup);
 

@@ -1,9 +1,9 @@
-import CommittedBackground from './CommittedBackground.js';
-import CommittedHeader from './CommittedHeader.js';
-import CommittedDemo from './CommittedDemo.js';
-import StorySections from './StorySections.js';
-import SmoothScroll from '../components/SmoothScroll.js';
-import ScrollProgress from '../components/ScrollProgress.js';
+import CommittedBackground from './CommittedBackground';
+import CommittedHeader from './CommittedHeader';
+import CommittedDemo from './CommittedDemo';
+import StorySections from './StorySections';
+import SmoothScroll from '../components/SmoothScroll';
+import ScrollProgress from '../components/ScrollProgress';
 import { notFound } from 'next/navigation';
 
 // Indexable: the fine-tune is launched and the page content is final, so we

@@ -6,9 +6,9 @@ import { profile } from '@/data/profile';
 
 export default function Contact() {
   const [state, handleSubmit] = useForm("mkgwgova");
-  const [focused, setFocused] = useState(null);
+  const [focused, setFocused] = useState<string | null>(null);
 
-  const inputStyle = (name) => ({
+  const inputStyle = (name: string): React.CSSProperties => ({
     width: '100%',
     background: 'var(--bg-card)',
     border: `1px solid ${focused === name ? 'var(--accent)' : 'var(--border)'}`,

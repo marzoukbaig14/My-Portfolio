@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isWellFormed, fileCount, CC_RE } from '../src/app/committed/cc.js';
+import { isWellFormed, fileCount, CC_RE } from '../src/app/committed/cc';
 
 describe('isWellFormed', () => {
   it('accepts valid Conventional Commit subjects', () => {
@@ -32,7 +32,7 @@ describe('fileCount', () => {
 
 describe('CC_RE', () => {
   it('captures type, scope, and subject', () => {
-    const m = 'feat(scope): subject'.match(CC_RE);
+    const m = 'feat(scope): subject'.match(CC_RE)!;
     expect(m[1]).toBe('feat');
     expect(m[3]).toBe('scope');
     expect(m[5]).toBe('subject');

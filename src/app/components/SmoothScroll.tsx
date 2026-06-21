@@ -6,12 +6,11 @@ export default function SmoothScroll() {
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      smoothTouch: false,
     });
 
-    function raf(time) {
+    function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
     }
@@ -25,11 +24,11 @@ export default function SmoothScroll() {
       lenis.scrollTo(0, { immediate: true });
     }
 
-    const handleAnchorClick = (e) => {
-      const href = e.target.closest('a')?.getAttribute('href');
+    const handleAnchorClick = (e: MouseEvent) => {
+      const href = (e.target as Element | null)?.closest('a')?.getAttribute('href');
       if (href?.startsWith('#')) {
         e.preventDefault();
-        const target = document.querySelector(href);
+        const target = document.querySelector<HTMLElement>(href);
         if (target) lenis.scrollTo(target);
       }
     };

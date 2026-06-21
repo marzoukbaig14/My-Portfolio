@@ -16,7 +16,7 @@ const TYPE_SPEED_MS = 16;          // typewriter reveal speed, per character
 
 export default function CommittedDemo() {
   const [diff, setDiff] = useState('');
-  const [status, setStatus] = useState('idle'); // idle | generating | result | error
+  const [status, setStatus] = useState<'idle' | 'generating' | 'result' | 'error'>('idle');
   const [coldStart, setColdStart] = useState(false);
   const [warm, setWarm] = useState(false);
   const [result, setResult] = useState('');
@@ -26,15 +26,15 @@ export default function CommittedDemo() {
   const [copied, setCopied] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
 
-  const abortRef = useRef(null);
-  const typeTimerRef = useRef(null);
-  const pollTimerRef = useRef(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const typeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Honor reduced-motion: it gates the typewriter and the blinking cursor.
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     setReduceMotion(mq.matches);
-    const onChange = (e) => setReduceMotion(e.matches);
+    const onChange = (e: MediaQueryListEvent) => setReduceMotion(e.matches);
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
   }, []);
@@ -58,13 +58,13 @@ export default function CommittedDemo() {
     };
 
     check();
-    return () => { cancelled = true; clearTimeout(pollTimerRef.current); };
+    return () => { cancelled = true; if (pollTimerRef.current) clearTimeout(pollTimerRef.current); };
   }, []);
 
   // Clean up timers / in-flight request on unmount.
   useEffect(() => () => {
-    clearTimeout(pollTimerRef.current);
-    clearInterval(typeTimerRef.current);
+    if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    if (typeTimerRef.current) clearInterval(typeTimerRef.current);
     abortRef.current?.abort();
   }, []);
 
@@ -73,7 +73,7 @@ export default function CommittedDemo() {
   const tooLong = diff.length > MAX_DIFF_CHARS;
   const isGenerating = status === 'generating';
 
-  const loadExample = (ex) => {
+  const loadExample = (ex: (typeof examples)[number]) => {
     setDiff(ex.diff);
     setStatus('idle');
     setResult('');
@@ -81,15 +81,15 @@ export default function CommittedDemo() {
     setErrorMsg('');
   };
 
-  const runTypewriter = (full) => {
-    clearInterval(typeTimerRef.current);
+  const runTypewriter = (full: string) => {
+    if (typeTimerRef.current) clearInterval(typeTimerRef.current);
     if (reduceMotion) { setTyped(full); return; }
     setTyped('');
     let i = 0;
     typeTimerRef.current = setInterval(() => {
       i += 1;
       setTyped(full.slice(0, i));
-      if (i >= full.length) clearInterval(typeTimerRef.current);
+      if (i >= full.length && typeTimerRef.current) clearInterval(typeTimerRef.current);
     }, TYPE_SPEED_MS);
   };
 
@@ -117,15 +117,16 @@ export default function CommittedDemo() {
       setStatus('result');
       runTypewriter(message);
     } catch (err) {
+      const e = err as { message?: string; status?: number };
       if (controller.signal.aborted) {
         setErrorMsg('The model took too long to respond. It may still be waking up. Try again in a moment.');
       } else {
         // Prefer the backend's own message (surfaced by generateMessage on a
         // non-2xx); fall back to a generic line for true network/CORS failures.
-        setErrorMsg(err?.message || 'Could not reach the model. Please try again.');
+        setErrorMsg(e.message || 'Could not reach the model. Please try again.');
         // A 4xx means the input itself was rejected (e.g. not a diff), so nudge
         // toward the ready-made examples. Network/5xx errors get no such hint.
-        if (err?.status >= 400 && err?.status < 500) setSuggestExamples(true);
+        if (e.status !== undefined && e.status >= 400 && e.status < 500) setSuggestExamples(true);
       }
       setStatus('error');
     } finally {
@@ -145,7 +146,7 @@ export default function CommittedDemo() {
   };
 
   // Render the commit subject with the type and scope subtly highlighted.
-  const renderHighlighted = (msg) => {
+  const renderHighlighted = (msg: string) => {
     const m = msg.match(CC_RE);
     if (!m) return <span style={{ color: 'var(--text-primary)' }}>{msg}</span>;
     const [, type, , scope, bang, subject] = m;

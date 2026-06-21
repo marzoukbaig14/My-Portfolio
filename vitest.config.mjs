@@ -7,22 +7,16 @@ const fromHere = (p) => fileURLToPath(new URL(p, import.meta.url));
 //  - Pure-logic tests run in Node (fast, no DOM): the highlighter tokenizer,
 //    the Conventional-Commit helpers, the mock-API builder, the API wrapper.
 //  - Component tests opt into jsdom per file with `// @vitest-environment jsdom`.
-// Our React components live in .js files (Next/SWC convention), so esbuild is
-// told to parse .js as JSX with the automatic runtime. The `@` alias mirrors
-// jsconfig so `@/...` imports resolve in tests.
+// esbuild handles .ts/.tsx by extension; `jsx: 'automatic'` gives the React 17+
+// runtime so components need no React import. The `@` alias mirrors tsconfig.
 export default defineConfig({
-  esbuild: {
-    loader: 'jsx',
-    jsx: 'automatic',
-    include: /\.[jt]sx?$/,
-    exclude: /node_modules/,
-  },
+  esbuild: { jsx: 'automatic' },
   resolve: {
     alias: { '@': fromHere('./src') },
   },
   test: {
     environment: 'node',
-    setupFiles: ['./tests/setup.js'],
-    include: ['tests/**/*.test.{js,jsx}'],
+    setupFiles: ['./tests/setup.ts'],
+    include: ['tests/**/*.test.{ts,tsx}'],
   },
 });

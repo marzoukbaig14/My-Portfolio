@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { projects } from '@/data/projects';
 import { CommandLine } from './CodeHighlight';
 
-function ProjectImage({ command = '$ python train.py' }) {
+function ProjectImage({ command = '$ python train.py' }: { command?: string }) {
   return (
     <div style={{ width: '100%', height: '160px', background: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)', display: 'flex', gap: '6px' }}>
@@ -19,10 +19,11 @@ function ProjectImage({ command = '$ python train.py' }) {
   );
 }
 
-function TiltCard({ children, style }) {
-  const ref = useRef(null);
+function TiltCard({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
+  const ref = useRef<HTMLDivElement>(null);
 
-  const onMouseMove = (e) => {
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -31,6 +32,7 @@ function TiltCard({ children, style }) {
   };
 
   const onMouseLeave = () => {
+    if (!ref.current) return;
     ref.current.style.transform = 'perspective(800px) rotateY(0) rotateX(0) scale(1)';
     ref.current.style.transition = 'transform 0.4s ease';
   };
@@ -132,7 +134,7 @@ export default function Projects() {
                 </div>
               </div>
               {/* Stretched link: makes the entire card a link to the demo. */}
-              <Link href={committed.demo} aria-label={`${committed.title}: open the live demo`} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+              <Link href={committed.demo ?? '/committed'} aria-label={`${committed.title}: open the live demo`} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
             </div>
             <style>{`
               @media (prefers-reduced-motion: no-preference) {

@@ -7,15 +7,15 @@ import { CodeBlock } from '../components/CodeHighlight';
 // and the built-with stack + links. Copy and metrics here are the project's real,
 // final content.
 
-const sectionStyle = {
+const sectionStyle: React.CSSProperties = {
   background: 'rgba(13,13,18,0.65)',
   padding: 'clamp(3.5rem, 7vh, 6rem) clamp(1.5rem, 5vw, 4rem)',
   position: 'relative',
   overflow: 'hidden',
 };
-const innerStyle = { maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 };
+const innerStyle: React.CSSProperties = { maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 };
 
-function SectionHeading({ children }) {
+function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
     <motion.h2
       initial={{ opacity: 0, y: 20 }}
@@ -36,8 +36,8 @@ const reveal = {
   transition: { duration: 0.6, delay: 0.1 },
 };
 
-const cardStyle = { background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.5rem' };
-const inlineCode = { fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.9em', color: 'var(--accent)', background: 'var(--accent-muted)', borderRadius: '4px', padding: '1px 6px' };
+const cardStyle: React.CSSProperties = { background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.5rem' };
+const inlineCode: React.CSSProperties = { fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.9em', color: 'var(--accent)', background: 'var(--accent-muted)', borderRadius: '4px', padding: '1px 6px' };
 
 export default function StorySections() {
   return (

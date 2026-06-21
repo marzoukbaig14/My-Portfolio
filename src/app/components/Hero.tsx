@@ -14,7 +14,7 @@ export default function Hero() {
   const [roleTyped, setRoleTyped] = useState(false);
   const [headlineTyped, setHeadlineTyped] = useState(false);
   const [showCtas, setShowCtas] = useState(false);
-  const scrambleRef = useRef(null);
+  const scrambleRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     let i = 0;
@@ -57,7 +57,7 @@ export default function Hero() {
   const handleScramble = () => {
     if (!nameTyped) return;
     let iter = 0;
-    clearInterval(scrambleRef.current);
+    if (scrambleRef.current) clearInterval(scrambleRef.current);
     scrambleRef.current = setInterval(() => {
       setDisplayName(
         profile.name.split('').map((ch, i) => {
@@ -68,13 +68,13 @@ export default function Hero() {
       );
       iter += 0.5;
       if (iter >= profile.name.length) {
-        clearInterval(scrambleRef.current);
+        if (scrambleRef.current) clearInterval(scrambleRef.current);
         setDisplayName(profile.name);
       }
     }, 30);
   };
 
-  const cursor = (visible) => visible ? (
+  const cursor = (visible: boolean) => visible ? (
     <span style={{ display: 'inline-block', width: '11px', height: '1em', background: '#fef8f8fe', marginLeft: '3px', verticalAlign: 'text-top', animation: 'blink 0.8s infinite' }} />
   ) : null;
 

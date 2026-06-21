@@ -4,9 +4,9 @@ import {
   tokenizeDiff,
   tokenizeShellLine,
   commentFor,
-} from '../src/app/components/highlightTokens.js';
+} from '../src/app/components/highlightTokens';
 
-const join = (toks) => toks.map((t) => t.value).join('');
+const join = (toks: Array<{ value: string }>) => toks.map((t) => t.value).join('');
 
 describe('tokenizeCode', () => {
   it('is lossless: token values concatenate back to the input', () => {
@@ -16,7 +16,7 @@ describe('tokenizeCode', () => {
 
   it('classifies keywords, calls, numbers, and strings', () => {
     const toks = tokenizeCode('return foo("hi", 42)', 'hash');
-    const ofType = (ty) => toks.filter((t) => t.type === ty).map((t) => t.value);
+    const ofType = (ty: string) => toks.filter((t) => t.type === ty).map((t) => t.value);
     expect(ofType('keyword')).toContain('return');
     expect(ofType('function')).toContain('foo');
     expect(ofType('string')).toContain('"hi"');

@@ -6,15 +6,18 @@ import {
   tokenizeShellLine,
   tokenizeDiff,
 } from './highlightTokens';
+import type { CodeToken, ShellToken, Comment } from './highlightTokens';
 
 // Lightweight, dependency-free syntax highlighting tuned to the site's dark
-// terminal theme. The tokenizing lives in highlightTokens.js (pure, tested);
+// terminal theme. The tokenizing lives in highlightTokens.ts (pure, tested);
 // this module only maps token types to colors and renders React nodes. Output
 // is never raw HTML, so user-pasted input stays safely escaped.
 
+type StyleMap = Record<string, React.CSSProperties | null>;
+
 // Token colors. Kept distinct from the diff add/remove tints (green/red) so
 // nothing clashes on a highlighted diff line.
-const CODE_STYLE = {
+const CODE_STYLE: StyleMap = {
   comment: { color: 'var(--text-muted)', fontStyle: 'italic' },
   string: { color: '#e0b752' }, // amber
   number: { color: '#f78c6c' }, // warm orange
@@ -23,7 +26,7 @@ const CODE_STYLE = {
   plain: null,
 };
 
-const SHELL_STYLE = {
+const SHELL_STYLE: StyleMap = {
   command: { color: 'var(--accent)' },
   flag: { color: '#c792ea' },
   string: { color: '#e0b752' },
@@ -35,14 +38,18 @@ const PROMPT_COLOR = '#22c55e'; // green, matching the shell prompts elsewhere
 
 // Render an array of { type, value } tokens against a style map. Plain tokens
 // stay as bare strings so column positions are preserved exactly.
-function renderTokens(tokens, styleMap, keyPrefix) {
+function renderTokens(
+  tokens: Array<CodeToken | ShellToken>,
+  styleMap: StyleMap,
+  keyPrefix: string,
+) {
   return tokens.map((t, i) => {
     const style = styleMap[t.type];
     return style ? <span key={`${keyPrefix}-${i}`} style={style}>{t.value}</span> : t.value;
   });
 }
 
-function DiffLines({ code, comment }) {
+function DiffLines({ code, comment }: { code: string; comment: Comment }) {
   return tokenizeDiff(code, comment).map((ln, i) => {
     if (ln.kind === 'hunk') {
       return <span key={i} style={{ display: 'block', color: 'var(--accent)', background: 'rgba(var(--accent-rgb), 0.08)' }}>{ln.tokens[0].value || ' '}</span>;
@@ -52,7 +59,7 @@ function DiffLines({ code, comment }) {
     }
     const bg = ln.kind === 'add' ? 'rgba(34, 197, 94, 0.10)' : ln.kind === 'del' ? 'rgba(248, 113, 113, 0.10)' : undefined;
     const signColor = ln.kind === 'add' ? '#22c55e' : '#f87171';
-    const body = renderTokens(ln.tokens, CODE_STYLE, i);
+    const body = renderTokens(ln.tokens, CODE_STYLE, String(i));
     const empty = !ln.sign && body.length === 0;
     return (
       <span key={i} style={{ display: 'block', background: bg }}>
@@ -64,10 +71,10 @@ function DiffLines({ code, comment }) {
   });
 }
 
-function ShellLines({ code }) {
+function ShellLines({ code }: { code: string }) {
   return code.split('\n').map((line, i) => {
     const { prompt, isPy, tokens } = tokenizeShellLine(line);
-    const body = renderTokens(tokens, isPy ? CODE_STYLE : SHELL_STYLE, i);
+    const body = renderTokens(tokens, isPy ? CODE_STYLE : SHELL_STYLE, String(i));
     const empty = !prompt && body.length === 0;
     return (
       <span key={i} style={{ display: 'block' }}>
@@ -79,7 +86,7 @@ function ShellLines({ code }) {
   });
 }
 
-const basePre = {
+const basePre: React.CSSProperties = {
   margin: 0,
   fontFamily: 'var(--font-geist-mono), monospace',
   fontSize: '13px',
@@ -92,8 +99,18 @@ const basePre = {
 
 // Static code/diff block. Pass `diff` for diffs; `lang` sets the inner language
 // (e.g. "python", "csharp", "shell").
-export function CodeBlock({ code, lang = 'auto', diff = false, style }) {
-  let children;
+export function CodeBlock({
+  code,
+  lang = 'auto',
+  diff = false,
+  style,
+}: {
+  code: string;
+  lang?: string;
+  diff?: boolean;
+  style?: React.CSSProperties;
+}) {
+  let children: React.ReactNode;
   if (diff || (lang === 'auto' && /^@@|^diff --git/m.test(code))) {
     children = <DiffLines code={code} comment={commentFor(lang)} />;
   } else if (['shell', 'bash', 'sh'].includes(lang)) {
@@ -105,7 +122,7 @@ export function CodeBlock({ code, lang = 'auto', diff = false, style }) {
 }
 
 // One-line command, for the terminal chrome on the project cards.
-export function CommandLine({ text, style }) {
+export function CommandLine({ text, style }: { text: string; style?: React.CSSProperties }) {
   const { prompt, isPy, tokens } = tokenizeShellLine(text);
   return (
     <span style={style}>
@@ -119,9 +136,21 @@ export function CommandLine({ text, style }) {
 // behind a transparent-text textarea; the caret and selection stay native and
 // scroll is kept in sync. `data-lenis-prevent` keeps the wheel scrolling the
 // box, not the page.
-export function HighlightedDiffInput({ value, onChange, placeholder, rows = 12, ariaLabel }) {
-  const taRef = useRef(null);
-  const preRef = useRef(null);
+export function HighlightedDiffInput({
+  value,
+  onChange,
+  placeholder,
+  rows = 12,
+  ariaLabel,
+}: {
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLTextAreaElement>;
+  placeholder?: string;
+  rows?: number;
+  ariaLabel?: string;
+}) {
+  const taRef = useRef<HTMLTextAreaElement>(null);
+  const preRef = useRef<HTMLPreElement>(null);
 
   const syncScroll = () => {
     if (preRef.current && taRef.current) {
@@ -131,7 +160,7 @@ export function HighlightedDiffInput({ value, onChange, placeholder, rows = 12, 
   };
 
   // Both layers must share every metric that affects glyph position.
-  const shared = {
+  const shared: React.CSSProperties = {
     margin: 0,
     fontFamily: 'var(--font-geist-mono), monospace',
     fontSize: '13px',

@@ -16,16 +16,16 @@ export default function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
-  const inputRef = useRef(null);
-  const overlayRef = useRef(null);
-  const restoreRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const restoreRef = useRef<HTMLElement | null>(null);
 
   const filtered = commands.filter(c =>
     c.label.toLowerCase().includes(query.toLowerCase())
   );
 
   useEffect(() => {
-    const handler = (e) => {
+    const handler = (e: KeyboardEvent) => {
         if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setOpen(prev => !prev);
@@ -44,7 +44,7 @@ export default function CommandPalette() {
   useEffect(() => {
     if (open) {
       // Remember what had focus so we can hand it back when the palette closes.
-      restoreRef.current = document.activeElement;
+      restoreRef.current = document.activeElement as HTMLElement | null;
       inputRef.current?.focus();
       setQuery('');
       setActiveIndex(0);
@@ -54,13 +54,13 @@ export default function CommandPalette() {
     }
   }, [open]);
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') setActiveIndex(i => Math.min(i + 1, filtered.length - 1));
     else if (e.key === 'ArrowUp') setActiveIndex(i => Math.max(i - 1, 0));
     else if (e.key === 'Enter' && filtered[activeIndex]) handleSelect(filtered[activeIndex]);
   };
 
-  const handleSelect = (item) => {
+  const handleSelect = (item: (typeof commands)[number]) => {
     setOpen(false);
     if (item.external) {
       window.open(item.href, '_blank', 'noopener,noreferrer');

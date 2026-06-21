@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { pingHealth, generateMessage } from '../src/app/committed/api.js';
+import { pingHealth, generateMessage } from '../src/app/committed/api';
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const mockFetch = (impl) => vi.stubGlobal('fetch', vi.fn(impl));
+const mockFetch = (impl: () => Promise<unknown>) => vi.stubGlobal('fetch', vi.fn(impl));
 
 describe('pingHealth', () => {
   it('reports modelLoaded when health returns model_loaded:true', async () => {

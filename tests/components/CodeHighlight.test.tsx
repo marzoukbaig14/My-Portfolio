@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import { CommandLine, CodeBlock, HighlightedDiffInput } from '../../src/app/components/CodeHighlight.js';
+import { CommandLine, CodeBlock, HighlightedDiffInput } from '../../src/app/components/CodeHighlight';
 
 afterEach(cleanup);
 
@@ -44,7 +44,7 @@ describe('HighlightedDiffInput', () => {
 
   it('mirrors the value into the highlight overlay', () => {
     const { container } = render(<HighlightedDiffInput value={'+added\n-removed'} onChange={() => {}} ariaLabel="diff" />);
-    const overlay = container.querySelector('pre');
+    const overlay = container.querySelector('pre')!;
     expect(overlay.textContent).toContain('added');
     expect(overlay.textContent).toContain('removed');
   });

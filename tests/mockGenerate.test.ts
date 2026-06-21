@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { parseDiff, buildMessage } from '../src/app/api/committed-mock/generate/route.js';
-import { isWellFormed } from '../src/app/committed/cc.js';
+import { parseDiff, buildMessage } from '../src/app/api/committed-mock/generate/route';
+import { isWellFormed } from '../src/app/committed/cc';
 
 describe('parseDiff', () => {
   it('extracts path, file, ext, base, and dir from a +++ header', () => {

@@ -1,4 +1,17 @@
-export const projects = [
+export interface Project {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  tags: string[];
+  tier: "featured" | "tier1" | "tier2";
+  github: string;
+  paper: string | null;
+  demo?: string;
+  command: string;
+}
+
+export const projects: Project[] = [
   // Committed: live demo card, rendered when NEXT_PUBLIC_COMMITTED_ENABLED is
   // "true". `demo` points at the internal /committed route (Projects.js renders
   // it as "Try the live demo →"); `github` renders as "View on GitHub →".

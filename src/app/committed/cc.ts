@@ -4,13 +4,13 @@
 // does NOT mean the type is the right call, so we never claim more than that.
 export const CC_RE = /^([a-z]+)(\(([^)]+)\))?(!)?:\s(.+)$/i;
 
-export function isWellFormed(msg) {
+export function isWellFormed(msg: string): boolean {
   return CC_RE.test(msg.trim());
 }
 
 // Count the file headers in a diff. Committed only saw single-file diffs, so
 // more than one is worth a gentle nudge.
-export function fileCount(diff) {
+export function fileCount(diff: string): number {
   const m = diff.match(/^diff --git /gm) || diff.match(/^\+\+\+ /gm) || [];
   return m.length;
 }

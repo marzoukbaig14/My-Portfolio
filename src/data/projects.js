@@ -59,17 +59,6 @@ export const projects = [
     command: "$ python train.py"
   },
   {
-    id: "micrograd",
-    title: "Autograd Engine from Scratch",
-    subtitle: "Independent project. 2026.",
-    description: "A scalar-valued autograd engine and neural network library in pure Python. Backpropagation over a dynamically built DAG, no PyTorch or NumPy for the core engine. Gives you real appreciation for what automatic differentiation actually does. Built to understand, not to use.",
-    tags: ["Python", "Autograd", "Backpropagation", "Neural Networks"],
-    tier: "tier2",
-    github: "https://github.com/marzoukbaig14/micrograd",
-    paper: null,
-    command: "$ python engine.py"
-  },
-  {
     id: "nanoLM",
     title: "nanoLM",
     subtitle: "Independent project. 2026.",
@@ -79,5 +68,16 @@ export const projects = [
     github: "https://github.com/marzoukbaig14/nanoLM",
     paper: null,
     command: "$ python train.py"
+  },
+  {
+    id: "micrograd",
+    title: "Autograd Engine from Scratch",
+    subtitle: "Independent project. 2026.",
+    description: "A scalar-valued autograd engine and neural network library in pure Python. Backpropagation over a dynamically built DAG, no PyTorch or NumPy for the core engine. Gives you real appreciation for what automatic differentiation actually does. Built to understand, not to use.",
+    tags: ["Python", "Autograd", "Backpropagation", "Neural Networks"],
+    tier: "tier2",
+    github: "https://github.com/marzoukbaig14/micrograd",
+    paper: null,
+    command: "$ python engine.py"
   }
 ];

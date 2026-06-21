@@ -45,10 +45,12 @@ export default function CommittedPage() {
               Conventional Commit messages from your code diffs.
             </p>
             <p style={{ fontSize: 'clamp(14px, 1.7vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '620px' }}>
-              An end-to-end machine learning system (data curation, fine-tuning, evaluation, and
-              serving) built to turn a code diff into a clean Conventional Commit message. It runs
-              locally on a quantized 1.7B model, so your diffs never leave your machine. Paste a diff
-              below, or try one of the examples, and Committed writes the commit subject for you.
+              An end-to-end ML project, from data curation through fine-tuning, evaluation, and
+              serving, that turns a code diff into a clean Conventional Commit message. It runs
+              locally on a quantized 1.7B model, so your diffs never leave your machine. That was the
+              point: most tools like this ship your code off to an API, and I wanted one small enough
+              that nothing has to. Paste a diff below, or try an example, and Committed writes the
+              subject line for you.
             </p>
           </div>
         </section>

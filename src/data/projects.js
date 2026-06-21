@@ -6,7 +6,7 @@ export const projects = [
     id: "committed",
     title: "Committed",
     subtitle: "Fine-tuned commit-message model. 2026.",
-    description: "Fine-tuned a 1.7B language model (QLoRA) to write Conventional Commit messages from code diffs. Runs locally so your code never leaves your machine.",
+    description: "A commit-message model I fine-tuned (Qwen3-1.7B, QLoRA): give it a git diff, it writes the message in Conventional Commits format. Runs locally, which was the point. Nothing leaves your machine.",
     tags: ["Fine-tuning", "LLMs", "MLOps", "Docker"],
     tier: "tier1",
     github: "https://github.com/marzoukbaig14/Committed",

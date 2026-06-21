@@ -53,8 +53,8 @@ export default function StorySections() {
               training target. I fine-tuned Qwen3-1.7B with QLoRA on the result, evaluated it against the
               un-tuned base model on a multi-metric harness with an LLM judge I validated against my own
               hand-ratings, then served it locally through llama.cpp with grammar-constrained decoding
-              that guarantees every output is syntactically valid. Data, training, evaluation, and serving
-              are all here.
+              that guarantees every output is syntactically valid. Most of the work was the data, not the
+              model, and all four stages (data, training, evaluation, serving) are here.
             </p>
             {/* Pipeline motif, on-theme and content-agnostic. */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px' }}>
@@ -132,7 +132,7 @@ export default function StorySections() {
             </p>
 
             <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.75, maxWidth: '700px', marginBottom: '1.25rem' }}>
-              One axis regressed: specificity dropped from 0.81 to 0.71. The fine-tune learned the terse,
+              One axis regressed, which I didn&apos;t expect: specificity dropped from 0.81 to 0.71. The fine-tune learned the terse,
               normalized subject style of the training targets so well that it sometimes produces messages
               slightly more generic than the base model&apos;s wordier output. It&apos;s a real trade-off,
               traceable to a normalization choice in the training data, and the next training iteration

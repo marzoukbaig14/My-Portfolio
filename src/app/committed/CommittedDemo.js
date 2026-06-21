@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { examples } from './examples';
 import { generateMessage, pingHealth, usingMock } from './api';
 import { HighlightedDiffInput } from '../components/CodeHighlight';
+import { CC_RE, isWellFormed, fileCount } from './cc';
 
 // Tunables: the human can adjust these once the real model/limits are known.
 const HEALTH_TIMEOUT_MS = 4000;    // a slow/hanging /health ping means the Space is cold or asleep
@@ -12,23 +13,6 @@ const HEALTH_WARM_POLL_MS = 20_000;// while warm, re-check lazily in case the Sp
 const REQUEST_TIMEOUT_MS = 90_000; // give a cold Space room to wake before giving up
 const MAX_DIFF_CHARS = 6000;       // rough proxy for the training token cap (single-file diffs)
 const TYPE_SPEED_MS = 16;          // typewriter reveal speed, per character
-
-// Conventional Commit subject grammar: type(scope)!: subject
-// We use this twice, to render the "well-formed" badge and to highlight the
-// type/scope. A match means the syntax is valid; it does NOT mean the type is
-// the right call. We never claim more than "well-formed".
-const CC_RE = /^([a-z]+)(\(([^)]+)\))?(!)?:\s(.+)$/i;
-
-function isWellFormed(msg) {
-  return CC_RE.test(msg.trim());
-}
-
-// Count the file headers in a diff. Committed only saw single-file diffs, so
-// more than one is worth a gentle nudge.
-function fileCount(diff) {
-  const m = diff.match(/^diff --git /gm) || diff.match(/^\+\+\+ /gm) || [];
-  return m.length;
-}
 
 export default function CommittedDemo() {
   const [diff, setDiff] = useState('');

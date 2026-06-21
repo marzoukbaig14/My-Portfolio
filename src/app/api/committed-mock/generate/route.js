@@ -14,7 +14,7 @@ const TYPE_BY_EXT = {
   json: 'chore', yml: 'chore', yaml: 'chore', toml: 'chore',
 };
 
-function parseDiff(diff) {
+export function parseDiff(diff) {
   const pathMatch = diff.match(/\+\+\+ b\/(\S+)/) || diff.match(/diff --git a\/\S+ b\/(\S+)/);
   const path = pathMatch ? pathMatch[1] : '';
   const file = path.split('/').pop() || '';
@@ -29,7 +29,7 @@ function parseDiff(diff) {
   return { path, file, ext, base, dir, isNewFile, added, removed };
 }
 
-function buildMessage(diff) {
+export function buildMessage(diff) {
   const { ext, base, dir, isNewFile, added, removed } = parseDiff(diff);
 
   // Tests take precedence regardless of extension.

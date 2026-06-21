@@ -1,12 +1,12 @@
 export const projects = [
-  // Committed — live demo card, rendered when NEXT_PUBLIC_COMMITTED_ENABLED is
+  // Committed: live demo card, rendered when NEXT_PUBLIC_COMMITTED_ENABLED is
   // "true". `demo` points at the internal /committed route (Projects.js renders
   // it as "Try the live demo →"); `github` renders as "View on GitHub →".
   {
     id: "committed",
     title: "Committed",
     subtitle: "Fine-tuned commit-message model. 2026.",
-    description: "Fine-tuned a 1.7B language model (QLoRA) to write Conventional Commit messages from code diffs — runs locally so your code never leaves your machine.",
+    description: "Fine-tuned a 1.7B language model (QLoRA) to write Conventional Commit messages from code diffs. Runs locally so your code never leaves your machine.",
     tags: ["Fine-tuning", "LLMs", "MLOps", "Docker"],
     tier: "tier1",
     github: "https://github.com/marzoukbaig14/Committed",

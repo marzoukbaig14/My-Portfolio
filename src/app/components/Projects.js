@@ -48,7 +48,7 @@ const committedEnabled = process.env.NEXT_PUBLIC_COMMITTED_ENABLED === 'true';
 const visibleProjects = projects.filter(p => p.id !== 'committed' || committedEnabled);
 
 const featured = visibleProjects.find(p => p.tier === 'featured');
-// Committed is the interactive centerpiece — pulled out of the tier1 grid and
+// Committed is the interactive centerpiece, pulled out of the tier1 grid and
 // rendered as its own elevated, whole-card-clickable demo card below.
 const committed = visibleProjects.find(p => p.id === 'committed');
 const tier1 = visibleProjects.filter(p => p.tier === 'tier1' && p.id !== 'committed');
@@ -98,7 +98,7 @@ export default function Projects() {
           </TiltCard>
         )}
 
-        {/* Committed — elevated centerpiece. Whole card links to the live demo;
+        {/* Committed: elevated centerpiece. Whole card links to the live demo;
             the GitHub link sits above the overlay so it stays independently clickable. */}
         {committed && (
           <TiltCard style={{ marginBottom: '2rem' }}>
@@ -131,7 +131,7 @@ export default function Projects() {
                 </div>
               </div>
               {/* Stretched link: makes the entire card a link to the demo. */}
-              <Link href={committed.demo} aria-label={`${committed.title} — open the live demo`} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
+              <Link href={committed.demo} aria-label={`${committed.title}: open the live demo`} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
             </div>
             <style>{`
               @media (prefers-reduced-motion: no-preference) {

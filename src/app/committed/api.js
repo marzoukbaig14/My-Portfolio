@@ -26,9 +26,9 @@ export function getEndpoints() {
 }
 
 // Readiness check. Returns { ok, modelLoaded }:
-//   ok          — the Space answered 200 (liveness, unchanged contract).
-//   modelLoaded — the model is actually in the container's memory (readiness).
-// Never throws — a cold, asleep, or unreachable Space is an expected state and
+//   ok          : the Space answered 200 (liveness, unchanged contract).
+//   modelLoaded : the model is actually in the container's memory (readiness).
+// Never throws: a cold, asleep, or unreachable Space is an expected state and
 // surfaces as { ok: false, modelLoaded: false } (including on an aborted/timed-
 // out signal), which the UI reads as "cold".
 export async function pingHealth(signal) {
@@ -54,7 +54,7 @@ export async function generateMessage(diff, signal) {
   });
 
   if (!res.ok) {
-    // The Space (FastAPI) returns errors as { detail: string } — surface that
+    // The Space (FastAPI) returns errors as { detail: string }; surface that
     // real message (e.g. "That doesn't look like a code diff…") so a handled
     // 400 reads differently from a true network/CORS failure.
     let detail;

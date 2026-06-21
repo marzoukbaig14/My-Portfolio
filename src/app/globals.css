@@ -6,8 +6,8 @@
   --bg-card: #16161e;
   --border: #1e1e2e;
   --text-primary: #f0f0f0;
-  --text-secondary: #9d9db0; /* was #888899 (~5.5:1) — lighter for dim-screen comfort (~7:1) */
-  --text-muted: #888899;     /* was #444458 (~2:1, illegible on low-contrast displays) — now ~5.3:1 */
+  --text-secondary: #9d9db0; /* was #888899 (~5.5:1), lighter for dim-screen comfort (~7:1) */
+  --text-muted: #888899;     /* was #444458 (~2:1, illegible on low-contrast displays), now ~5.3:1 */
   --accent: #16c5e8;
   --accent-hover: #0fb1d1;
   --accent-muted: rgba(22, 197, 232, 0.15);

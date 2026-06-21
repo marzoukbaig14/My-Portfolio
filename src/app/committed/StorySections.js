@@ -47,8 +47,8 @@ export default function StorySections() {
           <SectionHeading>how it works</SectionHeading>
           <motion.div {...reveal}>
             <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px', marginBottom: '1.75rem' }}>
-              Committed is a complete pipeline, not just a model. I started from CommitChronicle —
-              roughly 10.7M real GitHub commits — and wrote a filter to extract clean, single-file diffs
+              Committed is a complete pipeline, not just a model. I started from CommitChronicle
+              (roughly 10.7M real GitHub commits) and wrote a filter to extract clean, single-file diffs
               paired with well-formed Conventional Commit subjects, normalizing them into a consistent
               training target. I fine-tuned Qwen3-1.7B with QLoRA on the result, evaluated it against the
               un-tuned base model on a multi-metric harness with an LLM judge I validated against my own
@@ -126,7 +126,7 @@ export default function StorySections() {
               change actually did. Because <code style={inlineCode}>fix</code> commits alone make up about
               49% of real-world commits, a model that almost never predicts{' '}
               <code style={inlineCode}>fix</code> scores worse on type than a trivial
-              always-guess-<code style={inlineCode}>fix</code> baseline (0.489) — and the un-tuned base,
+              always-guess-<code style={inlineCode}>fix</code> baseline (0.489), and the un-tuned base,
               at 0.131, did exactly that. Fine-tuning broke the collapse and lifted type accuracy well
               above the trivial floor.
             </p>
@@ -143,7 +143,7 @@ export default function StorySections() {
             <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px' }}>
               An LLM judge is only trustworthy if it agrees with a human. I hand-rated 50 examples blind
               and measured the judge against them: raw agreement ran 0.68–0.84 across the four axes
-              (Cohen&apos;s κ 0.25–0.54), strongest on completeness. That&apos;s a fair-to-moderate proxy —
+              (Cohen&apos;s κ 0.25–0.54), strongest on completeness. That&apos;s a fair-to-moderate proxy,
               good enough to trust for relative comparisons, with the honest caveat that n=50 gives wide
               confidence intervals.
             </p>
@@ -188,12 +188,12 @@ export default function StorySections() {
                   <span>{pair.language}</span>
                 </div>
                 <pre style={{ margin: 0, padding: '16px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', lineHeight: 1.7, color: 'var(--text-secondary)', overflowX: 'auto', whiteSpace: 'pre' }}>{pair.diff}</pre>
-                {/* Base (un-tuned) output — de-emphasized; raw, incl. the feat-collapse mislabel. */}
+                {/* Base (un-tuned) output: de-emphasized; raw, incl. the feat-collapse mislabel. */}
                 <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '10px', padding: '12px 16px', borderTop: '1px solid var(--border)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', lineHeight: 1.6 }}>
                   <span style={{ flexShrink: 0, color: 'var(--text-muted)' }}>base Qwen3-1.7B →</span>
                   <span style={{ color: 'var(--text-muted)' }}>{pair.base}</span>
                 </div>
-                {/* Fine-tune output — emphasized; what Committed produces. */}
+                {/* Fine-tune output: emphasized; what Committed produces. */}
                 <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '10px', padding: '12px 16px', borderTop: '1px solid var(--border)', background: 'rgba(var(--accent-rgb), 0.06)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '14px', lineHeight: 1.6 }}>
                   <span style={{ flexShrink: 0, color: 'var(--accent)', fontWeight: 600 }}>committed →</span>
                   <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{pair.msg}</span>
@@ -210,7 +210,7 @@ export default function StorySections() {
           <SectionHeading>run it locally</SectionHeading>
           <motion.div {...reveal}>
             <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '640px', marginBottom: '1.5rem' }}>
-              Committed runs entirely on your machine — no API, no diff ever leaving your laptop.
+              Committed runs entirely on your machine. No API, no diff ever leaving your laptop.
               Install it from the repo, pipe a diff in, and get a commit message back:
             </p>
             <div style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>

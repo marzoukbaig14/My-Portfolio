@@ -1,7 +1,7 @@
 // Local mock for POST /generate. Returns the same shape as the real model
 // service ({ message }) so the entire page can be built and demoed before
 // the fine-tuned Space is live. This is intentionally a crude heuristic, not
-// a model — it only needs to produce a well-formed Conventional Commit
+// a model; it only needs to produce a well-formed Conventional Commit
 // subject so the UI states (generating, typewriter reveal, badge) are
 // exercisable. The real generation lives in the serving repo.
 

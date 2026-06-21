@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 // A slim, sub-page header. It mirrors the site Navbar's look (fixed, mono
-// brand, blur-on-scroll) but is NOT the home Navbar — that one's links point
+// brand, blur-on-scroll) but is NOT the home Navbar; that one's links point
 // at home-page anchors (#about, #projects) which don't exist here. These
 // links resolve on this route: the brand returns to the portfolio, and the
 // section links target sections that exist on this page.

@@ -67,6 +67,7 @@ export default function NeuralBackground() {
     let mouseX = -9999; // off-screen until the pointer moves
     let mouseY = -9999;
     let renderScale = 1; // backing-store scale; drops below 1 on large viewports
+    let lastScroll = 0; // timestamp of the most recent scroll, for the freeze-on-scroll below
     const TARGET_FPS = 30;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
@@ -206,6 +207,11 @@ export default function NeuralBackground() {
       animId = requestAnimationFrame(draw);
       if (timestamp - lastFrame < FRAME_INTERVAL) return;
       lastFrame = timestamp;
+      // Hold the last frame while the user is actively scrolling: repainting a
+      // full-screen canvas every frame competes with the browser's scroll
+      // compositing and is a big cause of scroll jank on weak machines. The net
+      // resumes animating ~120ms after scrolling stops.
+      if (performance.now() - lastScroll < 120) return;
       integrate();
       paintFrame();
     }
@@ -227,9 +233,11 @@ export default function NeuralBackground() {
     const finePointer = window.matchMedia('(pointer: fine)').matches;
     const handlePointer = (e: PointerEvent) => { mouseX = e.clientX * renderScale; mouseY = e.clientY * renderScale; };
     const handlePointerLeave = () => { mouseX = -9999; mouseY = -9999; };
+    const handleScroll = () => { lastScroll = performance.now(); };
 
     animId = requestAnimationFrame(draw);
     window.addEventListener('resize', resize);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     document.addEventListener('visibilitychange', handleVisibility);
     if (finePointer) {
       window.addEventListener('pointermove', handlePointer);
@@ -239,6 +247,7 @@ export default function NeuralBackground() {
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('pointermove', handlePointer);
       document.removeEventListener('mouseleave', handlePointerLeave);

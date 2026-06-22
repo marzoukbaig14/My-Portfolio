@@ -31,7 +31,7 @@ export default function CommittedPage() {
 
       <main style={{ marginTop: '64px' }}>
         {/* Intro */}
-        <section style={{ background: 'rgba(13,13,18,0.65)', padding: 'clamp(3rem, 7vh, 5.5rem) clamp(1.5rem, 5vw, 4rem) clamp(2rem, 4vh, 3rem)', position: 'relative', overflow: 'hidden' }}>
+        <section className="section-glow" style={{ background: 'rgba(13,13,18,0.65)', padding: 'clamp(3rem, 7vh, 5.5rem) clamp(1.5rem, 5vw, 4rem) clamp(2rem, 4vh, 3rem)', position: 'relative', overflow: 'hidden' }}>
           <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
             <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(13px, 1.6vw, 15px)', color: '#22c55e', marginBottom: '1.25rem' }}>
               ~/projects/committed $ generate

@@ -43,7 +43,7 @@ export default function StorySections() {
   return (
     <>
       {/* ── How it works ─────────────────────────────────────────── */}
-      <section id="how-it-works" style={sectionStyle}>
+      <section id="how-it-works" className="section-glow" style={sectionStyle}>
         <div style={innerStyle}>
           <SectionHeading>how it works</SectionHeading>
           <motion.div {...reveal}>
@@ -153,7 +153,7 @@ export default function StorySections() {
       </section>
 
       {/* ── Sample outputs ───────────────────────────────────────── */}
-      <section id="sample-outputs" style={sectionStyle}>
+      <section id="sample-outputs" className="section-glow" style={sectionStyle}>
         <div style={innerStyle}>
           <SectionHeading>sample outputs</SectionHeading>
           <motion.div {...reveal} style={{ display: 'grid', gap: '1rem' }}>
@@ -234,7 +234,7 @@ git diff | committed`}
       </section>
 
       {/* ── Built with & links ───────────────────────────────────── */}
-      <section id="built-with" style={sectionStyle}>
+      <section id="built-with" className="section-glow" style={sectionStyle}>
         <div style={innerStyle}>
           <SectionHeading>built with</SectionHeading>
           <motion.div {...reveal}>

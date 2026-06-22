@@ -52,3 +52,17 @@ body {
   background: var(--accent-muted);
   border-radius: 3px;
 }
+
+/* Section rhythm: a soft accent wash at the top edge of alternating sections,
+   so a long stack of dark sections reads as distinct bands rather than one
+   continuous page. Sits above the section's translucent background and below
+   its content (which is positioned at z-index 1). Purely decorative. */
+.section-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 340px;
+  background: radial-gradient(ellipse 70% 100% at 50% 0%, rgba(var(--accent-rgb), 0.07), transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+}

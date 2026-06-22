@@ -39,6 +39,8 @@ export default function NeuralBackground() {
     let animId = 0;
     let nodes: GraphNode[] = [];
     let lastFrame = 0;
+    let mouseX = -9999; // off-screen until the pointer moves
+    let mouseY = -9999;
     const TARGET_FPS = 30;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
@@ -54,7 +56,7 @@ export default function NeuralBackground() {
           radius: Math.random() * 2.2 + 2.8, // 2.8–5.0, larger so nodes read up close
           pulse: Math.random() * Math.PI * 2,
           zPhase,
-          zSpeed: 0.012 + Math.random() * 0.012, // gentle float in/out
+          zSpeed: 0.014 + Math.random() * 0.018, // float in/out, more pronounced depth
           depth: 0.5 + 0.5 * Math.sin(zPhase),
         };
       });
@@ -62,6 +64,7 @@ export default function NeuralBackground() {
 
     const MAX_DIST = 215;
     const VISIBLE_THRESHOLD_SQ = MAX_DIST * MAX_DIST * 0.65;
+    const INFLUENCE = 190; // cursor reach: nodes within this glow and link to it
 
     const resize = () => {
       width = canvas.width = window.innerWidth;
@@ -75,7 +78,7 @@ export default function NeuralBackground() {
       for (const node of nodes) {
         node.zPhase += node.zSpeed;
         node.depth = 0.5 + 0.5 * Math.sin(node.zPhase);
-        const speed = 0.45 + node.depth; // parallax: nearer nodes drift faster
+        const speed = 0.3 + node.depth * 1.5; // parallax: nearer nodes drift faster
         node.x += node.vx * speed;
         node.y += node.vy * speed;
         node.pulse += 0.05;
@@ -100,7 +103,7 @@ export default function NeuralBackground() {
           if (distSq < VISIBLE_THRESHOLD_SQ) {
             const dist = Math.sqrt(distSq);
             const avgDepth = (nodes[i].depth + nodes[j].depth) / 2;
-            const opacity = (1 - dist / MAX_DIST) * 0.7 * (0.45 + avgDepth * 0.7);
+            const opacity = (1 - dist / MAX_DIST) * 0.8 * (0.45 + avgDepth * 0.7);
             ctx.beginPath();
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
@@ -113,16 +116,30 @@ export default function NeuralBackground() {
 
       for (const node of nodes) {
         const depth = node.depth;
-        const r = node.radius * (0.55 + depth) + Math.sin(node.pulse) * 0.8;
+        // Wider radius range so the depth float reads as nodes coming forward.
+        let r = node.radius * (0.4 + depth * 1.4) + Math.sin(node.pulse) * 0.8;
         // Color blends across the field width (cyan -> violet).
         const t = width > 0 ? node.x / width : 0;
         const cr = Math.round(lerp(colorNear[0], colorFar[0], t));
         const cg = Math.round(lerp(colorNear[1], colorFar[1], t));
         const cb = Math.round(lerp(colorNear[2], colorFar[2], t));
 
-        // Soft glow halo, brighter for nearer nodes, so they feel luminous.
+        // Cursor influence: nodes near the pointer grow, brighten, and link to it.
+        const mDist = Math.hypot(node.x - mouseX, node.y - mouseY);
+        const infl = mDist < INFLUENCE ? 1 - mDist / INFLUENCE : 0;
+        if (infl > 0) {
+          r += infl * 2.5;
+          ctx.beginPath();
+          ctx.moveTo(node.x, node.y);
+          ctx.lineTo(mouseX, mouseY);
+          ctx.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${infl * 0.55})`;
+          ctx.lineWidth = 0.8 + infl * 0.8;
+          ctx.stroke();
+        }
+
+        // Soft glow halo, brighter for nearer nodes (and under the cursor).
         const glow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 3);
-        glow.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, ${0.5 * (0.5 + depth * 0.5)})`);
+        glow.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, ${Math.min(1, 0.62 * (0.5 + depth * 0.5) + infl * 0.4)})`);
         glow.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
         ctx.fillStyle = glow;
         ctx.beginPath();
@@ -132,13 +149,13 @@ export default function NeuralBackground() {
         // Solid core.
         ctx.beginPath();
         ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${0.75 + depth * 0.25})`;
+        ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${Math.min(1, 0.82 + depth * 0.18 + infl * 0.2)})`;
         ctx.fill();
 
         // Hot near-white center, so nodes pop instead of reading as flat dots.
         ctx.beginPath();
         ctx.arc(node.x, node.y, r * 0.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(225, 248, 255, ${0.45 + depth * 0.4})`;
+        ctx.fillStyle = `rgba(225, 248, 255, ${Math.min(1, 0.55 + depth * 0.4 + infl * 0.4)})`;
         ctx.fill();
       }
     }
@@ -165,14 +182,26 @@ export default function NeuralBackground() {
       else { lastFrame = 0; animId = requestAnimationFrame(draw); }
     };
 
+    // Cursor reactivity, pointer devices only. Touch has no hover, and under
+    // reduced motion the loop never runs, so this is naturally disabled there.
+    const finePointer = window.matchMedia('(pointer: fine)').matches;
+    const handlePointer = (e: PointerEvent) => { mouseX = e.clientX; mouseY = e.clientY; };
+    const handlePointerLeave = () => { mouseX = -9999; mouseY = -9999; };
+
     animId = requestAnimationFrame(draw);
     window.addEventListener('resize', resize);
     document.addEventListener('visibilitychange', handleVisibility);
+    if (finePointer) {
+      window.addEventListener('pointermove', handlePointer);
+      document.addEventListener('mouseleave', handlePointerLeave);
+    }
 
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('pointermove', handlePointer);
+      document.removeEventListener('mouseleave', handlePointerLeave);
     };
   }, []);
 

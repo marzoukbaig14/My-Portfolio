@@ -37,7 +37,7 @@ interfaces (see "Types" below).
 ```
 my-portfolio/
 ├─ src/app/
-│  ├─ layout.tsx             Root layout: fonts, <html>, global metadata, JSON-LD
+│  ├─ layout.tsx             Root layout: fonts, <html>, global metadata, JSON-LD, SmoothScroll
 │  ├─ globals.css            Design tokens (CSS vars: --accent, --bg-*, etc.)
 │  ├─ page.tsx               HOME PAGE — composes the sections below
 │  ├─ robots.ts  sitemap.ts  SEO route handlers
@@ -52,7 +52,8 @@ my-portfolio/
 │  │  ├─ Navbar.tsx          Fixed nav + Cmd-K trigger
 │  │  ├─ CommandPalette.tsx  Cmd-K overlay
 │  │  ├─ NeuralBackground.tsx Canvas node-graph (shared by home + /committed)
-│  │  ├─ SmoothScroll.tsx    Lenis wrapper (resets scroll to top on route mount)
+│  │  ├─ SmoothScroll.tsx    Lenis wrapper — one persistent instance mounted in the
+│  │  │                      root layout; resets scroll to top on each route change
 │  │  ├─ ScrollProgress.tsx  Top progress bar
 │  │  ├─ CodeHighlight.tsx   [*] Renders highlighted code (maps tokens to colors)
 │  │  └─ highlightTokens.ts  [*] PURE tokenizer + token types (no React) — unit-tested

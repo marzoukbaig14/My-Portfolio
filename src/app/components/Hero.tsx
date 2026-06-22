@@ -84,7 +84,7 @@ export default function Hero() {
   ) : null;
 
   return (
-    <section id="hero" style={{ background: 'rgba(13,13,18,0.65)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(5rem, 10vh, 8rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
+    <section id="hero" className="surface-a" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(5rem, 10vh, 8rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
 
       <div style={{ position: 'absolute', top: '30%', left: '50%', transform: 'translateX(-50%)', width: '70vw', maxWidth: '900px', height: '35vh', background: 'radial-gradient(ellipse, rgba(124,111,255,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
 

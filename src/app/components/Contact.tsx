@@ -44,7 +44,7 @@ export default function Contact() {
           transition={{ duration: 0.6, delay: 0.1 }}
           style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', marginBottom: '3rem', maxWidth: '500px' }}
         >
-          Open to research collaborations, internships, and full-time ML engineering roles. Feel free to reach out.
+          Open to co-ops and internships from December 2026, along with research collaborations and ML engineering roles. Feel free to reach out.
         </motion.p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(2rem, 5vw, 4rem)' }}>

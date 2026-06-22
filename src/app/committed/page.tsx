@@ -1,6 +1,7 @@
 import CommittedBackground from './CommittedBackground';
 import CommittedHeader from './CommittedHeader';
 import CommittedDemo from './CommittedDemo';
+import CommittedArchitecture from './CommittedArchitecture';
 import StorySections from './StorySections';
 import ScrollProgress from '../components/ScrollProgress';
 import { notFound } from 'next/navigation';
@@ -39,17 +40,41 @@ export default function CommittedPage() {
               committed<span style={{ color: 'var(--accent)' }}>.</span>
             </h1>
             {/* Factual one-liner (the project's own description, not invented copy). */}
-            <p style={{ fontSize: 'clamp(15px, 2vw, 19px)', color: 'var(--accent)', fontFamily: 'var(--font-geist-mono), monospace', marginBottom: '1rem' }}>
+            <p style={{ fontSize: 'clamp(15px, 2vw, 19px)', color: 'var(--accent)', fontFamily: 'var(--font-geist-mono), monospace', marginBottom: '1.5rem' }}>
               Conventional Commit messages from your code diffs.
             </p>
+
+            {/* Headline numbers up top, so the result is the first thing a
+                recruiter sees. The full eval (table, caveats) is in #results below. */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '1.75rem' }}>
+              {[
+                { value: '0.13 → 0.64', label: 'commit-type accuracy', hint: 'vs. base, reweighted' },
+                { value: '0.43 → 0.86', label: 'faithfulness', hint: 'vs. base model' },
+                { value: '~1 GB', label: 'runs locally on CPU', hint: 'quantized GGUF' },
+              ].map(stat => (
+                <div key={stat.label} style={{ flex: '1 1 160px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1rem 1.25rem' }}>
+                  <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(17px, 2.4vw, 24px)', fontWeight: 700, color: 'var(--accent)', lineHeight: 1.15 }}>{stat.value}</div>
+                  <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-primary)', marginTop: '8px' }}>{stat.label}</div>
+                  <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', marginTop: '3px' }}>{stat.hint}</div>
+                </div>
+              ))}
+            </div>
+
             <p style={{ fontSize: 'clamp(14px, 1.7vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '620px' }}>
-              An end-to-end ML project, from data curation through fine-tuning, evaluation, and
-              serving, that turns a code diff into a clean Conventional Commit message. It runs
-              locally on a quantized 1.7B model, so your diffs never leave your machine. That was the
-              point: most tools like this ship your code off to an API, and I wanted one small enough
-              that nothing has to. Paste a diff below, or try an example, and Committed writes the
-              subject line for you.
+              Fine-tuning a 1.7B model (Qwen3, QLoRA) on ~58k real commits taught it to turn a code
+              diff into a clean Conventional Commit subject line. On a 442-diff held-out eval, that
+              lifted commit-type accuracy from 0.13 to 0.64 and faithfulness from 0.43 to 0.86 over
+              the base model. It serves as a ~1 GB quantized GGUF on llama.cpp, CPU-only, so your
+              diffs never leave your machine: most tools like this ship your code off to an API, and
+              the point was to build one small enough that nothing has to. A GBNF grammar constrains
+              decoding, so every output is a valid commit by construction. Paste a diff below, or try
+              an example.
             </p>
+
+            {/* System diagram, near the top so the shape of the project reads at a glance. */}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: 'clamp(1.25rem, 2.5vw, 1.75rem)', marginTop: '2.25rem', overflowX: 'auto' }}>
+              <CommittedArchitecture />
+            </div>
           </div>
         </section>
 

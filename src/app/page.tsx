@@ -1,5 +1,6 @@
 import Hero from './components/Hero'
 import About from './components/About'
+import Skills from './components/Skills'
 import Projects from './components/Projects'
 import Contact from './components/Contact'
 import Navbar from './components/Navbar'
@@ -18,6 +19,7 @@ export default function Home() {
       <main className="flex flex-col mt-16">
         <Hero />
         <About />
+        <Skills />
         <Experience />
         <Projects />
         <Contact />

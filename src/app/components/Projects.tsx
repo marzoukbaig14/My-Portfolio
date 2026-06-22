@@ -185,9 +185,14 @@ export default function Projects() {
                     <span key={tag} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '10px', padding: '3px 10px', borderRadius: '20px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>{tag}</span>
                   ))}
                 </div>
-                {project.github && (
-                  <a href={project.github} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>View on GitHub →</a>
-                )}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
+                  {project.github && (
+                    <a href={project.github} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>View on GitHub →</a>
+                  )}
+                  {project.extraLinks?.map(link => (
+                    <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>{link.label}</a>
+                  ))}
+                </div>
               </div>
             </TiltCard>
           ))}

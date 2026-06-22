@@ -9,6 +9,9 @@ export interface Project {
   paper: string | null;
   demo?: string;
   command: string;
+  // Optional secondary repo/demo links rendered alongside the main GitHub link
+  // (used when one card covers more than one repo).
+  extraLinks?: { label: string; href: string }[];
 }
 
 export const projects: Project[] = [
@@ -19,8 +22,8 @@ export const projects: Project[] = [
     id: "committed",
     title: "Committed",
     subtitle: "Fine-tuned commit-message model. 2026.",
-    description: "A commit-message model I fine-tuned (Qwen3-1.7B, QLoRA): give it a git diff, it writes the message in Conventional Commits format. Runs locally, which was the point. Nothing leaves your machine.",
-    tags: ["Fine-tuning", "LLMs", "MLOps", "Docker"],
+    description: "A 1.7B model I fine-tuned to turn a git diff into a Conventional Commits message. On a 442-diff held-out eval, fine-tuning lifted commit-type accuracy from 0.13 to 0.64 and faithfulness from 0.43 to 0.86 over the base model. It serves as a ~1 GB quantized GGUF on llama.cpp, CPU-only, so nothing leaves your machine, and a GBNF grammar makes every output a valid commit by construction.",
+    tags: ["Fine-tuning", "QLoRA", "LLMs", "MLOps"],
     tier: "tier1",
     github: "https://github.com/marzoukbaig14/Committed",
     paper: null,
@@ -56,7 +59,10 @@ export const projects: Project[] = [
     description: "Quantitative study on whether proximity to private universities in Monroe County, NY correlates with neighborhood-level gentrification indicators in Rochester. Full pipeline: data acquisition from census and geospatial sources, feature engineering on demographic variables, cross-validated logistic and linear regression in scikit-learn. The interesting part was operationalizing gentrification correctly before touching any models.",
     tags: ["Python", "scikit-learn", "Pandas", "Geospatial", "Regression"],
     tier: "tier1",
-    github: "https://github.com/marzoukbaig14",
+    // No public repo for this one (it predates regular GitHub use). Left empty
+    // so the card doesn't dead-end on the profile page; a YouTube walkthrough
+    // link is pending and can be dropped into `demo` once available.
+    github: "",
     paper: null,
     command: ">>> model.fit(X_proximity, y_gentrify)"
   },
@@ -64,7 +70,7 @@ export const projects: Project[] = [
     id: "gpt-zero",
     title: "GPT from Scratch",
     subtitle: "Independent project. 2026.",
-    description: "Where nanoLM lands. A full character-level GPT transformer built in PyTorch from scratch, trained on Shakespeare. ~10M parameters. Every component built independently: multi-head self-attention, transformer blocks with residual connections and layernorm, positional encoding, autoregressive generation. The model actually produces coherent Shakespearean text. Follows Karpathy's Neural Networks: Zero to Hero series.",
+    description: "A working ~10M-parameter character-level GPT, built in PyTorch from scratch and trained on Shakespeare until it produces coherent Shakespearean text. Every component implemented by hand: multi-head self-attention, transformer blocks with residual connections and layernorm, positional encoding, and autoregressive generation. The endpoint of the from-scratch track below; follows Karpathy's Neural Networks: Zero to Hero.",
     tags: ["Python", "PyTorch", "Transformers", "Deep Learning", "NLP"],
     tier: "tier2",
     github: "https://github.com/marzoukbaig14/gpt-zero",
@@ -72,25 +78,21 @@ export const projects: Project[] = [
     command: "$ python train.py"
   },
   {
-    id: "nanoLM",
-    title: "nanoLM",
-    subtitle: "Independent project. 2026.",
-    description: "A ground-up progression through the history of language modeling. Starts at a bigram count model and builds up one step at a time: neural bigram, Bengio et al. 2003 MLP with character embeddings, deep MLP with Xavier and Kaiming initialization and batch normalization (derived manually, not just applied), then full backpropagation through softmax, cross-entropy, and batchnorm by hand and validated against PyTorch autograd. WaveNet-style hierarchical model next. This one is about understanding every layer before moving to the next. gpt-zero is where it ends up.",
-    tags: ["Python", "PyTorch", "Transformers", "Language Models"],
+    // Consolidates the former micrograd (autograd engine) and nanoLM
+    // (language-modeling progression) cards into one fundamentals track, so the
+    // projects list reads as a deliberate progression rather than three
+    // tutorial-style entries. Both repos are linked.
+    id: "from-scratch",
+    title: "Neural Networks from Scratch",
+    subtitle: "Independent projects. 2026.",
+    description: "Building the ML stack from the ground up to understand every layer before reaching for a framework. First a scalar-valued autograd engine in pure Python: backpropagation over a dynamically built DAG, no PyTorch or NumPy in the core. Then a language-modeling progression: bigram counts, a Bengio-style MLP with character embeddings, manual Xavier and Kaiming init and batch normalization, and full backprop through softmax, cross-entropy, and batchnorm by hand, validated against PyTorch autograd, up to a WaveNet-style model. The working GPT above is where this track lands.",
+    tags: ["Python", "PyTorch", "Autograd", "Backpropagation", "Language Models"],
     tier: "tier2",
     github: "https://github.com/marzoukbaig14/nanoLM",
     paper: null,
-    command: "$ python train.py"
-  },
-  {
-    id: "micrograd",
-    title: "Autograd Engine from Scratch",
-    subtitle: "Independent project. 2026.",
-    description: "A scalar-valued autograd engine and neural network library in pure Python. Backpropagation over a dynamically built DAG, no PyTorch or NumPy for the core engine. Gives you real appreciation for what automatic differentiation actually does. Built to understand, not to use.",
-    tags: ["Python", "Autograd", "Backpropagation", "Neural Networks"],
-    tier: "tier2",
-    github: "https://github.com/marzoukbaig14/micrograd",
-    paper: null,
-    command: "$ python engine.py"
+    command: "$ python train.py",
+    extraLinks: [
+      { label: "micrograd (autograd engine) →", href: "https://github.com/marzoukbaig14/micrograd" }
+    ]
   }
 ];

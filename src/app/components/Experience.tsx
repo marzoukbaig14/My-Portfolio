@@ -4,7 +4,7 @@ import { experience } from '@/data/experience';
 
 export default function Experience() {
   return (
-    <section id="experience" style={{ background: 'rgba(13,13,18,0.65)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
+    <section id="experience" className="surface-a section-divider" style={{ padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

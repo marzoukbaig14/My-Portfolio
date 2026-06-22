@@ -7,8 +7,9 @@ import { CodeBlock } from '../components/CodeHighlight';
 // and the built-with stack + links. Copy and metrics here are the project's real,
 // final content.
 
+// Each section shares the .surface-a background and is separated by the
+// .section-divider accent rule (see globals.css).
 const sectionStyle: React.CSSProperties = {
-  background: 'rgba(13,13,18,0.65)',
   padding: 'clamp(3.5rem, 7vh, 6rem) clamp(1.5rem, 5vw, 4rem)',
   position: 'relative',
   overflow: 'hidden',
@@ -43,7 +44,7 @@ export default function StorySections() {
   return (
     <>
       {/* ── How it works ─────────────────────────────────────────── */}
-      <section id="how-it-works" style={sectionStyle}>
+      <section id="how-it-works" className="surface-a section-divider" style={sectionStyle}>
         <div style={innerStyle}>
           <SectionHeading>how it works</SectionHeading>
           <motion.div {...reveal}>
@@ -71,7 +72,7 @@ export default function StorySections() {
       </section>
 
       {/* ── Results (floated high, per the spec) ─────────────────── */}
-      <section id="results" style={sectionStyle}>
+      <section id="results" className="surface-a section-divider" style={sectionStyle}>
         <div style={innerStyle}>
           <SectionHeading>results</SectionHeading>
           <motion.div {...reveal}>
@@ -153,7 +154,7 @@ export default function StorySections() {
       </section>
 
       {/* ── Sample outputs ───────────────────────────────────────── */}
-      <section id="sample-outputs" style={sectionStyle}>
+      <section id="sample-outputs" className="surface-a section-divider" style={sectionStyle}>
         <div style={innerStyle}>
           <SectionHeading>sample outputs</SectionHeading>
           <motion.div {...reveal} style={{ display: 'grid', gap: '1rem' }}>
@@ -206,7 +207,7 @@ export default function StorySections() {
       </section>
 
       {/* ── Run it locally ───────────────────────────────────────── */}
-      <section id="run-locally" style={sectionStyle}>
+      <section id="run-locally" className="surface-a section-divider" style={sectionStyle}>
         <div style={innerStyle}>
           <SectionHeading>run it locally</SectionHeading>
           <motion.div {...reveal}>
@@ -234,7 +235,7 @@ git diff | committed`}
       </section>
 
       {/* ── Built with & links ───────────────────────────────────── */}
-      <section id="built-with" style={sectionStyle}>
+      <section id="built-with" className="surface-a section-divider" style={sectionStyle}>
         <div style={innerStyle}>
           <SectionHeading>built with</SectionHeading>
           <motion.div {...reveal}>

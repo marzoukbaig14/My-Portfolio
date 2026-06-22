@@ -1,0 +1,25 @@
+%% Committed: system architecture (Mermaid source).
+%% Portable artifact for READMEs and docs. GitHub, GitLab, and most Markdown
+%% renderers display this natively inside a ```mermaid code fence.
+%% The /committed page renders an equivalent diagram natively in its design system.
+flowchart LR
+  subgraph training["Training pipeline (offline)"]
+    direction LR
+    A["CommitChronicle<br/>~10.7M real commits"]
+    B["Filter to Conventional Commits<br/>~58k single-file diffs, 16 languages"]
+    C["QLoRA 4-bit SFT<br/>Qwen3-1.7B + PEFT / TRL"]
+    D["Merge + GGUF quantize<br/>Q4_K_M, ~1 GB"]
+    A --> B --> C --> D
+  end
+
+  subgraph inference["Inference (local, CPU)"]
+    direction LR
+    E["git diff"]
+    F["Prompt + tokenize"]
+    G["Fine-tuned Qwen3-1.7B<br/>llama.cpp, CPU"]
+    H["GBNF grammar-constrained<br/>decoding"]
+    I["Conventional Commit message<br/>valid by construction"]
+    E --> F --> G --> H --> I
+  end
+
+  D -. served model artifact .-> G

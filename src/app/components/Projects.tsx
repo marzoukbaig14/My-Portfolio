@@ -59,7 +59,7 @@ const tier2 = visibleProjects.filter(p => p.tier === 'tier2');
 
 export default function Projects() {
   return (
-    <section id="projects" style={{ background: 'rgba(13,13,18,0.65)', padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
+    <section id="projects" className="surface-a section-divider" style={{ padding: 'clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 4rem)', position: 'relative', overflow: 'hidden' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
 
         <h2 style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '3rem' }}>
@@ -185,9 +185,14 @@ export default function Projects() {
                     <span key={tag} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '10px', padding: '3px 10px', borderRadius: '20px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>{tag}</span>
                   ))}
                 </div>
-                {project.github && (
-                  <a href={project.github} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>View on GitHub →</a>
-                )}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
+                  {project.github && (
+                    <a href={project.github} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>View on GitHub →</a>
+                  )}
+                  {project.extraLinks?.map(link => (
+                    <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--accent)', textDecoration: 'none' }}>{link.label}</a>
+                  ))}
+                </div>
               </div>
             </TiltCard>
           ))}

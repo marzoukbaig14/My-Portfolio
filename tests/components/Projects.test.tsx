@@ -16,7 +16,7 @@ describe('Projects', () => {
   it('renders project titles from the data file', () => {
     render(<Projects />);
     expect(screen.getByText('GPT from Scratch')).toBeInTheDocument();
-    expect(screen.getByText('nanoLM')).toBeInTheDocument();
+    expect(screen.getByText('Neural Networks from Scratch')).toBeInTheDocument();
     expect(screen.getByText('Listening to Southern Maine')).toBeInTheDocument();
   });
 });

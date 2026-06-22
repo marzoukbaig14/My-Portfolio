@@ -1,13 +1,28 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { profile } from '@/data/profile';
 
-const commands = [
+interface Command {
+  label: string;
+  href: string;
+  external: boolean;
+  // Internal route (not an in-page anchor): navigated with the router.
+  route?: boolean;
+}
+
+// Matches the build gate on the Committed route/card, so we never offer a link
+// to a page that 404s when the flag is off.
+const committedEnabled = process.env.NEXT_PUBLIC_COMMITTED_ENABLED === 'true';
+
+const commands: Command[] = [
   { label: '→ Home', href: '#hero', external: false },
   { label: '→ About', href: '#about', external: false },
+  { label: '→ Skills', href: '#skills', external: false },
   { label: '→ Experience', href: '#experience', external: false },
   { label: '→ Projects', href: '#projects', external: false },
   { label: '→ Contact', href: '#contact', external: false },
+  ...(committedEnabled ? [{ label: 'Committed live demo ↗', href: '/committed', external: false, route: true }] : []),
   { label: 'Open GitHub ↗', href: profile.socials.github, external: true },
   { label: 'View Resume ↗', href: profile.resume, external: true },
 ];
@@ -19,6 +34,7 @@ export default function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const restoreRef = useRef<HTMLElement | null>(null);
+  const router = useRouter();
 
   const filtered = commands.filter(c =>
     c.label.toLowerCase().includes(query.toLowerCase())
@@ -60,10 +76,12 @@ export default function CommandPalette() {
     else if (e.key === 'Enter' && filtered[activeIndex]) handleSelect(filtered[activeIndex]);
   };
 
-  const handleSelect = (item: (typeof commands)[number]) => {
+  const handleSelect = (item: Command) => {
     setOpen(false);
     if (item.external) {
       window.open(item.href, '_blank', 'noopener,noreferrer');
+    } else if (item.route) {
+      router.push(item.href);
     } else {
       document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' });
     }

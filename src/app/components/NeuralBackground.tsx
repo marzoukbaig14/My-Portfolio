@@ -30,6 +30,31 @@ export default function NeuralBackground() {
     const colorFar = [124, 111, 255];      // right edge: hero-glow violet
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
+    // Pre-render the glow into a few color-bucketed sprites and blit them at
+    // draw time, instead of allocating a radial gradient per node every frame
+    // (the previous hot spot). Color is picked per node by bucket; brightness
+    // comes from globalAlpha, so the result matches the old per-node gradient.
+    const GLOW_BUCKETS = 10;
+    const GLOW_SPRITE_SIZE = 48;
+    const glowSprites: HTMLCanvasElement[] = [];
+    for (let k = 0; k < GLOW_BUCKETS; k++) {
+      const tk = k / (GLOW_BUCKETS - 1);
+      const gr = Math.round(lerp(colorNear[0], colorFar[0], tk));
+      const gg = Math.round(lerp(colorNear[1], colorFar[1], tk));
+      const gb = Math.round(lerp(colorNear[2], colorFar[2], tk));
+      const sprite = document.createElement('canvas');
+      sprite.width = sprite.height = GLOW_SPRITE_SIZE;
+      const sctx = sprite.getContext('2d');
+      if (!sctx) continue;
+      const c = GLOW_SPRITE_SIZE / 2;
+      const grad = sctx.createRadialGradient(c, c, 0, c, c, c);
+      grad.addColorStop(0, `rgba(${gr}, ${gg}, ${gb}, 1)`);
+      grad.addColorStop(1, `rgba(${gr}, ${gg}, ${gb}, 0)`);
+      sctx.fillStyle = grad;
+      sctx.fillRect(0, 0, GLOW_SPRITE_SIZE, GLOW_SPRITE_SIZE);
+      glowSprites.push(sprite);
+    }
+
     // Respect prefers-reduced-motion: when set, we paint a single static frame
     // and never start the animation loop. Checked once on mount.
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -41,6 +66,7 @@ export default function NeuralBackground() {
     let lastFrame = 0;
     let mouseX = -9999; // off-screen until the pointer moves
     let mouseY = -9999;
+    let renderScale = 1; // backing-store scale; drops below 1 on large viewports
     const TARGET_FPS = 30;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
@@ -66,9 +92,19 @@ export default function NeuralBackground() {
     const VISIBLE_THRESHOLD_SQ = MAX_DIST * MAX_DIST * 0.65;
     const INFLUENCE = 190; // cursor reach: nodes within this glow and link to it
 
+    // Cap the backing-store resolution on large viewports: a soft, blurred
+    // background tolerates slight upscaling, and fill cost scales with pixel
+    // count, so this is a meaningful win on big external monitors. Raise
+    // MAX_BACKING for a crisper field, lower it for more speed.
+    const MAX_BACKING = 1920;
     const resize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      const cssW = window.innerWidth;
+      const cssH = window.innerHeight;
+      renderScale = Math.min(1, MAX_BACKING / Math.max(cssW, cssH));
+      width = canvas.width = Math.round(cssW * renderScale);
+      height = canvas.height = Math.round(cssH * renderScale);
+      canvas.style.width = `${cssW}px`;
+      canvas.style.height = `${cssH}px`;
       initNodes();
       if (prefersReduced) paintFrame(); // keep the static frame correct on resize
     };
@@ -125,7 +161,9 @@ export default function NeuralBackground() {
         const cb = Math.round(lerp(colorNear[2], colorFar[2], t));
 
         // Cursor influence: nodes near the pointer grow, brighten, and link to it.
-        const mDist = Math.hypot(node.x - mouseX, node.y - mouseY);
+        const mdx = node.x - mouseX;
+        const mdy = node.y - mouseY;
+        const mDist = Math.sqrt(mdx * mdx + mdy * mdy);
         const infl = mDist < INFLUENCE ? 1 - mDist / INFLUENCE : 0;
         if (infl > 0) {
           r += infl * 2.5;
@@ -137,14 +175,16 @@ export default function NeuralBackground() {
           ctx.stroke();
         }
 
-        // Soft glow halo, brighter for nearer nodes (and under the cursor).
-        const glow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 3);
-        glow.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, ${Math.min(1, 0.62 * (0.5 + depth * 0.5) + infl * 0.4)})`);
-        glow.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, r * 3, 0, Math.PI * 2);
-        ctx.fill();
+        // Soft glow halo: blit a cached sprite (color bucketed by x, brightness
+        // via globalAlpha) instead of building a gradient every frame.
+        if (glowSprites.length) {
+          const glowAlpha = Math.min(1, 0.62 * (0.5 + depth * 0.5) + infl * 0.4);
+          const bucket = Math.min(glowSprites.length - 1, Math.floor(t * glowSprites.length));
+          const R = r * 3;
+          ctx.globalAlpha = glowAlpha;
+          ctx.drawImage(glowSprites[bucket], node.x - R, node.y - R, R * 2, R * 2);
+          ctx.globalAlpha = 1;
+        }
 
         // Solid core.
         ctx.beginPath();
@@ -185,7 +225,7 @@ export default function NeuralBackground() {
     // Cursor reactivity, pointer devices only. Touch has no hover, and under
     // reduced motion the loop never runs, so this is naturally disabled there.
     const finePointer = window.matchMedia('(pointer: fine)').matches;
-    const handlePointer = (e: PointerEvent) => { mouseX = e.clientX; mouseY = e.clientY; };
+    const handlePointer = (e: PointerEvent) => { mouseX = e.clientX * renderScale; mouseY = e.clientY * renderScale; };
     const handlePointerLeave = () => { mouseX = -9999; mouseY = -9999; };
 
     animId = requestAnimationFrame(draw);

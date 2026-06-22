@@ -79,7 +79,7 @@ export default function CommittedPage() {
         </section>
 
         {/* The tool */}
-        <section className="surface-b" style={{ padding: 'clamp(2.5rem, 5vh, 4rem) clamp(1.5rem, 5vw, 4rem) clamp(3rem, 6vh, 5rem)', position: 'relative', overflow: 'hidden' }}>
+        <section className="surface-a section-divider" style={{ padding: 'clamp(2.5rem, 5vh, 4rem) clamp(1.5rem, 5vw, 4rem) clamp(3rem, 6vh, 5rem)', position: 'relative', overflow: 'hidden' }}>
           <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
             <CommittedDemo />
           </div>

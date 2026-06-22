@@ -15,9 +15,14 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', handler);
-    return () => window.removeEventListener('scroll', handler);
+    // Coalesce scroll handling to one update per frame, passive so it never
+    // blocks the scroll thread. setScrolled only re-renders when the boolean
+    // actually flips.
+    let raf = 0;
+    const update = () => { raf = 0; setScrolled(window.scrollY > 10); };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
   const openPalette = () => window.dispatchEvent(new CustomEvent('open-command-palette'));
@@ -25,10 +30,12 @@ export default function Navbar() {
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 50,
-      background: scrolled ? 'rgba(13,13,18,0.95)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(12px)' : 'none',
+      // Near-opaque instead of a translucent blur: blur(12px) on a full-width
+      // fixed bar is recomputed every scroll frame and is a major scroll-jank
+      // source on weaker GPUs.
+      background: scrolled ? 'rgba(13,13,18,0.97)' : 'transparent',
       borderBottom: scrolled ? '1px solid var(--border)' : 'none',
-      transition: 'all 0.3s ease'
+      transition: 'background 0.3s ease, border-color 0.3s ease'
     }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2.5rem)', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 

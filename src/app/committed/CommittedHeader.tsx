@@ -19,19 +19,23 @@ export default function CommittedHeader() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 10);
-    handler();
-    window.addEventListener('scroll', handler);
-    return () => window.removeEventListener('scroll', handler);
+    // rAF-coalesced, passive scroll handling (see Navbar).
+    let raf = 0;
+    const update = () => { raf = 0; setScrolled(window.scrollY > 10); };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 50,
-      background: scrolled ? 'rgba(13,13,18,0.95)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(12px)' : 'none',
+      // Near-opaque instead of a blur (see Navbar): avoids a per-scroll-frame
+      // GPU blur of everything behind the bar.
+      background: scrolled ? 'rgba(13,13,18,0.97)' : 'transparent',
       borderBottom: scrolled ? '1px solid var(--border)' : 'none',
-      transition: 'all 0.3s ease',
+      transition: 'background 0.3s ease, border-color 0.3s ease',
     }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 clamp(1rem, 4vw, 2.5rem)', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 

@@ -5,13 +5,20 @@ export default function ScrollProgress() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const handler = () => {
+    // Coalesce to one update per frame: the previous handler ran setState (a
+    // React re-render) plus a layout read on every scroll event, which adds up
+    // on a long page. Passive listener so it never blocks the scroll thread.
+    let raf = 0;
+    const update = () => {
+      raf = 0;
       const scrolled = window.scrollY;
       const total = document.documentElement.scrollHeight - window.innerHeight;
       setProgress(total > 0 ? (scrolled / total) * 100 : 0);
     };
-    window.addEventListener('scroll', handler);
-    return () => window.removeEventListener('scroll', handler);
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    update();
+    return () => { window.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
   return (

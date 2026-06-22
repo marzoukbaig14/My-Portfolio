@@ -1,7 +1,10 @@
 'use client';
 import { useEffect, useRef } from 'react';
 
-type GraphNode = { x: number; y: number; vx: number; vy: number; radius: number; pulse: number };
+// zPhase/zSpeed drive a per-node "depth" in [0,1] that slowly oscillates, so
+// nodes appear to float toward and away from the screen. depth scales radius,
+// brightness, edge weight, and parallax speed.
+type GraphNode = { x: number; y: number; vx: number; vy: number; radius: number; pulse: number; zPhase: number; zSpeed: number; depth: number };
 
 export default function NeuralBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -20,6 +23,13 @@ export default function NeuralBackground() {
     const accentRgb = hexToRgb(accentHex);
     const edgeRgb = getComputedStyle(document.documentElement).getPropertyValue('--edge-rgb').trim() || '200, 200, 220';
 
+    // Field color gradient: blend across x from the accent (cyan) to the violet
+    // already used in the hero glow, so the net reads as a cohesive gradient.
+    const toNums = (rgb: string) => rgb.split(',').map(s => parseInt(s.trim(), 10));
+    const colorNear = toNums(accentRgb);   // left edge: brand accent
+    const colorFar = [124, 111, 255];      // right edge: hero-glow violet
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
     // Respect prefers-reduced-motion: when set, we paint a single static frame
     // and never start the animation loop. Checked once on mount.
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -34,17 +44,23 @@ export default function NeuralBackground() {
 
     const initNodes = () => {
       const count = Math.min(95, Math.max(40, Math.floor((width * height) / 16000))); // count at init
-      nodes = Array.from({ length: count }, () => ({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 1.4,
-        vy: (Math.random() - 0.5) * 1.4,
-        radius: Math.random() * 2.5 + 2.0,
-        pulse: Math.random() * Math.PI * 2,
-      }));
+      nodes = Array.from({ length: count }, () => {
+        const zPhase = Math.random() * Math.PI * 2;
+        return {
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 1.2,
+          vy: (Math.random() - 0.5) * 1.2,
+          radius: Math.random() * 2.2 + 2.8, // 2.8–5.0, larger so nodes read up close
+          pulse: Math.random() * Math.PI * 2,
+          zPhase,
+          zSpeed: 0.012 + Math.random() * 0.012, // gentle float in/out
+          depth: 0.5 + 0.5 * Math.sin(zPhase),
+        };
+      });
     };
 
-    const MAX_DIST = 200;
+    const MAX_DIST = 215;
     const VISIBLE_THRESHOLD_SQ = MAX_DIST * MAX_DIST * 0.65;
 
     const resize = () => {
@@ -57,8 +73,11 @@ export default function NeuralBackground() {
     // Advance node positions one tick. Skipped entirely under reduced motion.
     function integrate() {
       for (const node of nodes) {
-        node.x += node.vx;
-        node.y += node.vy;
+        node.zPhase += node.zSpeed;
+        node.depth = 0.5 + 0.5 * Math.sin(node.zPhase);
+        const speed = 0.45 + node.depth; // parallax: nearer nodes drift faster
+        node.x += node.vx * speed;
+        node.y += node.vy * speed;
         node.pulse += 0.05;
         if (node.x < 0 || node.x > width) node.vx *= -1;
         if (node.y < 0 || node.y > height) node.vy *= -1;
@@ -80,22 +99,40 @@ export default function NeuralBackground() {
           const distSq = dx * dx + dy * dy;
           if (distSq < VISIBLE_THRESHOLD_SQ) {
             const dist = Math.sqrt(distSq);
-            const opacity = (1 - dist / MAX_DIST) * 0.50;
+            const avgDepth = (nodes[i].depth + nodes[j].depth) / 2;
+            const opacity = (1 - dist / MAX_DIST) * 0.55 * (0.4 + avgDepth * 0.8);
             ctx.beginPath();
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
             ctx.strokeStyle = `rgba(${edgeRgb}, ${opacity})`;
-            ctx.lineWidth = 1.2;
+            ctx.lineWidth = 0.8 + avgDepth * 0.9;
             ctx.stroke();
           }
         }
       }
 
       for (const node of nodes) {
-        const r = node.radius + Math.sin(node.pulse) * 0.8;
+        const depth = node.depth;
+        const r = node.radius * (0.55 + depth) + Math.sin(node.pulse) * 0.8;
+        // Color blends across the field width (cyan -> violet).
+        const t = width > 0 ? node.x / width : 0;
+        const cr = Math.round(lerp(colorNear[0], colorFar[0], t));
+        const cg = Math.round(lerp(colorNear[1], colorFar[1], t));
+        const cb = Math.round(lerp(colorNear[2], colorFar[2], t));
+
+        // Soft glow halo, brighter for nearer nodes, so they feel luminous.
+        const glow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 2.6);
+        glow.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, ${0.30 * (0.5 + depth * 0.5)})`);
+        glow.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, r * 2.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Solid core.
         ctx.beginPath();
         ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${accentRgb}, 0.95)`;
+        ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${0.55 + depth * 0.4})`;
         ctx.fill();
       }
     }

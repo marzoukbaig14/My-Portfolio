@@ -100,7 +100,7 @@ export default function NeuralBackground() {
           if (distSq < VISIBLE_THRESHOLD_SQ) {
             const dist = Math.sqrt(distSq);
             const avgDepth = (nodes[i].depth + nodes[j].depth) / 2;
-            const opacity = (1 - dist / MAX_DIST) * 0.55 * (0.4 + avgDepth * 0.8);
+            const opacity = (1 - dist / MAX_DIST) * 0.7 * (0.45 + avgDepth * 0.7);
             ctx.beginPath();
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
@@ -121,18 +121,24 @@ export default function NeuralBackground() {
         const cb = Math.round(lerp(colorNear[2], colorFar[2], t));
 
         // Soft glow halo, brighter for nearer nodes, so they feel luminous.
-        const glow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 2.6);
-        glow.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, ${0.30 * (0.5 + depth * 0.5)})`);
+        const glow = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 3);
+        glow.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, ${0.5 * (0.5 + depth * 0.5)})`);
         glow.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(node.x, node.y, r * 2.6, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, r * 3, 0, Math.PI * 2);
         ctx.fill();
 
         // Solid core.
         ctx.beginPath();
         ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${0.55 + depth * 0.4})`;
+        ctx.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${0.75 + depth * 0.25})`;
+        ctx.fill();
+
+        // Hot near-white center, so nodes pop instead of reading as flat dots.
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, r * 0.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(225, 248, 255, ${0.45 + depth * 0.4})`;
         ctx.fill();
       }
     }

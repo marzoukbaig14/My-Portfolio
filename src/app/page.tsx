@@ -6,14 +6,12 @@ import Navbar from './components/Navbar'
 import Experience from './components/Experience'
 import CommandPalette from './components/CommandPalette'
 import ScrollProgress from './components/ScrollProgress'
-import SmoothScroll from './components/SmoothScroll'
 import NeuralBackground from './components/NeuralBackground'
 
 export default function Home() {
   return (
     <>
       <NeuralBackground />
-      <SmoothScroll />
       <ScrollProgress />
       <Navbar />
       <CommandPalette />

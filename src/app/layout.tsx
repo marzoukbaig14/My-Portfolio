@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { profile } from "@/data/profile";
 import { siteUrl } from "@/lib/site";
+import SmoothScroll from "./components/SmoothScroll";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -71,6 +72,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         />
+        {/* One app-wide smooth-scroll instance, so it persists across route
+            changes instead of remounting (and racing) per page. */}
+        <SmoothScroll />
         {children}
       </body>
     </html>

@@ -2,7 +2,6 @@ import CommittedBackground from './CommittedBackground';
 import CommittedHeader from './CommittedHeader';
 import CommittedDemo from './CommittedDemo';
 import StorySections from './StorySections';
-import SmoothScroll from '../components/SmoothScroll';
 import ScrollProgress from '../components/ScrollProgress';
 import { notFound } from 'next/navigation';
 
@@ -26,7 +25,6 @@ export default function CommittedPage() {
   return (
     <>
       <CommittedBackground />
-      <SmoothScroll />
       <ScrollProgress />
       <CommittedHeader />
 

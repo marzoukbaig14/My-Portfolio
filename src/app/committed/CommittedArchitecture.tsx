@@ -137,9 +137,9 @@ function DiagramViewer({
     const target = findYouAreHere(boxRef.current);
     const ms = prefersReducedMotion() ? 0 : 400;
     if (target) {
-      ref.zoomToElement(target, 1.5, ms);
+      ref.zoomToElement(target, 3.5, ms);
     } else {
-      ref.centerView(0.8, ms);
+      ref.centerView(1.5, ms);
     }
   }, []);
 
@@ -158,7 +158,7 @@ function DiagramViewer({
     >
       <TransformWrapper
         minScale={0.3}
-        maxScale={6}
+        maxScale={16}
         initialScale={1}
         limitToBounds={false}
         centerOnInit
@@ -227,12 +227,22 @@ export default function CommittedArchitecture() {
         const css = getComputedStyle(document.documentElement);
         const v = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
         const accent = v('--accent', '#16c5e8');
-        const border = v('--border', '#2a2a35');
-        const nodeBg = v('--bg-secondary', '#16161d');
         const cardBg = v('--bg-card', '#101016');
-        const textSecondary = v('--text-secondary', '#b4b4b8');
-        const textMuted = v('--text-muted', '#6b6b76');
         const mono = v('--font-geist-mono', 'monospace') + ', monospace';
+
+        // Diagram palette. The page tokens (--border, --bg-secondary) are too
+        // close to the viewport background to read as boxes, so the diagram uses
+        // its own brighter, slightly cooler values for fills, borders, and edges.
+        const nodeFill = '#23232f';
+        const nodeStroke = '#646a85';
+        const lineColor = '#8aa0e0';
+        const titleColor = '#cfd2e6';
+        const textColor = v('--text-primary', '#f0f0f0');
+        // Distinct complementary hues for the four meta boxes (subgraphs).
+        const hueTraining = '#a78bfa'; // violet
+        const hueSources = '#f6c177'; // amber
+        const hueLocal = '#5ee0b0'; // green
+        const hueOnline = accent; // cyan
 
         mermaid.initialize({
           startOnLoad: false,
@@ -240,32 +250,40 @@ export default function CommittedArchitecture() {
           theme: 'base',
           themeVariables: {
             fontFamily: mono,
-            fontSize: '13px',
+            fontSize: '16px',
             background: 'transparent',
-            mainBkg: nodeBg,
-            primaryColor: nodeBg,
-            primaryBorderColor: border,
-            primaryTextColor: textSecondary,
-            secondaryColor: nodeBg,
+            mainBkg: nodeFill,
+            primaryColor: nodeFill,
+            primaryBorderColor: nodeStroke,
+            primaryTextColor: textColor,
+            secondaryColor: nodeFill,
             tertiaryColor: 'transparent',
-            lineColor: textMuted,
-            textColor: textSecondary,
-            nodeBorder: border,
+            lineColor,
+            textColor,
+            nodeBorder: nodeStroke,
             clusterBkg: 'transparent',
-            clusterBorder: border,
-            titleColor: textMuted,
+            clusterBorder: nodeStroke,
+            titleColor,
             edgeLabelBackground: cardBg,
           },
-          flowchart: { htmlLabels: true, curve: 'basis', padding: 12, nodeSpacing: 28, rankSpacing: 36 },
+          flowchart: { htmlLabels: true, curve: 'basis', padding: 14, nodeSpacing: 30, rankSpacing: 40 },
         });
 
-        // Accent the load-bearing nodes via an injected classDef. Values must be
-        // hex (comma-free): Mermaid's classDef parser splits properties on commas,
-        // so an rgba(...) value would break parsing.
+        // Injected styling. Values must be hex (comma-free): Mermaid's classDef /
+        // style parsers split properties on commas, so an rgba(...) value would
+        // break parsing. 8-digit hex (#rrggbbaa) carries the faint subgraph tints.
         const themed =
           DIAGRAM +
-          `\n  classDef accent stroke:${accent},color:${accent},stroke-width:1.4px;` +
-          `\n  class D,HFM,G,I,WEB accent;`;
+          // Load-bearing nodes in the accent color.
+          `\n  classDef accent fill:${nodeFill},stroke:${accent},color:${accent},stroke-width:2px;` +
+          `\n  class D,HFM,G,I,WEB accent;` +
+          // Color-code the four meta boxes so they read as distinct regions.
+          `\n  style training stroke:${hueTraining},stroke-width:1.6px,fill:${hueTraining}12;` +
+          `\n  style sources stroke:${hueSources},stroke-width:1.6px,fill:${hueSources}12;` +
+          `\n  style local stroke:${hueLocal},stroke-width:1.6px,fill:${hueLocal}12;` +
+          `\n  style online stroke:${hueOnline},stroke-width:1.6px,fill:${hueOnline}12;` +
+          // Brighter, thicker edges so the connections are easy to follow.
+          `\n  linkStyle default stroke:${lineColor},stroke-width:1.8px;`;
 
         const id = 'committed-arch-' + Math.random().toString(36).slice(2);
         const { svg: out } = await mermaid.render(id, themed);

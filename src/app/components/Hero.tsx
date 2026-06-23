@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { profile } from '@/data/profile';
+import LiveDownloads from './LiveDownloads';
 
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&';
 const ROLE = 'ML Engineer & Applied Researcher';
@@ -153,6 +154,19 @@ export default function Hero() {
                 onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
                 onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
               >Resume ↗</a>
+            </motion.div>
+          )}
+
+          {/* Live proof: real Hugging Face download counts for the Committed
+              model + dataset, linking through to the demo. */}
+          {showCtas && committedEnabled && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+              style={{ marginTop: '1.5rem' }}
+            >
+              <LiveDownloads variant="inline" href="/committed" />
             </motion.div>
           )}
 

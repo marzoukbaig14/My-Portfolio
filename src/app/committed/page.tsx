@@ -2,6 +2,7 @@ import CommittedBackground from './CommittedBackground';
 import CommittedHeader from './CommittedHeader';
 import CommittedDemo from './CommittedDemo';
 import CommittedArchitecture from './CommittedArchitecture';
+import LiveDownloads from '../components/LiveDownloads';
 import StorySections from './StorySections';
 import ScrollProgress from '../components/ScrollProgress';
 import { notFound } from 'next/navigation';
@@ -58,6 +59,11 @@ export default function CommittedPage() {
                   <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', marginTop: '3px' }}>{stat.hint}</div>
                 </div>
               ))}
+            </div>
+
+            {/* Live adoption signal: real Hugging Face download counts. */}
+            <div style={{ marginBottom: '1.75rem' }}>
+              <LiveDownloads variant="cards" />
             </div>
 
             <p style={{ fontSize: 'clamp(14px, 1.7vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '620px' }}>

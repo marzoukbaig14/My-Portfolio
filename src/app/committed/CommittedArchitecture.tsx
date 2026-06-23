@@ -5,12 +5,20 @@
 // connector arrows, and the vertical `direction TB` progression inside each
 // subgraph all look like the diagram the human reviews in their editor.
 //
-// Mermaid is heavy, so it is dynamically imported and only loaded once the
-// diagram scrolls near the viewport (IntersectionObserver). That keeps it off
-// the initial bundle and out of the way of the demo above it. The graph is
-// themed from the site's CSS tokens at render time, so it matches the page.
+// The full graph is large, so a static fit-to-width render is unreadable. We
+// wrap the SVG in a pan/zoom viewport (react-zoom-pan-pinch) that lands focused
+// on the "you are here" node and exposes zoom / reset / fullscreen controls,
+// like a Mermaid live editor. Mermaid itself is dynamically imported and only
+// loaded once the diagram nears the viewport, so it never weighs on first paint.
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import {
+  TransformWrapper,
+  TransformComponent,
+  type ReactZoomPanPinchRef,
+  type ReactZoomPanPinchContentRef,
+} from 'react-zoom-pan-pinch';
 
 // Canonical diagram source. Mirrors docs/committed-architecture.mmd; the class
 // assignments at the end highlight the load-bearing nodes (model artifact and
@@ -66,10 +74,144 @@ const DIAGRAM = `flowchart TB
   GH -. "inference code + grammar" .-> SPACE_GR
 `;
 
+function prefersReducedMotion() {
+  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Find the "you are here" node inside a rendered SVG so we can land the view on it.
+function findYouAreHere(root: HTMLElement | null): HTMLElement | null {
+  if (!root) return null;
+  const nodes = root.querySelectorAll<HTMLElement>('g.node');
+  for (const n of nodes) {
+    if (n.textContent && n.textContent.toLowerCase().includes('you are here')) return n;
+  }
+  return null;
+}
+
+const btnStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '30px',
+  height: '30px',
+  background: 'var(--bg-card)',
+  border: '1px solid var(--border)',
+  borderRadius: '7px',
+  color: 'var(--text-secondary)',
+  fontFamily: 'var(--font-geist-mono), monospace',
+  fontSize: '15px',
+  lineHeight: 1,
+  cursor: 'pointer',
+  transition: 'border-color 0.15s, color 0.15s',
+};
+
+function ToolbarButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      style={btnStyle}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function DiagramViewer({
+  svg,
+  fullscreen,
+  onToggleFullscreen,
+}: {
+  svg: string;
+  fullscreen: boolean;
+  onToggleFullscreen: () => void;
+}) {
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  // Land the view on the "you are here" node; fall back to a centered fit.
+  const focus = useCallback((ref: ReactZoomPanPinchRef) => {
+    const target = findYouAreHere(boxRef.current);
+    const ms = prefersReducedMotion() ? 0 : 400;
+    if (target) {
+      ref.zoomToElement(target, 1.5, ms);
+    } else {
+      ref.centerView(0.8, ms);
+    }
+  }, []);
+
+  return (
+    <div
+      ref={boxRef}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: fullscreen ? '100%' : '460px',
+        border: '1px solid var(--border)',
+        borderRadius: '10px',
+        overflow: 'hidden',
+        background: 'var(--bg-secondary)',
+      }}
+    >
+      <TransformWrapper
+        minScale={0.3}
+        maxScale={6}
+        initialScale={1}
+        limitToBounds={false}
+        centerOnInit
+        doubleClick={{ disabled: false, mode: 'zoomIn' }}
+        // Don't zoom on wheel: this sits inside a scrollable page, so hijacking
+        // the wheel to zoom would trap page scroll. Buttons, drag-pan, and touch
+        // pinch cover zooming instead.
+        wheel={{ disabled: true }}
+        panning={{ velocityDisabled: true }}
+        onInit={focus}
+      >
+        {({ zoomIn, zoomOut, resetTransform }: ReactZoomPanPinchContentRef) => (
+          <>
+            <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 5, display: 'flex', gap: '6px' }}>
+              <ToolbarButton label="Zoom in" onClick={() => zoomIn()}>+</ToolbarButton>
+              <ToolbarButton label="Zoom out" onClick={() => zoomOut()}>−</ToolbarButton>
+              <ToolbarButton label="Reset view" onClick={() => resetTransform()}>⤢</ToolbarButton>
+              <ToolbarButton label={fullscreen ? 'Close fullscreen' : 'Open fullscreen'} onClick={onToggleFullscreen}>
+                {fullscreen ? '✕' : '⛶'}
+              </ToolbarButton>
+            </div>
+
+            {/* Hint, so it's obvious the diagram is interactive. */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '10px',
+                left: '12px',
+                zIndex: 5,
+                fontFamily: 'var(--font-geist-mono), monospace',
+                fontSize: '10.5px',
+                color: 'var(--text-muted)',
+                pointerEvents: 'none',
+              }}
+            >
+              drag to pan · +/− to zoom · ⛶ fullscreen
+            </div>
+
+            <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }} contentStyle={{ width: 'max-content' }}>
+              <div className="committed-arch-host" dangerouslySetInnerHTML={{ __html: svg }} />
+            </TransformComponent>
+          </>
+        )}
+      </TransformWrapper>
+    </div>
+  );
+}
+
 export default function CommittedArchitecture() {
   const hostRef = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>('');
   const [failed, setFailed] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -154,6 +296,19 @@ export default function CommittedArchitecture() {
     };
   }, []);
 
+  // Close the fullscreen overlay on Escape, and lock background scroll while open.
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setExpanded(false); };
+    document.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [expanded]);
+
   return (
     <div>
       <div
@@ -170,25 +325,40 @@ export default function CommittedArchitecture() {
       </div>
 
       {svg ? (
-        <div
-          ref={hostRef}
-          className="committed-arch-host"
-          style={{ display: 'flex', justifyContent: 'center' }}
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />
+        <DiagramViewer svg={svg} fullscreen={false} onToggleFullscreen={() => setExpanded(true)} />
       ) : (
-        <div
-          ref={hostRef}
-          style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '160px' }}
-        >
+        <div ref={hostRef} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '160px' }}>
           <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-muted)' }}>
             {failed ? 'diagram unavailable, see docs/committed-architecture.mmd' : 'rendering diagram…'}
           </span>
         </div>
       )}
 
+      {expanded &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Committed architecture diagram, fullscreen"
+            onClick={(e) => { if (e.target === e.currentTarget) setExpanded(false); }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 200,
+              background: 'rgba(0,0,0,0.86)',
+              padding: 'clamp(12px, 3vw, 32px)',
+            }}
+          >
+            <DiagramViewer svg={svg} fullscreen onToggleFullscreen={() => setExpanded(false)} />
+          </div>,
+          document.body,
+        )}
+
       <style>{`
-        .committed-arch-host svg { max-width: 100%; height: auto; }
+        .committed-arch-host svg { max-width: none !important; height: auto; display: block; }
+        .committed-arch-host { cursor: grab; }
+        .committed-arch-host:active { cursor: grabbing; }
       `}</style>
     </div>
   );

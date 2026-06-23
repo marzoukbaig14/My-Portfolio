@@ -22,7 +22,7 @@ The human has a strong CS and ML background but is still building hands-on exper
 
 6. **Consume the API contract; do not reach into the backend.** The demo calls the model API at `POST /generate` and `GET /health`. The backend lives in a different repo; do not touch it. The backend URL is an environment variable. Build against a local mock that returns the same shape if the backend is not live yet.
 
-7. **Do not publicize anything yet.** Work on a branch. The Committed entry in the projects section, and any live link to the page, stay unmerged to production until the human confirms the fine-tuned model is ready.
+7. **Work autonomously; gate only on production.** Permissions are granted broadly in `.claude/settings.json`, so act without asking for routine tool use: edits, builds, tests, installs, and pushing feature branches for Vercel previews. The one hard gate: stop and get explicit confirmation from the human before any production action: merging or pushing to `main`, force-pushing, or otherwise putting changes on the live site. Approval for one production action does not carry to the next. (The Committed page itself is already live; this gate is about how changes reach production, not whether the page exists.)
 
 8. **Nothing depends on local machine state.** The human works from shared machines. Use environment variables for configuration, commit what is needed, and never assume a file is sitting on local disk.
 
@@ -38,6 +38,6 @@ Next.js (use whichever router the repo already uses), styled with the existing s
 
 - Don't reinvent or override the design system; match it.
 - Don't write final marketing copy or curate the real example diffs; those are the human's. Placeholders only.
-- Don't merge to production or expose a live link until told the model is ready.
+- Don't merge or push to production (`main` / live site) without explicit confirmation; feature-branch previews are fine.
 - Don't modify backend or serving code; it lives in a different repo.
 - Don't add a 3D engine or heavy dependencies for the background; keep it light and reduced-motion-safe.

@@ -53,7 +53,7 @@ const DIAGRAM = `flowchart TB
 
   subgraph online["4 · Inference · hosted demo — over the network, not local"]
     direction TB
-    WEB["Website / Vercel front end<br/>(you are here)"]
+    WEB["★ Website / Vercel front end ★<br/>(you are here)"]
     GRADIO["Gradio front end"]
     VSCODE["VS Code extension<br/>(planned)"]
     SPACE_API["Hugging Face Space · portfolio backend<br/>Linux + Docker · FastAPI + llama.cpp · GGUF"]
@@ -134,7 +134,7 @@ function DiagramViewer({
     const target = findYouAreHere(boxRef.current);
     const ms = prefersReducedMotion() ? 0 : 400;
     if (target) {
-      ref.zoomToElement(target, 4.6, ms);
+      ref.zoomToElement(target, 3.9, ms);
     } else {
       ref.centerView(2, ms);
     }
@@ -276,7 +276,11 @@ export default function CommittedArchitecture() {
           DIAGRAM +
           // Load-bearing nodes in the accent color.
           `\n  classDef accent fill:${nodeFill},stroke:${accent},color:${accent},stroke-width:2px;` +
-          `\n  class D,HFM,G,I,WEB accent;` +
+          `\n  class D,HFM,G,I accent;` +
+          // "You are here" gets a distinct warm-gold treatment so it pops out
+          // from the cyan accent nodes and draws the eye immediately.
+          `\n  classDef youhere fill:#2a2410,stroke:#ffd166,color:#ffd166,stroke-width:2.6px;` +
+          `\n  class WEB youhere;` +
           // Color-code the four meta boxes so they read as distinct regions.
           `\n  style training stroke:${hueTraining},stroke-width:1.6px,fill:${hueTraining}12;` +
           `\n  style sources stroke:${hueSources},stroke-width:1.6px,fill:${hueSources}12;` +

@@ -12,7 +12,7 @@ import Link from 'next/link';
 type Count = { downloads: number; downloadsAllTime: number } | null;
 type Stats = { model: Count; dataset: Count } | null;
 
-const POLL_MS = 120_000; // match the route's revalidate window (~2 min)
+const POLL_MS = 60_000; // match the route's revalidate window (~1 min)
 
 // Warm red for the live pulse: the cyan accent blends into the neural-net
 // background, so the "live" indicators use a contrasting color instead.

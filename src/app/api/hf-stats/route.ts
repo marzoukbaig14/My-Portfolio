@@ -14,7 +14,7 @@ async function fetchCount(url: string): Promise<Count | null> {
     // and the result is shared across all visitors, not fetched per request.
     const res = await fetch(url, {
       headers: { Accept: 'application/json' },
-      next: { revalidate: 120 },
+      next: { revalidate: 60 },
     });
     if (!res.ok) return null;
     const j = (await res.json()) as { downloads?: number; downloadsAllTime?: number };
@@ -26,8 +26,8 @@ async function fetchCount(url: string): Promise<Count | null> {
   }
 }
 
-// Revalidate the route response on the same ~2 minute cadence.
-export const revalidate = 120;
+// Revalidate the route response on the same ~1 minute cadence.
+export const revalidate = 60;
 
 export async function GET() {
   // The all-time figure is only returned when explicitly requested via expand.
@@ -39,6 +39,6 @@ export async function GET() {
 
   return NextResponse.json(
     { model, dataset, fetchedAt: Date.now() },
-    { headers: { 'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=300' } },
+    { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' } },
   );
 }

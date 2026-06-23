@@ -36,12 +36,10 @@ const DIAGRAM = `flowchart TB
   end
 
   subgraph sources["2 · Source of truth"]
-    direction TB
-    GH["GitHub repo<br/>prompts · inference code · GBNF grammar"]
+    direction LR
     HFM["Hugging Face model repo<br/>GGUF weights + model card"]
+    GH["GitHub repo<br/>prompts · inference code · GBNF grammar"]
   end
-
-  D ==>|"publish weights"| HFM
 
   subgraph local["3 · Inference · local — CPU, no network"]
     direction TB
@@ -52,9 +50,6 @@ const DIAGRAM = `flowchart TB
     I["Conventional Commit message<br/>valid by construction"]
     E --> F --> G --> H --> I
   end
-
-  HFM -. "download weights once" .-> G
-  GH -. "clone code + grammar" .-> F
 
   subgraph online["4 · Inference · hosted demo — over the network, not local"]
     direction TB
@@ -68,10 +63,12 @@ const DIAGRAM = `flowchart TB
     VSCODE -. "HTTPS · POST /generate" .-> SPACE_API
   end
 
-  HFM -. "pulls latest published model" .-> SPACE_API
-  HFM -. "pulls latest published model" .-> SPACE_GR
-  GH -. "inference code + grammar" .-> SPACE_API
-  GH -. "inference code + grammar" .-> SPACE_GR
+  %% Trunk: model published to the source of truth, which feeds both inference
+  %% paths. Drawn cluster-to-cluster so the tree stays readable; the weights
+  %% (Hugging Face) vs code/grammar (GitHub) split lives inside the sources box.
+  D ==>|"publish weights"| HFM
+  sources -->|"weights + code · download once, runs offline"| local
+  sources -->|"weights + code · pulls latest, always current"| online
 `;
 
 function prefersReducedMotion() {
@@ -92,17 +89,17 @@ const btnStyle: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
-  width: '30px',
-  height: '30px',
+  width: '40px',
+  height: '40px',
   background: 'var(--bg-card)',
-  border: '1px solid var(--border)',
-  borderRadius: '7px',
-  color: 'var(--text-secondary)',
+  border: '1px solid rgba(var(--accent-rgb), 0.55)',
+  borderRadius: '8px',
+  color: 'var(--text-primary)',
   fontFamily: 'var(--font-geist-mono), monospace',
-  fontSize: '15px',
+  fontSize: '21px',
   lineHeight: 1,
   cursor: 'pointer',
-  transition: 'border-color 0.15s, color 0.15s',
+  transition: 'border-color 0.15s, color 0.15s, background 0.15s',
 };
 
 function ToolbarButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
@@ -113,8 +110,8 @@ function ToolbarButton({ label, onClick, children }: { label: string; onClick: (
       title={label}
       onClick={onClick}
       style={btnStyle}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.background = 'var(--accent-muted)'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(var(--accent-rgb), 0.55)'; e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--bg-card)'; }}
     >
       {children}
     </button>
@@ -137,9 +134,9 @@ function DiagramViewer({
     const target = findYouAreHere(boxRef.current);
     const ms = prefersReducedMotion() ? 0 : 400;
     if (target) {
-      ref.zoomToElement(target, 3.5, ms);
+      ref.zoomToElement(target, 4.6, ms);
     } else {
-      ref.centerView(1.5, ms);
+      ref.centerView(2, ms);
     }
   }, []);
 
@@ -150,7 +147,10 @@ function DiagramViewer({
         position: 'relative',
         width: '100%',
         height: fullscreen ? '100%' : '460px',
-        border: '1px solid var(--border)',
+        // Accent outline so the diagram reads as a distinct window against the
+        // dark page, rather than blending into the surrounding card.
+        border: '1px solid rgba(var(--accent-rgb), 0.5)',
+        boxShadow: '0 0 0 1px rgba(var(--accent-rgb), 0.08), 0 10px 40px rgba(0,0,0,0.35)',
         borderRadius: '10px',
         overflow: 'hidden',
         background: 'var(--bg-secondary)',
@@ -172,7 +172,7 @@ function DiagramViewer({
       >
         {({ zoomIn, zoomOut, resetTransform }: ReactZoomPanPinchContentRef) => (
           <>
-            <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 5, display: 'flex', gap: '6px' }}>
+            <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 5, display: 'flex', gap: '8px' }}>
               <ToolbarButton label="Zoom in" onClick={() => zoomIn()}>+</ToolbarButton>
               <ToolbarButton label="Zoom out" onClick={() => zoomOut()}>−</ToolbarButton>
               <ToolbarButton label="Reset view" onClick={() => resetTransform()}>⤢</ToolbarButton>

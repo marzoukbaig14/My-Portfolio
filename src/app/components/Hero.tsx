@@ -140,7 +140,7 @@ export default function Hero() {
                   onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-muted)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(var(--accent-rgb), 0.5)'; }}
                 >
-                  <span className="hero-live-dot" style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)', boxShadow: '0 0 8px var(--accent)' }} />
+                  <span className="hero-live-dot" style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ff5c5c', boxShadow: '0 0 8px #ff5c5c' }} />
                   Try the live demo →
                 </Link>
               )}

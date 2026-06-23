@@ -14,6 +14,10 @@ type Stats = { model: Count; dataset: Count } | null;
 
 const POLL_MS = 120_000; // match the route's revalidate window (~2 min)
 
+// Warm red for the live pulse: the cyan accent blends into the neural-net
+// background, so the "live" indicators use a contrasting color instead.
+const LIVE_COLOR = '#ff5c5c';
+
 function fmt(n: number | undefined | null) {
   return typeof n === 'number' ? n.toLocaleString('en-US') : '—';
 }
@@ -63,8 +67,8 @@ function LiveDot({ active }: { active: boolean }) {
         width: '8px',
         height: '8px',
         borderRadius: '50%',
-        background: active ? 'var(--accent)' : 'var(--text-muted)',
-        boxShadow: active ? '0 0 8px var(--accent)' : 'none',
+        background: active ? LIVE_COLOR : 'var(--text-muted)',
+        boxShadow: active ? `0 0 8px ${LIVE_COLOR}` : 'none',
         flexShrink: 0,
       }}
     />
@@ -100,7 +104,7 @@ export default function LiveDownloads({
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
           <LiveDot active={live} />
-          <span style={{ fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: live ? 'var(--accent)' : 'var(--text-muted)' }}>
+          <span style={{ fontFamily: mono, fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', color: live ? LIVE_COLOR : 'var(--text-muted)' }}>
             live{live ? '' : ' · connecting'}
           </span>
         </div>
@@ -122,7 +126,7 @@ export default function LiveDownloads({
   const inner = (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', fontFamily: mono, fontSize: 'clamp(12px, 1.4vw, 13px)', color: 'var(--text-secondary)' }}>
       <LiveDot active={live} />
-      <span style={{ color: live ? 'var(--accent)' : 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '11px' }}>live</span>
+      <span style={{ color: live ? LIVE_COLOR : 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '11px' }}>live</span>
       <span><strong style={{ color: 'var(--text-primary)' }}>{fmt(model)}</strong> model downloads</span>
       <span style={{ color: 'var(--text-muted)' }}>·</span>
       <span><strong style={{ color: 'var(--text-primary)' }}>{fmt(dataset)}</strong> dataset downloads</span>

@@ -55,7 +55,7 @@ export default function Hero() {
             }, 18); // role typing speed
           }, 400);
         }
-      }, 50); // name typing speed
+      }, 40); // name typing speed (20% faster)
     }, 100);
     return () => clearTimeout(start);
   }, []);

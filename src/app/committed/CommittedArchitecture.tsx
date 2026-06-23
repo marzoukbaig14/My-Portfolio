@@ -63,10 +63,11 @@ const DIAGRAM = `flowchart TB
     VSCODE -. "HTTPS · POST /generate" .-> SPACE_API
   end
 
-  %% Trunk: model published to the source of truth, which feeds both inference
-  %% paths. Drawn cluster-to-cluster so the tree stays readable; the weights
-  %% (Hugging Face) vs code/grammar (GitHub) split lives inside the sources box.
-  D ==>|"publish weights"| HFM
+  %% Trunk: all cluster-to-cluster so the layout engine stacks them as a tree
+  %% (training on top, source of truth centered below it, then the two inference
+  %% paths). The weights (Hugging Face) vs code/grammar (GitHub) split lives
+  %% inside the sources box; D stays the highlighted "model ready" node.
+  training ==>|"publish weights"| sources
   sources -->|"weights + code · download once, runs offline"| local
   sources -->|"weights + code · pulls latest, always current"| online
 `;
@@ -134,7 +135,7 @@ function DiagramViewer({
     const target = findYouAreHere(boxRef.current);
     const ms = prefersReducedMotion() ? 0 : 400;
     if (target) {
-      ref.zoomToElement(target, 3.9, ms);
+      ref.zoomToElement(target, 3.5, ms);
     } else {
       ref.centerView(2, ms);
     }

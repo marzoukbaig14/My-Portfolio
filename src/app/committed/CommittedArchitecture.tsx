@@ -135,7 +135,7 @@ function DiagramViewer({
     const target = findYouAreHere(boxRef.current);
     const ms = prefersReducedMotion() ? 0 : 400;
     if (target) {
-      ref.zoomToElement(target, 3.5, ms);
+      ref.zoomToElement(target, 3.1, ms);
     } else {
       ref.centerView(2, ms);
     }

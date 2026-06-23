@@ -84,12 +84,10 @@ export default function CommittedArchitecture() {
         // Pull live theme values so the graph matches the current site palette.
         const css = getComputedStyle(document.documentElement);
         const v = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
-        const accent = v('--accent', '#22c55e');
-        const accentRgb = v('--accent-rgb', '34, 197, 94');
+        const accent = v('--accent', '#16c5e8');
         const border = v('--border', '#2a2a35');
         const nodeBg = v('--bg-secondary', '#16161d');
         const cardBg = v('--bg-card', '#101016');
-        const textPrimary = v('--text-primary', '#e6e6e6');
         const textSecondary = v('--text-secondary', '#b4b4b8');
         const textMuted = v('--text-muted', '#6b6b76');
         const mono = v('--font-geist-mono', 'monospace') + ', monospace';
@@ -119,17 +117,21 @@ export default function CommittedArchitecture() {
           flowchart: { htmlLabels: true, curve: 'basis', padding: 12, nodeSpacing: 28, rankSpacing: 36 },
         });
 
-        // Accent the load-bearing nodes via an injected classDef.
+        // Accent the load-bearing nodes via an injected classDef. Values must be
+        // hex (comma-free): Mermaid's classDef parser splits properties on commas,
+        // so an rgba(...) value would break parsing.
         const themed =
           DIAGRAM +
-          `\n  classDef accent fill:rgba(${accentRgb},0.10),stroke:${accent},color:${accent},stroke-width:1.2px;` +
-          `\n  classDef strong color:${textPrimary};` +
+          `\n  classDef accent stroke:${accent},color:${accent},stroke-width:1.4px;` +
           `\n  class D,HFM,G,I,WEB accent;`;
 
         const id = 'committed-arch-' + Math.random().toString(36).slice(2);
         const { svg: out } = await mermaid.render(id, themed);
         if (!cancelled) setSvg(out);
-      } catch {
+      } catch (err) {
+        // Surface the real parse/render error to the console for debugging;
+        // the UI falls back to a pointer at the .mmd source.
+        console.error('Committed architecture diagram failed to render:', err);
         if (!cancelled) setFailed(true);
       }
     };

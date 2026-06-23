@@ -8,7 +8,8 @@ import { NextResponse } from 'next/server';
 const RAW = process.env.NEXT_PUBLIC_COMMITTED_API_URL || '';
 const BASE = RAW.replace(/\/+$/, '');
 
-// Never cache: this is a side-effecting ping, not data.
+// Never cache: this is a side-effecting ping, not data. Runs on the Node
+// runtime so it works regardless of the configured backend host.
 export const dynamic = 'force-dynamic';
 
 export async function GET() {

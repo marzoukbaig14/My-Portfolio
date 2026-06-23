@@ -43,11 +43,15 @@ const DIAGRAM = `flowchart TB
 
   subgraph local["3 · Inference · local — CPU, no network"]
     direction TB
+    CLI["CLI / git hook"]
+    VSCODE["VS Code extension<br/>(planned) · installed, runs locally"]
     E["git diff"]
     F["Prompt + tokenize"]
     G["Fine-tuned Qwen3-1.7B<br/>llama.cpp · CPU"]
     H["GBNF grammar-constrained decoding"]
     I["Conventional Commit message<br/>valid by construction"]
+    CLI -. "in-terminal" .-> E
+    VSCODE -. "in-editor" .-> E
     E --> F --> G --> H --> I
   end
 
@@ -55,12 +59,10 @@ const DIAGRAM = `flowchart TB
     direction TB
     WEB["★ Website / Vercel front end ★<br/>(you are here)"]
     GRADIO["Gradio front end"]
-    VSCODE["VS Code extension<br/>(planned)"]
     SPACE_API["Hugging Face Space · portfolio backend<br/>Linux + Docker · FastAPI + llama.cpp · GGUF"]
     SPACE_GR["Hugging Face Space · Gradio app<br/>Linux + Docker · FastAPI + llama.cpp · GGUF"]
     WEB -->|"HTTPS · POST /generate (REST/JSON)"| SPACE_API
     GRADIO -->|"HTTPS · API call"| SPACE_GR
-    VSCODE -. "HTTPS · POST /generate" .-> SPACE_API
   end
 
   %% Trunk: all cluster-to-cluster so the layout engine stacks them as a tree
@@ -282,6 +284,9 @@ export default function CommittedArchitecture() {
           // from the cyan accent nodes and draws the eye immediately.
           `\n  classDef youhere fill:#2a2410,stroke:#ffd166,color:#ffd166,stroke-width:2.6px;` +
           `\n  class WEB youhere;` +
+          // Planned (not yet shipped) nodes get a dashed outline.
+          `\n  classDef planned stroke-dasharray:5 4,color:#9aa0c0;` +
+          `\n  class VSCODE planned;` +
           // Color-code the four meta boxes so they read as distinct regions.
           `\n  style training stroke:${hueTraining},stroke-width:1.6px,fill:${hueTraining}12;` +
           `\n  style sources stroke:${hueSources},stroke-width:1.6px,fill:${hueSources}12;` +

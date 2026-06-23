@@ -141,7 +141,7 @@ export default function Hero() {
                   onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(var(--accent-rgb), 0.5)'; }}
                 >
                   <span className="hero-live-dot" style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ff5c5c', boxShadow: '0 0 8px #ff5c5c' }} />
-                  Try the live demo →
+                  Try Committed, my live commit-message model →
                 </Link>
               )}
               <a href="#contact"
@@ -157,8 +157,8 @@ export default function Hero() {
             </motion.div>
           )}
 
-          {/* Live proof: real Hugging Face download counts for the Committed
-              model + dataset, linking through to the demo. */}
+          {/* Live proof: a one-line description of what the demo is, plus real
+              Hugging Face download counts for the Committed model + dataset. */}
           {showCtas && committedEnabled && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -166,6 +166,9 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.15 }}
               style={{ marginTop: '1.5rem' }}
             >
+              <p style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(12px, 1.4vw, 13px)', color: 'var(--text-secondary)', margin: '0 0 8px', maxWidth: '620px', lineHeight: 1.6 }}>
+                <span style={{ color: 'var(--accent)' }}>Committed</span>: a fine-tuned model that writes Conventional Commit messages from your code diffs, running locally on CPU.
+              </p>
               <LiveDownloads variant="inline" href="/committed" />
             </motion.div>
           )}

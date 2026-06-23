@@ -1,8 +1,9 @@
 %% Committed: system architecture (Mermaid source).
 %% Portable artifact for READMEs and docs. GitHub, GitLab, and most Markdown
 %% renderers display this natively inside a ```mermaid code fence.
-%% Vertical layout (flowchart TB) so it renders well on narrow / mobile screens.
-%% The /committed page renders an equivalent diagram natively in its design system.
+%% Vertical tree (flowchart TB): training publishes to the source of truth,
+%% which feeds both inference paths. The /committed page renders an equivalent
+%% diagram natively in its design system.
 flowchart TB
 
   %% ===== 1 · Training pipeline (offline, iterable) =====
@@ -19,41 +20,39 @@ flowchart TB
 
   %% ===== 2 · Source of truth =====
   subgraph sources["2 · Source of truth"]
-    direction TB
-    GH["GitHub repo<br/>prompts · inference code · GBNF grammar"]
+    direction LR
     HFM["Hugging Face model repo<br/>GGUF weights + model card"]
+    GH["GitHub repo<br/>prompts · inference code · GBNF grammar"]
   end
-
-  D ==>|"publish weights"| HFM
 
   %% ===== 3 · Inference · local (fully offline) =====
   subgraph local["3 · Inference · local (CPU, no network)"]
     direction TB
+    CLI["CLI / git hook"]
+    VSCODE["VS Code extension<br/>(planned) · installed, runs locally"]
     E["git diff"]
     F["Prompt + tokenize"]
     G["Fine-tuned Qwen3-1.7B<br/>llama.cpp · CPU"]
     H["GBNF grammar-constrained decoding"]
     I["Conventional Commit message<br/>valid by construction"]
+    CLI -. "in-terminal" .-> E
+    VSCODE -. "in-editor" .-> E
     E --> F --> G --> H --> I
   end
-
-  HFM -. "download weights once" .-> G
-  GH  -. "clone code + grammar" .-> F
 
   %% ===== 4 · Inference · hosted demo (over the network, not local) =====
   subgraph online["4 · Inference · hosted demo (over the network, not local)"]
     direction TB
     WEB["Website / Vercel front end<br/>(you are here)"]
     GRADIO["Gradio front end"]
-    VSCODE["VS Code extension<br/>(planned)"]
     SPACE_API["Hugging Face Space · portfolio backend<br/>Linux + Docker · FastAPI + llama.cpp · GGUF"]
     SPACE_GR["Hugging Face Space · Gradio app<br/>Linux + Docker · FastAPI + llama.cpp · GGUF"]
     WEB    -->|"HTTPS · POST /generate (REST/JSON)"| SPACE_API
     GRADIO -->|"HTTPS · API call"| SPACE_GR
-    VSCODE -. "HTTPS · POST /generate" .-> SPACE_API
   end
 
-  HFM -. "pulls latest published model" .-> SPACE_API
-  HFM -. "pulls latest published model" .-> SPACE_GR
-  GH  -. "inference code + grammar" .-> SPACE_API
-  GH  -. "inference code + grammar" .-> SPACE_GR
+  %% Trunk: cluster-to-cluster so it stacks as a tree. The weights (Hugging
+  %% Face) vs code/grammar (GitHub) split lives inside the sources box.
+  training ==>|"publish weights"| sources
+  sources -->|"weights + code · download once, runs offline"| local
+  sources -->|"weights + code · pulls latest, always current"| online

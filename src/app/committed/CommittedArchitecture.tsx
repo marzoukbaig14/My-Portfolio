@@ -1,56 +1,199 @@
-// Compact system diagram for the top of the page, so a recruiter sees the
-// shape of the project (data -> training -> serving -> output) before scrolling.
-// Rendered natively in the design system rather than via a heavy client-side
-// Mermaid bundle; the portable Mermaid source lives in
-// docs/committed-architecture.mmd and is the artifact to drop into the README.
+// System diagram for the top of the page, so a recruiter sees the shape of the
+// project before scrolling. Rendered natively in the design system rather than
+// via a heavy client-side Mermaid bundle. The portable Mermaid source lives in
+// docs/committed-architecture.mmd and is kept in sync with this layout.
+//
+// Layout (vertical spine that forks into two siblings, so it stays readable on
+// narrow / mobile screens):
+//
+//   1. Training pipeline (offline, iterable)
+//          | publish weights
+//   2. Source of truth (GitHub code + Hugging Face model)
+//          | consumed downstream
+//   +------------------------+------------------------+
+//   4. Front end (hosted demo)   3. Local inference (offline)
+//
+// The cross-cutting relationships from the Mermaid (weights from HF, code from
+// GitHub feeding both inference paths) are carried as quiet captions inside each
+// leaf box rather than free-floating arrows, which keeps the render clean and
+// responsive without an SVG overlay.
 
-const inferenceSteps: { label: string; sub?: string; accent?: boolean }[] = [
-  { label: 'git diff' },
-  { label: 'prompt + tokenize' },
-  { label: 'Qwen3-1.7B fine-tune', sub: 'llama.cpp · CPU', accent: true },
-  { label: 'GBNF grammar decode' },
-  { label: 'Conventional Commit', sub: 'valid by construction', accent: true },
-];
+import type { CSSProperties } from 'react';
 
-const trainingSteps = [
-  'CommitChronicle (~10.7M commits)',
-  'filter → ~58k CC diffs, 16 langs',
-  'QLoRA 4-bit SFT',
-  'merge + GGUF (Q4_K_M, ~1 GB)',
-];
+const mono = 'var(--font-geist-mono), monospace';
+
+const boxStyle: CSSProperties = {
+  border: '1px solid var(--border)',
+  borderRadius: '10px',
+  padding: '14px',
+  background: 'rgba(var(--accent-rgb), 0.015)',
+};
+
+const boxTitleStyle: CSSProperties = {
+  fontFamily: mono,
+  fontSize: '11px',
+  color: 'var(--text-muted)',
+  textTransform: 'uppercase',
+  letterSpacing: '0.08em',
+  marginBottom: '12px',
+};
+
+const captionStyle: CSSProperties = {
+  fontFamily: mono,
+  fontSize: '10.5px',
+  color: 'var(--text-muted)',
+  lineHeight: 1.6,
+  marginTop: '12px',
+};
+
+type NodeProps = { label: string; sub?: string; accent?: boolean; dim?: boolean };
+
+function Node({ label, sub, accent, dim }: NodeProps) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2px',
+        padding: '8px 12px',
+        borderRadius: '8px',
+        background: accent ? 'rgba(var(--accent-rgb), 0.08)' : 'var(--bg-secondary)',
+        border: `1px solid ${accent ? 'rgba(var(--accent-rgb), 0.45)' : 'var(--border)'}`,
+        borderStyle: dim ? 'dashed' : 'solid',
+        opacity: dim ? 0.7 : 1,
+      }}
+    >
+      <span
+        style={{
+          fontFamily: mono,
+          fontSize: '12.5px',
+          color: accent ? 'var(--accent)' : 'var(--text-secondary)',
+          fontWeight: accent ? 600 : 400,
+        }}
+        dangerouslySetInnerHTML={{ __html: label }}
+      />
+      {sub && (
+        <span style={{ fontFamily: mono, fontSize: '10.5px', color: 'var(--text-muted)' }}>{sub}</span>
+      )}
+    </div>
+  );
+}
+
+// Vertical connector between two stacked nodes, with an optional label on the wire.
+function Down({ label, dashed }: { label?: string; dashed?: boolean }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '5px 0' }}>
+      <span
+        style={{
+          width: 0,
+          height: '12px',
+          borderLeft: `1.5px ${dashed ? 'dashed' : 'solid'} var(--border)`,
+        }}
+      />
+      {label && (
+        <span style={{ fontFamily: mono, fontSize: '9.5px', color: 'var(--text-muted)', padding: '2px 0', textAlign: 'center' }}>
+          {label}
+        </span>
+      )}
+      <span style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1 }}>▼</span>
+    </div>
+  );
+}
 
 export default function CommittedArchitecture() {
   return (
     <div>
-      <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '14px' }}>
+      <div
+        style={{
+          fontFamily: mono,
+          fontSize: '11px',
+          color: 'var(--accent)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+          marginBottom: '16px',
+        }}
+      >
         architecture
       </div>
 
-      {/* Inference pipeline (primary) */}
-      <div style={{ display: 'flex', alignItems: 'stretch', gap: '10px', flexWrap: 'wrap', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px' }}>
-        {inferenceSteps.map((step, i) => (
-          <span key={step.label} style={{ display: 'inline-flex', alignItems: 'stretch', gap: '10px' }}>
-            <span style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '3px', padding: '10px 14px', borderRadius: '8px', background: step.accent ? 'rgba(var(--accent-rgb), 0.08)' : 'var(--bg-secondary)', border: `1px solid ${step.accent ? 'rgba(var(--accent-rgb), 0.45)' : 'var(--border)'}` }}>
-              <span style={{ color: step.accent ? 'var(--accent)' : 'var(--text-secondary)', fontWeight: step.accent ? 600 : 400 }}>{step.label}</span>
-              {step.sub && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{step.sub}</span>}
-            </span>
-            {i < inferenceSteps.length - 1 && <span style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)' }}>→</span>}
-          </span>
-        ))}
-      </div>
-
-      {/* Training pipeline (secondary), feeds the serving artifact above */}
-      <div style={{ marginTop: '20px' }}>
-        <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px' }}>
-          training pipeline (offline) — produces the served model
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '760px', margin: '0 auto' }}>
+        {/* ===== 1 · Training pipeline (offline, iterable) ===== */}
+        <div style={{ ...boxStyle, width: '100%' }}>
+          <div style={boxTitleStyle}>1 · training pipeline — offline, iterable</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'stretch', gap: '8px' }}>
+            <Node label="CommitChronicle" sub="~10.7M real commits" />
+            <span style={{ alignSelf: 'center', color: 'var(--text-muted)' }}>→</span>
+            <Node label="filter to Conventional Commits" sub="~58k single-file diffs, 16 langs" />
+            <span style={{ alignSelf: 'center', color: 'var(--text-muted)' }}>→</span>
+            <Node label="QLoRA 4-bit SFT" sub="Qwen3-1.7B · PEFT / TRL" />
+            <span style={{ alignSelf: 'center', color: 'var(--text-muted)' }}>→</span>
+            <Node label="merge + GGUF quantize" sub="Q4_K_M, ~1 GB · model ready" accent />
+            <span style={{ alignSelf: 'center', color: 'var(--text-muted)' }}>→</span>
+            <Node label="evaluate + iterate" />
+          </div>
+          <div style={captionStyle}>
+            ↺ next iteration feeds back into SFT — manual today, pip / automation later
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px' }}>
-          {trainingSteps.map((step, i) => (
-            <span key={step} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ padding: '6px 11px', borderRadius: '7px', background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>{step}</span>
-              {i < trainingSteps.length - 1 && <span style={{ color: 'var(--text-muted)' }}>→</span>}
-            </span>
-          ))}
+
+        <Down label="publish weights" />
+
+        {/* ===== 2 · Source of truth ===== */}
+        <div style={{ ...boxStyle, width: '100%' }}>
+          <div style={boxTitleStyle}>2 · source of truth</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ flex: '1 1 240px' }}>
+              <Node label="GitHub repo" sub="prompts · inference code · GBNF grammar" />
+            </div>
+            <div style={{ flex: '1 1 240px' }}>
+              <Node label="Hugging Face model repo" sub="GGUF weights + model card" accent />
+            </div>
+          </div>
+        </div>
+
+        <Down label="consumed downstream" />
+
+        {/* ===== 3 + 4 · Two sibling consumers ===== */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', width: '100%', alignItems: 'flex-start' }}>
+          {/* 4 · Front end (hosted demo) */}
+          <div style={{ ...boxStyle, flex: '1 1 300px' }}>
+            <div style={boxTitleStyle}>4 · front end — hosted demo, over the network</div>
+
+            <Node label="website / Vercel front end<br/>(you are here)" accent />
+            <Down label="HTTPS · POST /generate · FastAPI" />
+            <Node label="HF Space · portfolio backend" sub="Linux + Docker · FastAPI + llama.cpp · GGUF" />
+
+            <div style={{ height: '14px' }} />
+
+            <Node label="Gradio front end" />
+            <Down label="HTTPS · FastAPI" />
+            <Node label="HF Space · Gradio app" sub="Linux + Docker · FastAPI + llama.cpp · GGUF" />
+
+            <div style={{ height: '14px' }} />
+            <Node label="VS Code extension (planned)" sub="HTTPS · POST /generate → portfolio backend" dim />
+
+            <div style={captionStyle}>
+              not local — each Space pulls the latest model from Hugging Face and its inference code +
+              grammar from GitHub
+            </div>
+          </div>
+
+          {/* 3 · Local inference */}
+          <div style={{ ...boxStyle, flex: '1 1 220px' }}>
+            <div style={boxTitleStyle}>3 · local inference — CPU, no network</div>
+            <Node label="git diff" />
+            <Down />
+            <Node label="prompt + tokenize" />
+            <Down />
+            <Node label="fine-tuned Qwen3-1.7B" sub="llama.cpp · CPU" accent />
+            <Down />
+            <Node label="GBNF grammar-constrained decode" />
+            <Down />
+            <Node label="Conventional Commit message" sub="valid by construction" accent />
+            <div style={captionStyle}>
+              fully offline — weights downloaded once from Hugging Face, code + grammar from GitHub
+            </div>
+          </div>
         </div>
       </div>
     </div>

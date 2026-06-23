@@ -138,8 +138,8 @@ export default function StorySections() {
               normalized subject style of the training targets so well that it sometimes produces messages
               slightly more generic than the base model&apos;s wordier output. It&apos;s a real trade-off,
               traceable to a normalization choice in the training data, and the next training iteration
-              targets it directly. I report it because a portfolio that only shows the wins isn&apos;t an
-              honest evaluation.
+              targets it directly. I include it because a complete evaluation covers the trade-offs, not
+              just the wins.
             </p>
 
             <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px' }}>

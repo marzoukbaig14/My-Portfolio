@@ -53,6 +53,12 @@ export default function CommittedHeader() {
             ))}
           </div>
 
+          {/* Explicit demo CTA: filled accent so it stands out from the outline links. */}
+          <a href="#demo" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', fontWeight: 600, color: '#fff', background: 'var(--accent)', border: '1px solid var(--accent)', borderRadius: '6px', padding: '6px 16px', textDecoration: 'none', transition: 'background 0.2s' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-hover)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--accent)'; }}
+          >Try the demo</a>
+
           <Link href="/#projects" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', fontWeight: 600, color: 'var(--accent)', border: '1px solid var(--accent)', borderRadius: '6px', padding: '6px 16px', textDecoration: 'none', transition: 'all 0.2s' }}
             onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = '#fff'; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--accent)'; }}

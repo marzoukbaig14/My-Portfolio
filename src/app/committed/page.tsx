@@ -71,6 +71,18 @@ export default function CommittedPage() {
               an example.
             </p>
 
+            {/* Primary CTA, mirroring the home hero: jump straight to the tool. */}
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '1.75rem' }}>
+              <a
+                href="#demo"
+                className="committed-hero-cta"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--accent)', color: '#fff', fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(13px, 1.5vw, 15px)', fontWeight: 600, padding: '11px 26px', borderRadius: '8px', textDecoration: 'none', transition: 'background 0.2s' }}
+              >
+                Try the demo ↓
+              </a>
+              <style>{`.committed-hero-cta:hover { background: var(--accent-hover) !important; }`}</style>
+            </div>
+
             {/* System diagram, near the top so the shape of the project reads at a glance. */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: 'clamp(1.25rem, 2.5vw, 1.75rem)', marginTop: '2.25rem', overflowX: 'auto' }}>
               <CommittedArchitecture />
@@ -79,7 +91,7 @@ export default function CommittedPage() {
         </section>
 
         {/* The tool */}
-        <section className="surface-a section-divider" style={{ padding: 'clamp(2.5rem, 5vh, 4rem) clamp(1.5rem, 5vw, 4rem) clamp(3rem, 6vh, 5rem)', position: 'relative', overflow: 'hidden' }}>
+        <section id="demo" className="surface-a section-divider" style={{ padding: 'clamp(2.5rem, 5vh, 4rem) clamp(1.5rem, 5vw, 4rem) clamp(3rem, 6vh, 5rem)', position: 'relative', overflow: 'hidden', scrollMarginTop: '80px' }}>
           <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
             <CommittedDemo />
           </div>

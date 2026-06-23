@@ -1,111 +1,162 @@
-// System diagram for the top of the page, so a recruiter sees the shape of the
-// project before scrolling. Rendered natively in the design system rather than
-// via a heavy client-side Mermaid bundle. The portable Mermaid source lives in
-// docs/committed-architecture.mmd and is kept in sync with this layout.
+'use client';
+
+// System diagram for the top of the page. We render the real Mermaid graph
+// (the same source kept in docs/committed-architecture.mmd) so the boxes,
+// connector arrows, and the vertical `direction TB` progression inside each
+// subgraph all look like the diagram the human reviews in their editor.
 //
-// Layout (vertical spine that forks into two siblings, so it stays readable on
-// narrow / mobile screens):
-//
-//   1. Training pipeline (offline, iterable)
-//          | publish weights
-//   2. Source of truth (GitHub code + Hugging Face model)
-//          | consumed downstream
-//   +------------------------+------------------------+
-//   4. Front end (hosted demo)   3. Local inference (offline)
-//
-// The cross-cutting relationships from the Mermaid (weights from HF, code from
-// GitHub feeding both inference paths) are carried as quiet captions inside each
-// leaf box rather than free-floating arrows, which keeps the render clean and
-// responsive without an SVG overlay.
+// Mermaid is heavy, so it is dynamically imported and only loaded once the
+// diagram scrolls near the viewport (IntersectionObserver). That keeps it off
+// the initial bundle and out of the way of the demo above it. The graph is
+// themed from the site's CSS tokens at render time, so it matches the page.
 
-import type { CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-const mono = 'var(--font-geist-mono), monospace';
+// Canonical diagram source. Mirrors docs/committed-architecture.mmd; the class
+// assignments at the end highlight the load-bearing nodes (model artifact and
+// the "you are here" front end) in the accent color.
+const DIAGRAM = `flowchart TB
+  subgraph training["1 · Training pipeline — offline, iterable"]
+    direction TB
+    A["CommitChronicle<br/>~10.7M real commits"]
+    B["Filter to Conventional Commits<br/>~58k single-file diffs, 16 languages"]
+    C["QLoRA 4-bit SFT<br/>Qwen3-1.7B + PEFT / TRL"]
+    D["Merge + GGUF quantize<br/>Q4_K_M, ~1 GB · model ready"]
+    EVAL["Evaluate + iterate"]
+    A --> B --> C --> D --> EVAL
+    EVAL -. "next iteration · manual today,<br/>pip / automation later" .-> C
+  end
 
-const boxStyle: CSSProperties = {
-  border: '1px solid var(--border)',
-  borderRadius: '10px',
-  padding: '14px',
-  background: 'rgba(var(--accent-rgb), 0.015)',
-};
+  subgraph sources["2 · Source of truth"]
+    direction TB
+    GH["GitHub repo<br/>prompts · inference code · GBNF grammar"]
+    HFM["Hugging Face model repo<br/>GGUF weights + model card"]
+  end
 
-const boxTitleStyle: CSSProperties = {
-  fontFamily: mono,
-  fontSize: '11px',
-  color: 'var(--text-muted)',
-  textTransform: 'uppercase',
-  letterSpacing: '0.08em',
-  marginBottom: '12px',
-};
+  D ==>|"publish weights"| HFM
 
-const captionStyle: CSSProperties = {
-  fontFamily: mono,
-  fontSize: '10.5px',
-  color: 'var(--text-muted)',
-  lineHeight: 1.6,
-  marginTop: '12px',
-};
+  subgraph local["3 · Inference · local — CPU, no network"]
+    direction TB
+    E["git diff"]
+    F["Prompt + tokenize"]
+    G["Fine-tuned Qwen3-1.7B<br/>llama.cpp · CPU"]
+    H["GBNF grammar-constrained decoding"]
+    I["Conventional Commit message<br/>valid by construction"]
+    E --> F --> G --> H --> I
+  end
 
-type NodeProps = { label: string; sub?: string; accent?: boolean; dim?: boolean };
+  HFM -. "download weights once" .-> G
+  GH -. "clone code + grammar" .-> F
 
-function Node({ label, sub, accent, dim }: NodeProps) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '2px',
-        padding: '8px 12px',
-        borderRadius: '8px',
-        background: accent ? 'rgba(var(--accent-rgb), 0.08)' : 'var(--bg-secondary)',
-        border: `1px solid ${accent ? 'rgba(var(--accent-rgb), 0.45)' : 'var(--border)'}`,
-        borderStyle: dim ? 'dashed' : 'solid',
-        opacity: dim ? 0.7 : 1,
-      }}
-    >
-      <span
-        style={{
-          fontFamily: mono,
-          fontSize: '12.5px',
-          color: accent ? 'var(--accent)' : 'var(--text-secondary)',
-          fontWeight: accent ? 600 : 400,
-        }}
-        dangerouslySetInnerHTML={{ __html: label }}
-      />
-      {sub && (
-        <span style={{ fontFamily: mono, fontSize: '10.5px', color: 'var(--text-muted)' }}>{sub}</span>
-      )}
-    </div>
-  );
-}
+  subgraph online["4 · Inference · hosted demo — over the network, not local"]
+    direction TB
+    WEB["Website / Vercel front end<br/>(you are here)"]
+    GRADIO["Gradio front end"]
+    VSCODE["VS Code extension<br/>(planned)"]
+    SPACE_API["Hugging Face Space · portfolio backend<br/>Linux + Docker · FastAPI + llama.cpp · GGUF"]
+    SPACE_GR["Hugging Face Space · Gradio app<br/>Linux + Docker · FastAPI + llama.cpp · GGUF"]
+    WEB -->|"HTTPS · POST /generate (REST/JSON)"| SPACE_API
+    GRADIO -->|"HTTPS · API call"| SPACE_GR
+    VSCODE -. "HTTPS · POST /generate" .-> SPACE_API
+  end
 
-// Vertical connector between two stacked nodes, with an optional label on the wire.
-function Down({ label, dashed }: { label?: string; dashed?: boolean }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '5px 0' }}>
-      <span
-        style={{
-          width: 0,
-          height: '12px',
-          borderLeft: `1.5px ${dashed ? 'dashed' : 'solid'} var(--border)`,
-        }}
-      />
-      {label && (
-        <span style={{ fontFamily: mono, fontSize: '9.5px', color: 'var(--text-muted)', padding: '2px 0', textAlign: 'center' }}>
-          {label}
-        </span>
-      )}
-      <span style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1 }}>▼</span>
-    </div>
-  );
-}
+  HFM -. "pulls latest published model" .-> SPACE_API
+  HFM -. "pulls latest published model" .-> SPACE_GR
+  GH -. "inference code + grammar" .-> SPACE_API
+  GH -. "inference code + grammar" .-> SPACE_GR
+`;
 
 export default function CommittedArchitecture() {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [svg, setSvg] = useState<string>('');
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+
+    let cancelled = false;
+
+    const render = async () => {
+      try {
+        const mermaid = (await import('mermaid')).default;
+
+        // Pull live theme values so the graph matches the current site palette.
+        const css = getComputedStyle(document.documentElement);
+        const v = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
+        const accent = v('--accent', '#22c55e');
+        const accentRgb = v('--accent-rgb', '34, 197, 94');
+        const border = v('--border', '#2a2a35');
+        const nodeBg = v('--bg-secondary', '#16161d');
+        const cardBg = v('--bg-card', '#101016');
+        const textPrimary = v('--text-primary', '#e6e6e6');
+        const textSecondary = v('--text-secondary', '#b4b4b8');
+        const textMuted = v('--text-muted', '#6b6b76');
+        const mono = v('--font-geist-mono', 'monospace') + ', monospace';
+
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'loose',
+          theme: 'base',
+          themeVariables: {
+            fontFamily: mono,
+            fontSize: '13px',
+            background: 'transparent',
+            mainBkg: nodeBg,
+            primaryColor: nodeBg,
+            primaryBorderColor: border,
+            primaryTextColor: textSecondary,
+            secondaryColor: nodeBg,
+            tertiaryColor: 'transparent',
+            lineColor: textMuted,
+            textColor: textSecondary,
+            nodeBorder: border,
+            clusterBkg: 'transparent',
+            clusterBorder: border,
+            titleColor: textMuted,
+            edgeLabelBackground: cardBg,
+          },
+          flowchart: { htmlLabels: true, curve: 'basis', padding: 12, nodeSpacing: 28, rankSpacing: 36 },
+        });
+
+        // Accent the load-bearing nodes via an injected classDef.
+        const themed =
+          DIAGRAM +
+          `\n  classDef accent fill:rgba(${accentRgb},0.10),stroke:${accent},color:${accent},stroke-width:1.2px;` +
+          `\n  classDef strong color:${textPrimary};` +
+          `\n  class D,HFM,G,I,WEB accent;`;
+
+        const id = 'committed-arch-' + Math.random().toString(36).slice(2);
+        const { svg: out } = await mermaid.render(id, themed);
+        if (!cancelled) setSvg(out);
+      } catch {
+        if (!cancelled) setFailed(true);
+      }
+    };
+
+    // Defer the (heavy) Mermaid import until the diagram is near the viewport.
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          render();
+        }
+      },
+      { rootMargin: '300px' },
+    );
+    io.observe(host);
+
+    return () => {
+      cancelled = true;
+      io.disconnect();
+    };
+  }, []);
+
   return (
     <div>
       <div
         style={{
-          fontFamily: mono,
+          fontFamily: 'var(--font-geist-mono), monospace',
           fontSize: '11px',
           color: 'var(--accent)',
           textTransform: 'uppercase',
@@ -116,86 +167,27 @@ export default function CommittedArchitecture() {
         architecture
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '760px', margin: '0 auto' }}>
-        {/* ===== 1 · Training pipeline (offline, iterable) ===== */}
-        <div style={{ ...boxStyle, width: '100%' }}>
-          <div style={boxTitleStyle}>1 · training pipeline — offline, iterable</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'stretch', gap: '8px' }}>
-            <Node label="CommitChronicle" sub="~10.7M real commits" />
-            <span style={{ alignSelf: 'center', color: 'var(--text-muted)' }}>→</span>
-            <Node label="filter to Conventional Commits" sub="~58k single-file diffs, 16 langs" />
-            <span style={{ alignSelf: 'center', color: 'var(--text-muted)' }}>→</span>
-            <Node label="QLoRA 4-bit SFT" sub="Qwen3-1.7B · PEFT / TRL" />
-            <span style={{ alignSelf: 'center', color: 'var(--text-muted)' }}>→</span>
-            <Node label="merge + GGUF quantize" sub="Q4_K_M, ~1 GB · model ready" accent />
-            <span style={{ alignSelf: 'center', color: 'var(--text-muted)' }}>→</span>
-            <Node label="evaluate + iterate" />
-          </div>
-          <div style={captionStyle}>
-            ↺ next iteration feeds back into SFT — manual today, pip / automation later
-          </div>
+      {svg ? (
+        <div
+          ref={hostRef}
+          className="committed-arch-host"
+          style={{ display: 'flex', justifyContent: 'center' }}
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
+      ) : (
+        <div
+          ref={hostRef}
+          style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '160px' }}
+        >
+          <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-muted)' }}>
+            {failed ? 'diagram unavailable, see docs/committed-architecture.mmd' : 'rendering diagram…'}
+          </span>
         </div>
+      )}
 
-        <Down label="publish weights" />
-
-        {/* ===== 2 · Source of truth ===== */}
-        <div style={{ ...boxStyle, width: '100%' }}>
-          <div style={boxTitleStyle}>2 · source of truth</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            <div style={{ flex: '1 1 240px' }}>
-              <Node label="GitHub repo" sub="prompts · inference code · GBNF grammar" />
-            </div>
-            <div style={{ flex: '1 1 240px' }}>
-              <Node label="Hugging Face model repo" sub="GGUF weights + model card" accent />
-            </div>
-          </div>
-        </div>
-
-        <Down label="consumed downstream" />
-
-        {/* ===== 3 + 4 · Two sibling consumers ===== */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', width: '100%', alignItems: 'flex-start' }}>
-          {/* 4 · Front end (hosted demo) */}
-          <div style={{ ...boxStyle, flex: '1 1 300px' }}>
-            <div style={boxTitleStyle}>4 · front end — hosted demo, over the network</div>
-
-            <Node label="website / Vercel front end<br/>(you are here)" accent />
-            <Down label="HTTPS · POST /generate · FastAPI" />
-            <Node label="HF Space · portfolio backend" sub="Linux + Docker · FastAPI + llama.cpp · GGUF" />
-
-            <div style={{ height: '14px' }} />
-
-            <Node label="Gradio front end" />
-            <Down label="HTTPS · FastAPI" />
-            <Node label="HF Space · Gradio app" sub="Linux + Docker · FastAPI + llama.cpp · GGUF" />
-
-            <div style={{ height: '14px' }} />
-            <Node label="VS Code extension (planned)" sub="HTTPS · POST /generate → portfolio backend" dim />
-
-            <div style={captionStyle}>
-              not local — each Space pulls the latest model from Hugging Face and its inference code +
-              grammar from GitHub
-            </div>
-          </div>
-
-          {/* 3 · Local inference */}
-          <div style={{ ...boxStyle, flex: '1 1 220px' }}>
-            <div style={boxTitleStyle}>3 · local inference — CPU, no network</div>
-            <Node label="git diff" />
-            <Down />
-            <Node label="prompt + tokenize" />
-            <Down />
-            <Node label="fine-tuned Qwen3-1.7B" sub="llama.cpp · CPU" accent />
-            <Down />
-            <Node label="GBNF grammar-constrained decode" />
-            <Down />
-            <Node label="Conventional Commit message" sub="valid by construction" accent />
-            <div style={captionStyle}>
-              fully offline — weights downloaded once from Hugging Face, code + grammar from GitHub
-            </div>
-          </div>
-        </div>
-      </div>
+      <style>{`
+        .committed-arch-host svg { max-width: 100%; height: auto; }
+      `}</style>
     </div>
   );
 }

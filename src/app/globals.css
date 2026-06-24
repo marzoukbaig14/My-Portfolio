@@ -58,9 +58,10 @@ body {
 
 /* All sections share one translucent surface, so the neural background reads
    uniformly across the page. Sections are separated by an accent divider
-   (below) rather than a background change. Tune the overlay opacity here. */
+   (below) rather than a background change. Tune the overlay opacity here:
+   higher = more solid / less frosty (the scrolled Navbar sits at 0.97). */
 .surface-a {
-  background: rgba(13, 13, 18, 0.54);
+  background: rgba(13, 13, 18, 0.9);
 }
 
 /* Accent divider at the top edge of a section: a hairline that glows toward the

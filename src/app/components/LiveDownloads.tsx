@@ -20,9 +20,10 @@ const POLL_MS = 60_000; // match the route's revalidate window (~1 min)
 // flight.
 const STORAGE_KEY = 'committed-hf-stats';
 
-// Warm red for the live pulse: the cyan accent blends into the neural-net
-// background, so the "live" indicators use a contrasting color instead.
-const LIVE_COLOR = '#ff5c5c';
+// Amber for the live pulse: the cyan accent blends into the neural-net
+// background, so the "live" indicators use a contrasting color. Amber reads as
+// "active/attention" without the alarm connotation of a red dot.
+const LIVE_COLOR = '#f5a623';
 
 function fmt(n: number | undefined | null) {
   return typeof n === 'number' ? n.toLocaleString('en-US') : '—';
@@ -151,14 +152,17 @@ export default function LiveDownloads({
     );
   }
 
-  // inline (home hero): a compact, linkable one-liner.
+  // inline (home hero): the live pulse leads as the attention signal; the
+  // actual counts trail as quiet supporting detail rather than bold headline
+  // numbers, so the line reads "this is live" first and the figures second.
   const inner = (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', fontFamily: mono, fontSize: 'clamp(12px, 1.4vw, 13px)', color: 'var(--text-secondary)' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', fontFamily: mono, fontSize: 'clamp(12px, 1.4vw, 13px)', color: 'var(--text-muted)' }}>
       <LiveDot active={live} />
-      <span style={{ color: live ? LIVE_COLOR : 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '11px' }}>live</span>
-      <span><strong style={{ color: 'var(--text-primary)' }}>{fmt(model)}</strong> model downloads</span>
+      <span style={{ color: live ? LIVE_COLOR : 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', fontSize: '11px' }}>live</span>
       <span style={{ color: 'var(--text-muted)' }}>·</span>
-      <span><strong style={{ color: 'var(--text-primary)' }}>{fmt(dataset)}</strong> dataset downloads</span>
+      <span>
+        {fmt(model)} model / {fmt(dataset)} dataset downloads on Hugging Face
+      </span>
     </span>
   );
 

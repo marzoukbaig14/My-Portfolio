@@ -60,7 +60,7 @@ body {
    uniformly across the page. Sections are separated by an accent divider
    (below) rather than a background change. Tune the overlay opacity here. */
 .surface-a {
-  background: rgba(13, 13, 18, 0.6);
+  background: rgba(13, 13, 18, 0.54);
 }
 
 /* Accent divider at the top edge of a section: a hairline that glows toward the

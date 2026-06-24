@@ -39,6 +39,16 @@ export async function GET() {
 
   return NextResponse.json(
     { model, dataset, fetchedAt: Date.now() },
-    { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' } },
+    {
+      headers: {
+        // Cache only at the shared CDN layer (s-maxage), so Hugging Face is hit
+        // at most once a minute across all visitors. max-age=0 + must-revalidate
+        // stops the *browser* from holding its own stale copy, which is what made
+        // a returning visitor see a frozen number while a fresh browser saw the
+        // real one.
+        'Cache-Control':
+          'public, max-age=0, must-revalidate, s-maxage=60, stale-while-revalidate=120',
+      },
+    },
   );
 }

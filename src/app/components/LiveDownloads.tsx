@@ -14,6 +14,12 @@ type Stats = { model: Count; dataset: Count } | null;
 
 const POLL_MS = 60_000; // match the route's revalidate window (~1 min)
 
+// Persist the last numbers we successfully pulled from the API. On the next
+// visit we seed from this so the counter shows the last real figure instead of
+// an em dash (or a stale browser-cached value) while the first fetch is in
+// flight.
+const STORAGE_KEY = 'committed-hf-stats';
+
 // Warm red for the live pulse: the cyan accent blends into the neural-net
 // background, so the "live" indicators use a contrasting color instead.
 const LIVE_COLOR = '#ff5c5c';
@@ -34,15 +40,38 @@ function useHfStats() {
 
   useEffect(() => {
     let active = true;
+
+    // Seed from the last-known-good values so we never flash an em dash.
+    try {
+      const cached = localStorage.getItem(STORAGE_KEY);
+      if (cached) setStats(JSON.parse(cached) as Stats);
+    } catch {
+      /* ignore unreadable cache */
+    }
+
     const load = async () => {
       try {
-        const res = await fetch('/api/hf-stats');
+        // no-store: always ask the edge for the freshest figure rather than
+        // letting the browser serve its own (potentially frozen) cached copy.
+        const res = await fetch('/api/hf-stats', { cache: 'no-store' });
         if (!res.ok) return;
         const data = (await res.json()) as Stats;
-        if (active && data) {
-          setStats(data);
-          setLive(true);
-        }
+        if (!active || !data) return;
+        setStats((prev) => {
+          // Merge per-field: if HF didn't return one count this cycle, keep the
+          // last real one instead of wiping it to null.
+          const merged: Stats = {
+            model: data.model ?? prev?.model ?? null,
+            dataset: data.dataset ?? prev?.dataset ?? null,
+          };
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+          } catch {
+            /* ignore unwritable storage */
+          }
+          return merged;
+        });
+        setLive(true);
       } catch {
         /* keep the last good values */
       }

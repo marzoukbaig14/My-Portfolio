@@ -2,7 +2,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { examples } from './examples';
-import { generateMessage, pingHealth, usingMock, type ModelId } from './api';
+import { generateMessage, pingHealth, usingMock } from './api';
+import { useModel } from './ModelContext';
+import { ModelToggle } from './ModelToggle';
 import { HighlightedDiffInput } from '../components/CodeHighlight';
 import { CC_RE, isWellFormed, fileCount } from './cc';
 
@@ -13,13 +15,6 @@ const HEALTH_WARM_POLL_MS = 20_000;// while warm, re-check lazily in case the Sp
 const REQUEST_TIMEOUT_MS = 90_000; // give a cold Space room to wake before giving up
 const MAX_DIFF_CHARS = 6000;       // rough proxy for the training token cap (single-file diffs)
 const TYPE_SPEED_MS = 16;          // typewriter reveal speed, per character
-
-// Model selector options: human-facing label -> API value. Order is display
-// order; the first entry is the default selection and matches the server default.
-const MODEL_OPTIONS: { value: ModelId; label: string }[] = [
-  { value: '1.7b', label: 'Qwen3-1.7B' },
-  { value: '0.6b', label: 'Qwen3-0.6B' },
-];
 
 export default function CommittedDemo() {
   const [diff, setDiff] = useState('');
@@ -32,7 +27,7 @@ export default function CommittedDemo() {
   const [suggestExamples, setSuggestExamples] = useState(false);
   const [copied, setCopied] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
-  const [model, setModel] = useState<ModelId>('1.7b');
+  const { model } = useModel();
 
   const abortRef = useRef<AbortController | null>(null);
   const typeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -219,45 +214,17 @@ export default function CommittedDemo() {
             </div>
           </div>
 
-          {/* Model selector: which fine-tune generates the message. Maps to the
-              API's optional `model` field (defaults to 1.7b = today's behavior). */}
+          {/* Model selector: which fine-tune generates the message. Shared with
+              the results comparison via ModelContext; maps to the API's optional
+              `model` field (defaults to 1.7b = today's behavior). */}
           <div style={{ marginBottom: '1rem' }}>
             <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px' }}>
               model
             </div>
-            <div role="radiogroup" aria-label="Model" style={{ display: 'inline-flex', border: '1px solid var(--border)', borderRadius: '10px', overflow: 'hidden', background: 'var(--bg-secondary)' }}>
-              {MODEL_OPTIONS.map((opt, i) => {
-                const selected = model === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={selected}
-                    onClick={() => setModel(opt.value)}
-                    disabled={isGenerating}
-                    style={{
-                      fontFamily: 'var(--font-geist-mono), monospace',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      padding: '7px 16px',
-                      border: 'none',
-                      borderLeft: i > 0 ? '1px solid var(--border)' : 'none',
-                      cursor: isGenerating ? 'not-allowed' : 'pointer',
-                      background: selected ? 'var(--accent-muted)' : 'transparent',
-                      color: selected ? 'var(--accent)' : 'var(--text-muted)',
-                      transition: 'background 0.2s, color 0.2s',
-                    }}
-                  >
-                    {opt.label}
-                  </button>
-                );
-              })}
-            </div>
-            {/* [placeholder] Add the eval comparison (quality/latency) here once
-                known — keep it factual, no invented numbers. */}
+            <ModelToggle disabled={isGenerating} />
             <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>
-              Same fine-tune recipe, two sizes — the 0.6B is smaller and faster.
+              Same recipe and data, two sizes — see the full comparison in{' '}
+              <a href="#results" style={{ color: 'var(--accent)', textDecoration: 'none' }}>results</a>.
             </div>
           </div>
 

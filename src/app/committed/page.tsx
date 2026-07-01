@@ -5,6 +5,7 @@ import CommittedArchitecture from './CommittedArchitecture';
 import LiveDownloads from '../components/LiveDownloads';
 import StorySections from './StorySections';
 import ScrollProgress from '../components/ScrollProgress';
+import { ModelProvider } from './ModelContext';
 import { notFound } from 'next/navigation';
 
 // Indexable: the fine-tune is launched and the page content is final, so we
@@ -50,7 +51,7 @@ export default function CommittedPage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '1.75rem' }}>
               {[
                 { value: '0.13 → 0.64', label: 'commit-type accuracy', hint: 'vs. base, reweighted' },
-                { value: '0.43 → 0.86', label: 'faithfulness', hint: 'vs. base model' },
+                { value: '0.49 → 0.85', label: 'faithfulness', hint: 'vs. base model' },
                 { value: '~1 GB', label: 'runs locally on CPU', hint: 'quantized GGUF' },
               ].map(stat => (
                 <div key={stat.label} style={{ flex: '1 1 160px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1rem 1.25rem' }}>
@@ -69,12 +70,13 @@ export default function CommittedPage() {
             <p style={{ fontSize: 'clamp(14px, 1.7vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '620px' }}>
               Fine-tuning a 1.7B model (Qwen3, QLoRA) on ~58k real commits taught it to turn a code
               diff into a clean Conventional Commit subject line. On a 442-diff held-out eval, that
-              lifted commit-type accuracy from 0.13 to 0.64 and faithfulness from 0.43 to 0.86 over
-              the base model. It serves as a ~1 GB quantized GGUF on llama.cpp, CPU-only, so your
-              diffs never leave your machine: most tools like this ship your code off to an API, and
-              the point was to build one small enough that nothing has to. A GBNF grammar constrains
-              decoding, so every output is a valid commit by construction. Paste a diff below, or try
-              an example.
+              lifted commit-type accuracy from 0.13 to 0.64 and faithfulness from 0.49 to 0.85 over
+              the base model. A smaller 0.6B variant, trained the exact same way, comes remarkably
+              close — compare the two in the results below. It serves as a ~1 GB quantized GGUF on
+              llama.cpp, CPU-only, so your diffs never leave your machine: most tools like this ship
+              your code off to an API, and the point was to build one small enough that nothing has
+              to. A GBNF grammar constrains decoding, so every output is a valid commit by
+              construction. Paste a diff below, or try an example.
             </p>
 
             {/* Primary CTA, mirroring the home hero: jump straight to the tool. */}
@@ -96,15 +98,18 @@ export default function CommittedPage() {
           </div>
         </section>
 
-        {/* The tool */}
-        <section id="demo" className="surface-a section-divider" style={{ padding: 'clamp(2.5rem, 5vh, 4rem) clamp(1.5rem, 5vw, 4rem) clamp(3rem, 6vh, 5rem)', position: 'relative', overflow: 'hidden', scrollMarginTop: '80px' }}>
-          <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-            <CommittedDemo />
-          </div>
-        </section>
+        {/* The tool + story share one model selection (the demo generates with
+            it, the results spotlight it), so both live inside the ModelProvider. */}
+        <ModelProvider>
+          <section id="demo" className="surface-a section-divider" style={{ padding: 'clamp(2.5rem, 5vh, 4rem) clamp(1.5rem, 5vw, 4rem) clamp(3rem, 6vh, 5rem)', position: 'relative', overflow: 'hidden', scrollMarginTop: '80px' }}>
+            <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+              <CommittedDemo />
+            </div>
+          </section>
 
-        {/* Story */}
-        <StorySections />
+          {/* Story */}
+          <StorySections />
+        </ModelProvider>
       </main>
     </>
   );

@@ -1,6 +1,10 @@
 'use client';
 import { motion } from 'framer-motion';
 import { CodeBlock } from '../components/CodeHighlight';
+import { useModel } from './ModelContext';
+import { ModelToggle } from './ModelToggle';
+import { METRICS, MODELS, EVAL_META, SUMMARY } from './results';
+import type { ModelId } from './api';
 
 // Story sections beneath the tool: how it works, results (with the real eval
 // numbers and the honest specificity regression), sample outputs, run-it-locally,
@@ -41,6 +45,16 @@ const cardStyle: React.CSSProperties = { background: 'var(--bg-card)', border: '
 const inlineCode: React.CSSProperties = { fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.9em', color: 'var(--accent)', background: 'var(--accent-muted)', borderRadius: '4px', padding: '1px 6px' };
 
 export default function StorySections() {
+  const { model } = useModel();
+
+  // Columns for the four-arm comparison: each model's base and fine-tune.
+  const cols: { model: ModelId; arm: 'base' | 'ft' }[] = [
+    { model: '0.6b', arm: 'base' },
+    { model: '0.6b', arm: 'ft' },
+    { model: '1.7b', arm: 'base' },
+    { model: '1.7b', arm: 'ft' },
+  ];
+
   return (
     <>
       {/* ── How it works ─────────────────────────────────────────── */}
@@ -76,78 +90,103 @@ export default function StorySections() {
         <div style={innerStyle}>
           <SectionHeading>results</SectionHeading>
           <motion.div {...reveal}>
-            <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px', marginBottom: '1.75rem' }}>
-              I evaluated the fine-tune against the un-tuned Qwen3-1.7B base on a 442-example test
-              sample, scored by an LLM judge on four orthogonal axes. The headline numbers are reweighted
-              to the true commit-type distribution of the test split, so they reflect realistic
-              deployment behavior.
+            <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px', marginBottom: '1.5rem' }}>
+              I fine-tuned two sizes on the identical pipeline — Qwen3-1.7B and a smaller Qwen3-0.6B —
+              and evaluated each against its un-tuned base on a {EVAL_META.sample}-example test sample,
+              scored by a {EVAL_META.judge} judge on four orthogonal axes and reweighted to the test
+              split&apos;s true commit-type distribution. All four arms share the same judge, so every
+              comparison below is apples-to-apples.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-              {[
-                { value: '0.637', label: 'type accuracy', hint: 'deployment-reweighted' },
-                { value: '0.471', label: 'conjunctive pass-rate', hint: 'all four axes pass' },
-                { value: '2.188', label: 'graded mean (0–3)', hint: 'LLM-judge score' },
-                { value: 'Qwen3-1.7B', label: 'base model', hint: 'fine-tuned with QLoRA' },
-              ].map(stat => (
-                <div key={stat.label} style={{ ...cardStyle, padding: '1.25rem' }}>
-                  <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(20px, 3.2vw, 30px)', fontWeight: 700, color: 'var(--accent)', lineHeight: 1.1, wordBreak: 'break-word' }}>{stat.value}</div>
-                  <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-primary)', marginTop: '10px' }}>{stat.label}</div>
-                  <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>{stat.hint}</div>
-                </div>
-              ))}
+            {/* Shared model toggle + a focused readout that changes with it. */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', marginBottom: '1rem' }}>
+              <ModelToggle ariaLabel="Model to spotlight" />
+              <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)' }}>
+                spotlighting {MODELS[model].label} — synced with the demo
+              </span>
             </div>
 
-            {/* Before/after: un-tuned base → fine-tune, on the LLM-judge axes. */}
-            <div style={{ ...cardStyle, padding: 0, overflow: 'hidden', marginBottom: '1.5rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '12px', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                <span>metric</span>
-                <span style={{ textAlign: 'right' }}>base</span>
-                <span style={{ textAlign: 'right' }}>fine-tuned</span>
+            <div style={{ ...cardStyle, marginBottom: '1.5rem' }}>
+              <p style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '1rem' }}>
+                {SUMMARY[model].blurb}
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px' }}>
+                {SUMMARY[model].stats.map(s => (
+                  <div key={s.label} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '10px 12px' }}>
+                    <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(18px, 2.6vw, 22px)', fontWeight: 700, color: 'var(--accent)', lineHeight: 1.1 }}>{s.value}</div>
+                    <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '10px', color: 'var(--text-muted)', marginTop: '6px' }}>{s.label}</div>
+                  </div>
+                ))}
               </div>
-              {[
-                { metric: 'Type correctness', base: '0.33', tuned: '0.81' },
-                { metric: 'Faithfulness', base: '0.43', tuned: '0.86' },
-                { metric: 'Completeness', base: '0.52', tuned: '0.73' },
-                { metric: 'Specificity', base: '0.81', tuned: '0.71' },
-                { metric: 'Type accuracy (deployment-reweighted)', base: '0.131', tuned: '0.637' },
-                { metric: 'Conjunctive pass-rate', base: '0.181', tuned: '0.471' },
-                { metric: 'Graded mean (0–3)', base: '1.207', tuned: '2.188' },
-              ].map((row, i, arr) => (
-                <div key={row.metric} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '12px', padding: '10px 16px', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', alignItems: 'center' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>{row.metric}</span>
-                  <span style={{ textAlign: 'right', color: 'var(--text-muted)' }}>{row.base}</span>
-                  <span style={{ textAlign: 'right', color: 'var(--accent)', fontWeight: 600 }}>{row.tuned}</span>
+            </div>
+
+            {/* Full four-arm comparison. Fine-tune columns are emphasized; the
+                spotlighted model's fine-tune column is highlighted. Scrolls on
+                narrow screens. */}
+            <div style={{ ...cardStyle, padding: 0, overflow: 'hidden', overflowX: 'auto', marginBottom: '1.25rem' }}>
+              <div style={{ minWidth: '540px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(150px, 1.6fr) repeat(4, minmax(58px, 1fr))', gap: '2px 8px', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  <span>metric</span>
+                  {cols.map(col => {
+                    const spot = col.model === model && col.arm === 'ft';
+                    return (
+                      <span key={`${col.model}-${col.arm}`} style={{ textAlign: 'right', color: spot ? 'var(--accent)' : 'var(--text-muted)', fontWeight: spot ? 700 : 400 }}>
+                        {MODELS[col.model].params} {col.arm}
+                      </span>
+                    );
+                  })}
                 </div>
-              ))}
+                {METRICS.map((row, i) => (
+                  <div key={row.metric} style={{ display: 'grid', gridTemplateColumns: 'minmax(150px, 1.6fr) repeat(4, minmax(58px, 1fr))', gap: '2px 8px', padding: '9px 16px', borderBottom: i < METRICS.length - 1 ? '1px solid var(--border)' : 'none', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12.5px', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>
+                      {row.metric}
+                      {row.hint && <span style={{ display: 'block', fontSize: '10px', color: 'var(--text-muted)' }}>{row.hint}</span>}
+                    </span>
+                    {cols.map(col => {
+                      const val = row[col.arm][col.model];
+                      const spot = col.model === model && col.arm === 'ft';
+                      const isFt = col.arm === 'ft';
+                      const color = row.neutral ? 'var(--text-secondary)' : (isFt ? 'var(--accent)' : 'var(--text-muted)');
+                      return (
+                        <span key={`${col.model}-${col.arm}`} style={{ textAlign: 'right', color, fontWeight: isFt && !row.neutral ? 600 : 400, background: spot ? 'rgba(var(--accent-rgb), 0.10)' : 'transparent', borderRadius: '4px', padding: '2px 4px' }}>
+                          {val}
+                        </span>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
             </div>
 
             <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px', marginBottom: '1.25rem' }}>
-              The base model&apos;s dominant failure mode was &ldquo;feat-collapse&rdquo;: it labeled
-              roughly 95% of all diffs as <code style={inlineCode}>feat</code>, regardless of what the
-              change actually did. Because <code style={inlineCode}>fix</code> commits alone make up about
-              49% of real-world commits, a model that almost never predicts{' '}
-              <code style={inlineCode}>fix</code> scores worse on type than a trivial
-              always-guess-<code style={inlineCode}>fix</code> baseline (0.489), and the un-tuned base,
-              at 0.131, did exactly that. Fine-tuning broke the collapse and lifted type accuracy well
-              above the trivial floor.
+              Both base models share the same dominant failure mode — &ldquo;feat-collapse&rdquo;: they
+              label the overwhelming majority of diffs as <code style={inlineCode}>feat</code> (86.7% for
+              the 0.6B base, 95.5% for the 1.7B), regardless of what the change actually did. Because{' '}
+              <code style={inlineCode}>fix</code> commits alone make up about 49% of real-world commits, a
+              model that almost never predicts <code style={inlineCode}>fix</code> scores below a trivial
+              always-<code style={inlineCode}>fix</code> baseline ({EVAL_META.floor}) on reweighted type
+              accuracy — which is exactly what both bases do (0.15 and 0.13). Fine-tuning breaks the
+              collapse: feat-share drops under 10% and type accuracy clears the floor for both sizes.
             </p>
 
             <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.75, maxWidth: '700px', marginBottom: '1.25rem' }}>
-              One axis regressed, which I didn&apos;t expect: specificity dropped from 0.81 to 0.71. The fine-tune learned the terse,
-              normalized subject style of the training targets so well that it sometimes produces messages
-              slightly more generic than the base model&apos;s wordier output. It&apos;s a real trade-off,
-              traceable to a normalization choice in the training data, and the next training iteration
-              targets it directly. I include it because a complete evaluation covers the trade-offs, not
-              just the wins.
+              The one axis the fine-tunes give something up on is specificity. The 1.7B fine-tune trades
+              down from its base (0.81 → 0.67) as it adopts the terse, normalized subject style of the
+              training targets, and the smaller 0.6B is vaguer still (0.55). It&apos;s a real trade-off,
+              traceable to a normalization choice in the training data, and the next iteration targets it.
+              Otherwise the two fine-tunes are close — graded 2.09 (0.6B) vs 2.14 (1.7B) — so the 0.6B gets
+              most of the quality at roughly a third the size.
             </p>
 
             <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px' }}>
-              An LLM judge is only trustworthy if it agrees with a human. I hand-rated 50 examples blind
-              and measured the judge against them: raw agreement ran 0.68–0.84 across the four axes
-              (Cohen&apos;s κ 0.25–0.54), strongest on completeness. That&apos;s a fair-to-moderate proxy,
-              good enough to trust for relative comparisons, with the honest caveat that n=50 gives wide
-              confidence intervals.
+              An LLM judge is only trustworthy if it agrees with a human. I hand-rated a blind sample and
+              validated the DeepSeek judge against it; agreement was strong enough to trust for the
+              relative comparisons here, with specificity the weakest-agreement axis.{' '}
+              {/* [placeholder] Drop in the exact per-axis agreement / Cohen's κ for the DeepSeek judge. */}
+              <span style={{ color: 'var(--text-muted)' }}>[exact per-axis agreement for the DeepSeek judge: TBD]</span>{' '}
+              Two honest caveats: these DeepSeek-judged numbers are not comparable to earlier
+              Gemini-judged figures (only the deltas within this table are valid), and the small
+              hand-rated sample gives wide confidence intervals.
             </p>
           </motion.div>
         </div>

@@ -111,8 +111,8 @@ You type in the diff box
 Click "Generate"  → handleGenerate()                         [CommittedDemo.tsx]
    │  sets status='generating', starts a 90s AbortController timeout
    ▼
-generateMessage(diff, signal)                                [committed/api.ts]
-   │  fetch(endpoints.generate, { POST, body: {diff} })
+generateMessage(diff, model, signal)                         [committed/api.ts]
+   │  fetch(endpoints.generate, { POST, body: {diff, model} })  (model defaults to 1.7b)
    │
    │  endpoints is decided ONCE at module load:
    │    NEXT_PUBLIC_COMMITTED_API_URL set?  ──▶ `${URL}/generate`  (real Space)

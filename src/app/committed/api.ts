@@ -1,8 +1,8 @@
 // Client-side API contract for the Committed demo.
 //
 // We consume the model service at two endpoints (owned by a separate repo):
-//   POST /generate  { diff }     -> { message }
-//   GET  /health                 -> 200 once the model is loaded
+//   POST /generate  { diff, model } -> { message }  (model optional; defaults to "1.7b" server-side)
+//   GET  /health                    -> 200 once the model is loaded
 //
 // The base URL is configuration, never hardcoded. Set
 // NEXT_PUBLIC_COMMITTED_API_URL to the deployed Space; when it is unset we
@@ -45,14 +45,19 @@ export async function pingHealth(signal?: AbortSignal): Promise<HealthStatus> {
   }
 }
 
+// Which fine-tune generates the message. The `model` field is optional in the
+// request and defaults to "1.7b" server-side, so omitting it (or sending
+// "1.7b") is exactly today's behavior.
+export type ModelId = '1.7b' | '0.6b';
+
 // Ask the model for a commit message. Resolves to the subject string.
 // Throws on network/CORS failure or a non-2xx response so the caller can
-// render a friendly error state.
-export async function generateMessage(diff: string, signal?: AbortSignal): Promise<string> {
+// render a friendly error state. `model` selects the fine-tune (default 1.7b).
+export async function generateMessage(diff: string, model: ModelId = '1.7b', signal?: AbortSignal): Promise<string> {
   const res = await fetch(endpoints.generate, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ diff }),
+    body: JSON.stringify({ diff, model }),
     signal,
   });
 

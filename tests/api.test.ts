@@ -53,4 +53,18 @@ describe('generateMessage', () => {
     mockFetch(async () => ({ ok: true, json: async () => ({ nope: 1 }) }));
     await expect(generateMessage('x')).rejects.toThrow('Malformed response');
   });
+
+  it('sends model "1.7b" by default in the request body', async () => {
+    mockFetch(async () => ({ ok: true, json: async () => ({ message: 'feat: x' }) }));
+    await generateMessage('diff');
+    const init = vi.mocked(fetch).mock.calls[0][1];
+    expect(JSON.parse(String(init?.body))).toEqual({ diff: 'diff', model: '1.7b' });
+  });
+
+  it('sends the selected model in the request body', async () => {
+    mockFetch(async () => ({ ok: true, json: async () => ({ message: 'feat: x' }) }));
+    await generateMessage('diff', '0.6b');
+    const init = vi.mocked(fetch).mock.calls[0][1];
+    expect(JSON.parse(String(init?.body))).toEqual({ diff: 'diff', model: '0.6b' });
+  });
 });

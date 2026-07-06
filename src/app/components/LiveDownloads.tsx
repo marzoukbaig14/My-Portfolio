@@ -14,12 +14,6 @@ type Stats = { model: Count; dataset: Count } | null;
 
 const POLL_MS = 60_000; // match the route's revalidate window (~1 min)
 
-// Persist the last numbers we successfully pulled from the API. On the next
-// visit we seed from this so the counter shows the last real figure instead of
-// an em dash (or a stale browser-cached value) while the first fetch is in
-// flight.
-const STORAGE_KEY = 'committed-hf-stats';
-
 // Amber for the live pulse: the cyan accent blends into the neural-net
 // background, so the "live" indicators use a contrasting color. Amber reads as
 // "active/attention" without the alarm connotation of a red dot.
@@ -42,14 +36,9 @@ function useHfStats() {
   useEffect(() => {
     let active = true;
 
-    // Seed from the last-known-good values so we never flash an em dash.
-    try {
-      const cached = localStorage.getItem(STORAGE_KEY);
-      if (cached) setStats(JSON.parse(cached) as Stats);
-    } catch {
-      /* ignore unreadable cache */
-    }
-
+    // No stale seed: on mount we show a loading state (— / "connecting") and
+    // only display real numbers once a live fetch returns, so a returning
+    // visitor never sees a frozen figure.
     const load = async () => {
       try {
         // no-store: always ask the edge for the freshest figure rather than
@@ -65,11 +54,6 @@ function useHfStats() {
             model: data.model ?? prev?.model ?? null,
             dataset: data.dataset ?? prev?.dataset ?? null,
           };
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-          } catch {
-            /* ignore unwritable storage */
-          }
           return merged;
         });
         setLive(true);

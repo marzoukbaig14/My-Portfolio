@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { CodeBlock } from '../components/CodeHighlight';
 import { useModel } from './ModelContext';
 import { ModelToggle } from './ModelToggle';
-import { METRICS, MODELS, EVAL_META, SUMMARY } from './results';
+import { METRICS, MODELS, EVAL_META, SUMMARY, JUDGE_AGREEMENT } from './results';
 import type { ModelId } from './api';
 
 // Story sections beneath the tool: how it works, results (with the real eval
@@ -66,11 +66,12 @@ export default function StorySections() {
               Committed is a complete pipeline, not just a model. I started from CommitChronicle
               (roughly 10.7M real GitHub commits) and wrote a filter to extract clean, single-file diffs
               paired with well-formed Conventional Commit subjects, normalizing them into a consistent
-              training target. I fine-tuned Qwen3-1.7B with QLoRA on the result, evaluated it against the
-              un-tuned base model on a multi-metric harness with an LLM judge I validated against my own
-              hand-ratings, then served it locally through llama.cpp with grammar-constrained decoding
-              that guarantees every output is syntactically valid. Most of the work was the data, not the
-              model, and all four stages (data, training, evaluation, serving) are here.
+              training target. I fine-tuned Qwen3 with QLoRA on the result — first the 1.7B, then the
+              0.6B on the identical recipe — evaluated each against its un-tuned base on a multi-metric
+              harness with an LLM judge I validated against my own hand-ratings, then served them locally
+              through llama.cpp with grammar-constrained decoding that guarantees every output is
+              syntactically valid. Most of the work was the data, not the model, and all four stages
+              (data, training, evaluation, serving) are here.
             </p>
             {/* Pipeline motif, on-theme and content-agnostic. */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px' }}>
@@ -178,15 +179,33 @@ export default function StorySections() {
               most of the quality at roughly a third the size.
             </p>
 
+            <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px', marginBottom: '1.25rem' }}>
+              An LLM judge is only trustworthy if it agrees with a human. I hand-rated {JUDGE_AGREEMENT.n}{' '}
+              examples blind and validated the DeepSeek judge against them:
+            </p>
+            <div style={{ ...cardStyle, padding: 0, overflow: 'hidden', overflowX: 'auto', marginBottom: '1.25rem', maxWidth: '460px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr', gap: '2px 8px', padding: '10px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <span>axis</span>
+                <span style={{ textAlign: 'right' }}>agreement</span>
+                <span style={{ textAlign: 'right' }}>Cohen&apos;s κ</span>
+              </div>
+              {JUDGE_AGREEMENT.axes.map((a, i) => {
+                const weak = a.axis === 'specificity';
+                return (
+                  <div key={a.axis} style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr', gap: '2px 8px', padding: '8px 16px', borderBottom: i < JUDGE_AGREEMENT.axes.length - 1 ? '1px solid var(--border)' : 'none', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12.5px', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>{a.axis}</span>
+                    <span style={{ textAlign: 'right', color: 'var(--text-muted)' }}>{a.agreement}</span>
+                    <span style={{ textAlign: 'right', color: weak ? '#e0b752' : 'var(--accent)', fontWeight: 600 }}>{a.kappa}</span>
+                  </div>
+                );
+              })}
+            </div>
             <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px' }}>
-              An LLM judge is only trustworthy if it agrees with a human. I hand-rated a blind sample and
-              validated the DeepSeek judge against it; agreement was strong enough to trust for the
-              relative comparisons here, with specificity the weakest-agreement axis.{' '}
-              {/* [placeholder] Drop in the exact per-axis agreement / Cohen's κ for the DeepSeek judge. */}
-              <span style={{ color: 'var(--text-muted)' }}>[exact per-axis agreement for the DeepSeek judge: TBD]</span>{' '}
-              Two honest caveats: these DeepSeek-judged numbers are not comparable to earlier
-              Gemini-judged figures (only the deltas within this table are valid), and the small
-              hand-rated sample gives wide confidence intervals.
+              Three axes land at moderate-to-substantial agreement (κ ≈ 0.56–0.61); specificity is the
+              weakest (κ 0.34), so specificity-driven differences carry the most judge uncertainty. Two
+              honest caveats: these DeepSeek-judged numbers are not comparable to earlier Gemini-judged
+              figures (only the deltas within the table above are valid), and n={JUDGE_AGREEMENT.n} gives
+              wide confidence intervals.
             </p>
           </motion.div>
         </div>
@@ -251,8 +270,9 @@ export default function StorySections() {
           <SectionHeading>run it locally</SectionHeading>
           <motion.div {...reveal}>
             <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '640px', marginBottom: '1.5rem' }}>
-              Committed runs entirely on your machine. No API, no diff ever leaving your laptop.
-              Install it from the repo, pipe a diff in, and get a commit message back:
+              Committed runs entirely on your machine — no API, no diff ever leaving your laptop. It
+              defaults to the 0.6B (a smaller, faster download); the 1.7B is available when you want
+              maximum specificity. Install it, pipe a diff in, and get a commit message back:
             </p>
             <div style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
               <div style={{ display: 'flex', gap: '6px', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
@@ -260,14 +280,20 @@ export default function StorySections() {
               </div>
               <CodeBlock
                 code={`pip install git+https://github.com/marzoukbaig14/Committed.git
-git diff | committed`}
+git diff | committed          # 0.6B by default`}
                 lang="shell"
                 style={{ fontSize: '14px', lineHeight: 1.8 }}
               />
             </div>
             <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-muted)', lineHeight: 1.8, maxWidth: '640px', marginTop: '1.25rem' }}>
-              The model is a quantized GGUF served through llama.cpp on CPU; the first run downloads it
-              once (~1 GB), then it&apos;s fully offline. The hosted demo above runs the identical model.
+              {/* [placeholder] A --model picker is being added to the CLI (mirrors this page's toggle,
+                  0.6B default). Fill the exact flag syntax and per-size GGUF download sizes from the
+                  Committed CLI report — do not guess them. */}
+              A model flag selects the size (default 0.6B); the exact flag and per-size download are{' '}
+              <span style={{ color: 'var(--text-secondary)' }}>[to be filled from the CLI report]</span>.
+              Either serves as a quantized GGUF through llama.cpp on CPU — the first run downloads it
+              once, then it&apos;s fully offline. The hosted demo above runs the model you pick with the
+              toggle.
             </p>
           </motion.div>
         </div>
@@ -279,7 +305,7 @@ git diff | committed`}
           <SectionHeading>built with</SectionHeading>
           <motion.div {...reveal}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '1.75rem' }}>
-              {['Qwen3-1.7B', 'QLoRA / PEFT', 'llama.cpp', 'GBNF grammar', 'FastAPI', 'Docker', 'Hugging Face', 'Next.js'].map(tag => (
+              {['Qwen3 (0.6B / 1.7B)', 'QLoRA / PEFT', 'llama.cpp', 'GBNF grammar', 'FastAPI', 'Docker', 'Hugging Face', 'Next.js'].map(tag => (
                 <span key={tag} style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', padding: '4px 12px', borderRadius: '20px', background: 'var(--accent-muted)', color: 'var(--accent)', border: '1px solid rgba(var(--accent-rgb), 0.2)' }}>{tag}</span>
               ))}
             </div>
@@ -287,7 +313,8 @@ git diff | committed`}
               {[
                 { label: 'GitHub repo', href: 'https://github.com/marzoukbaig14/Committed' },
                 { label: 'Model card (adapter)', href: 'https://huggingface.co/marzoukbaig14/committed-qwen3-1.7b-lora' },
-                { label: 'Model card (GGUF)', href: 'https://huggingface.co/marzoukbaig14/committed-gguf' },
+                { label: 'Model card (1.7B GGUF)', href: 'https://huggingface.co/marzoukbaig14/committed-gguf' },
+                { label: 'Model card (0.6B GGUF)', href: 'https://huggingface.co/marzoukbaig14/committed-gguf-0.6b' },
                 { label: 'Dataset', href: 'https://huggingface.co/datasets/marzoukbaig14/committed-train' },
               ].map(link => (
                 <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', padding: '8px 16px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'border-color 0.2s, color 0.2s' }}

@@ -6,6 +6,7 @@ import LiveDownloads from '../components/LiveDownloads';
 import StorySections from './StorySections';
 import ScrollProgress from '../components/ScrollProgress';
 import { ModelProvider } from './ModelContext';
+import { HeroStats } from './HeroStats';
 import { notFound } from 'next/navigation';
 
 // Indexable: the fine-tune is launched and the page content is final, so we
@@ -32,6 +33,10 @@ export default function CommittedPage() {
       <CommittedHeader />
 
       <main style={{ marginTop: '64px' }}>
+        {/* Hero, demo, and story share one model selection — the numbers flip
+            with the toggle, the narrative copy stays fixed — so the whole page
+            lives inside the ModelProvider. */}
+        <ModelProvider>
         {/* Intro */}
         <section className="surface-a" style={{ padding: 'clamp(3rem, 7vh, 5.5rem) clamp(1.5rem, 5vw, 4rem) clamp(2rem, 4vh, 3rem)', position: 'relative', overflow: 'hidden' }}>
           <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
@@ -47,20 +52,9 @@ export default function CommittedPage() {
             </p>
 
             {/* Headline numbers up top, so the result is the first thing a
-                recruiter sees. The full eval (table, caveats) is in #results below. */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '1.75rem' }}>
-              {[
-                { value: '0.13 → 0.64', label: 'commit-type accuracy', hint: 'vs. base, reweighted' },
-                { value: '0.49 → 0.85', label: 'faithfulness', hint: 'vs. base model' },
-                { value: '~1 GB', label: 'runs locally on CPU', hint: 'quantized GGUF' },
-              ].map(stat => (
-                <div key={stat.label} style={{ flex: '1 1 160px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1rem 1.25rem' }}>
-                  <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(17px, 2.4vw, 24px)', fontWeight: 700, color: 'var(--accent)', lineHeight: 1.15 }}>{stat.value}</div>
-                  <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-primary)', marginTop: '8px' }}>{stat.label}</div>
-                  <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', marginTop: '3px' }}>{stat.hint}</div>
-                </div>
-              ))}
-            </div>
+                recruiter sees. Model-aware: these flip with the toggle (the copy
+                does not). The full eval (table, caveats) is in #results below. */}
+            <HeroStats />
 
             {/* Live adoption signal: real Hugging Face download counts. */}
             <div style={{ marginBottom: '1.75rem' }}>
@@ -68,15 +62,16 @@ export default function CommittedPage() {
             </div>
 
             <p style={{ fontSize: 'clamp(14px, 1.7vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '620px' }}>
-              Fine-tuning a 1.7B model (Qwen3, QLoRA) on ~58k real commits taught it to turn a code
-              diff into a clean Conventional Commit subject line. On a 442-diff held-out eval, that
-              lifted commit-type accuracy from 0.13 to 0.64 and faithfulness from 0.49 to 0.85 over
-              the base model. A smaller 0.6B variant, trained the exact same way, comes remarkably
-              close — compare the two in the results below. It serves as a ~1 GB quantized GGUF on
-              llama.cpp, CPU-only, so your diffs never leave your machine: most tools like this ship
-              your code off to an API, and the point was to build one small enough that nothing has
-              to. A GBNF grammar constrains decoding, so every output is a valid commit by
-              construction. Paste a diff below, or try an example.
+              I built Committed on Qwen3-1.7B, then tested whether a model a third the size could do
+              the same job — and it essentially can. The 0.6B fine-tune matches the 1.7B on picking the
+              right commit type and staying faithful to the diff, at roughly a third the parameters, a
+              smaller download, and faster local inference. The one honest trade is specificity: it
+              writes slightly vaguer messages. So the 0.6B is the default here — for most commits it&apos;s
+              the better deal — and the 1.7B stays available as the bigger sibling when you want maximum
+              specificity. Both are the same QLoRA fine-tune recipe on ~58k real commits, served as a
+              quantized GGUF through llama.cpp, CPU-only, so your diffs never leave your machine. A GBNF
+              grammar constrains decoding, so every output is a valid commit by construction. Paste a
+              diff below, or try an example.
             </p>
 
             {/* Primary CTA, mirroring the home hero: jump straight to the tool. */}
@@ -98,17 +93,15 @@ export default function CommittedPage() {
           </div>
         </section>
 
-        {/* The tool + story share one model selection (the demo generates with
-            it, the results spotlight it), so both live inside the ModelProvider. */}
-        <ModelProvider>
-          <section id="demo" className="surface-a section-divider" style={{ padding: 'clamp(2.5rem, 5vh, 4rem) clamp(1.5rem, 5vw, 4rem) clamp(3rem, 6vh, 5rem)', position: 'relative', overflow: 'hidden', scrollMarginTop: '80px' }}>
-            <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-              <CommittedDemo />
-            </div>
-          </section>
+        {/* The tool */}
+        <section id="demo" className="surface-a section-divider" style={{ padding: 'clamp(2.5rem, 5vh, 4rem) clamp(1.5rem, 5vw, 4rem) clamp(3rem, 6vh, 5rem)', position: 'relative', overflow: 'hidden', scrollMarginTop: '80px' }}>
+          <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+            <CommittedDemo />
+          </div>
+        </section>
 
-          {/* Story */}
-          <StorySections />
+        {/* Story */}
+        <StorySections />
         </ModelProvider>
       </main>
     </>

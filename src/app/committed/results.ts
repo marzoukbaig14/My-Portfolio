@@ -56,7 +56,7 @@ export const EVAL_META = {
 // toggle. Values are the fine-tune column from METRICS above.
 export const SUMMARY: Record<ModelId, { blurb: string; stats: { label: string; value: string }[] }> = {
   '1.7b': {
-    blurb: 'The flagship: strongest on every judged axis, and the more specific of the two.',
+    blurb: 'The bigger sibling. Same recipe on a larger base — a little more specific (0.67 vs 0.55) at about 3x the parameters. Reach for it when you want maximum specificity.',
     stats: [
       { label: 'graded mean (0–3)', value: '2.139' },
       { label: 'type-correctness', value: '0.778' },
@@ -65,7 +65,7 @@ export const SUMMARY: Record<ModelId, { blurb: string; stats: { label: string; v
     ],
   },
   '0.6b': {
-    blurb: 'Nearly matches the 1.7B (graded 2.09 vs 2.14) at roughly a third the size; a touch vaguer (specificity 0.55 vs 0.67).',
+    blurb: 'The default. It matches the 1.7B on commit-type and faithfulness at roughly a third the parameters — a smaller download and faster local inference. The honest trade: slightly vaguer messages (specificity 0.55 vs 0.67).',
     stats: [
       { label: 'graded mean (0–3)', value: '2.094' },
       { label: 'type-correctness', value: '0.726' },
@@ -73,4 +73,31 @@ export const SUMMARY: Record<ModelId, { blurb: string; stats: { label: string; v
       { label: 'specificity', value: '0.545' },
     ],
   },
+};
+
+// Hero stat trio, model-aware (base -> fine-tune deltas). The narrative copy in
+// the hero stays fixed; only these figures flip with the toggle.
+export const HERO: Record<ModelId, { value: string; label: string; hint: string }[]> = {
+  '1.7b': [
+    { value: '0.13 → 0.64', label: 'commit-type accuracy', hint: 'vs. base, reweighted' },
+    { value: '0.49 → 0.85', label: 'faithfulness', hint: 'vs. base model' },
+    { value: '1.45 → 2.14', label: 'graded mean (0–3)', hint: 'LLM-judge score' },
+  ],
+  '0.6b': [
+    { value: '0.15 → 0.60', label: 'commit-type accuracy', hint: 'vs. base, reweighted' },
+    { value: '0.29 → 0.81', label: 'faithfulness', hint: 'vs. base model' },
+    { value: '0.78 → 2.09', label: 'graded mean (0–3)', hint: 'LLM-judge score' },
+  ],
+};
+
+// Judge <-> human agreement (n=50 blind hand-ratings, DeepSeek judge, validated
+// on the 1.7B baseline candidates). Specificity is the weakest-agreement axis.
+export const JUDGE_AGREEMENT = {
+  n: 50,
+  axes: [
+    { axis: 'type-correctness', agreement: '0.82', kappa: '0.61' },
+    { axis: 'faithfulness', agreement: '0.78', kappa: '0.56' },
+    { axis: 'completeness', agreement: '0.80', kappa: '0.60' },
+    { axis: 'specificity', agreement: '0.88', kappa: '0.34' },
+  ],
 };

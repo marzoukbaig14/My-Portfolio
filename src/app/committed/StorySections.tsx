@@ -55,6 +55,13 @@ export default function StorySections() {
     { model: '1.7b', arm: 'ft' },
   ];
 
+  // Local-CLI run command per model — switches with the shared toggle, like the
+  // demo. Install is identical for both sizes (shown separately).
+  const RUN: Record<ModelId, { cmd: string; note: string; size: string }> = {
+    '0.6b': { cmd: 'git diff | committed', note: '0.6B GGUF, ~397 MB', size: '~397 MB' },
+    '1.7b': { cmd: 'git diff | committed --model 1.7b', note: '1.7B GGUF, ~1 GB', size: '~1 GB' },
+  };
+
   return (
     <>
       {/* ── How it works ─────────────────────────────────────────── */}
@@ -272,28 +279,43 @@ export default function StorySections() {
             <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '640px', marginBottom: '1.5rem' }}>
               Committed runs entirely on your machine — no API, no diff ever leaving your laptop. It
               defaults to the 0.6B (a smaller, faster download); the 1.7B is available when you want
-              maximum specificity. Install it, pipe a diff in, and get a commit message back:
+              maximum specificity. Install it once, pipe a diff in, and get a commit message back:
             </p>
+
+            {/* Install: identical for both sizes. */}
             <div style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
               <div style={{ display: 'flex', gap: '6px', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
                 {['#e05252', '#e0b752', '#52e07a'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, opacity: 0.7 }} />)}
               </div>
               <CodeBlock
-                code={`pip install git+https://github.com/marzoukbaig14/Committed.git
-git diff | committed          # 0.6B by default`}
+                code={'pip install --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu "committed @ git+https://github.com/marzoukbaig14/Committed.git"'}
                 lang="shell"
                 style={{ fontSize: '14px', lineHeight: 1.8 }}
               />
             </div>
+
+            {/* Run command switches with the shared model toggle, mirroring the demo. */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', margin: '1rem 0 0.75rem' }}>
+              <ModelToggle ariaLabel="Local model" />
+              <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)' }}>
+                showing {MODELS[model].label} — {RUN[model].size} download
+              </span>
+            </div>
+            <div style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
+              <div style={{ display: 'flex', gap: '6px', padding: '12px 16px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+                {['#e05252', '#e0b752', '#52e07a'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, opacity: 0.7 }} />)}
+              </div>
+              <CodeBlock
+                code={`${RUN[model].cmd}   # ${RUN[model].note}`}
+                lang="shell"
+                style={{ fontSize: '14px', lineHeight: 1.8 }}
+              />
+            </div>
+
             <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-muted)', lineHeight: 1.8, maxWidth: '640px', marginTop: '1.25rem' }}>
-              {/* [placeholder] A --model picker is being added to the CLI (mirrors this page's toggle,
-                  0.6B default). Fill the exact flag syntax and per-size GGUF download sizes from the
-                  Committed CLI report — do not guess them. */}
-              A model flag selects the size (default 0.6B); the exact flag and per-size download are{' '}
-              <span style={{ color: 'var(--text-secondary)' }}>[to be filled from the CLI report]</span>.
-              Either serves as a quantized GGUF through llama.cpp on CPU — the first run downloads it
-              once, then it&apos;s fully offline. The hosted demo above runs the model you pick with the
-              toggle.
+              Both serve as a quantized GGUF through llama.cpp on CPU — the first run downloads the
+              weights once ({RUN[model].size}), then it&apos;s fully offline. The hosted demo above runs
+              the model you pick with the toggle.
             </p>
           </motion.div>
         </div>

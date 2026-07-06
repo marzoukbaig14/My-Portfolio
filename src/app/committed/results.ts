@@ -15,11 +15,12 @@ export interface ModelMeta {
   id: ModelId;
   label: string; // human-facing, e.g. "Qwen3-1.7B"
   params: string; // "1.7B"
+  download: string; // quantized GGUF download size, e.g. "~1 GB"
 }
 
 export const MODELS: Record<ModelId, ModelMeta> = {
-  '1.7b': { id: '1.7b', label: 'Qwen3-1.7B', params: '1.7B' },
-  '0.6b': { id: '0.6b', label: 'Qwen3-0.6B', params: '0.6B' },
+  '1.7b': { id: '1.7b', label: 'Qwen3-1.7B', params: '1.7B', download: '~1 GB' },
+  '0.6b': { id: '0.6b', label: 'Qwen3-0.6B', params: '0.6B', download: '~397 MB' },
 };
 
 // Display order for toggles/columns. First entry is the default selection.
@@ -77,13 +78,17 @@ export const SUMMARY: Record<ModelId, { blurb: string; stats: { label: string; v
 
 // Hero stat trio, model-aware (base -> fine-tune deltas). The narrative copy in
 // the hero stays fixed; only these figures flip with the toggle.
+// The leading card is the download size — it carries the "third the size"
+// flagship pitch — and it flips with the toggle like the eval cards below it.
 export const HERO: Record<ModelId, { value: string; label: string; hint: string }[]> = {
   '1.7b': [
+    { value: MODELS['1.7b'].download, label: 'runs locally on CPU', hint: 'quantized GGUF' },
     { value: '0.13 → 0.64', label: 'commit-type accuracy', hint: 'vs. base, reweighted' },
     { value: '0.49 → 0.85', label: 'faithfulness', hint: 'vs. base model' },
     { value: '1.45 → 2.14', label: 'graded mean (0–3)', hint: 'LLM-judge score' },
   ],
   '0.6b': [
+    { value: MODELS['0.6b'].download, label: 'runs locally on CPU', hint: 'quantized GGUF' },
     { value: '0.15 → 0.60', label: 'commit-type accuracy', hint: 'vs. base, reweighted' },
     { value: '0.29 → 0.81', label: 'faithfulness', hint: 'vs. base model' },
     { value: '0.78 → 2.09', label: 'graded mean (0–3)', hint: 'LLM-judge score' },

@@ -1,16 +1,17 @@
 'use client';
 
-// Live Hugging Face download counters for the Committed model + dataset. Reads
-// our own cached /api/hf-stats route (which fronts the HF public API) and
-// re-polls every couple of minutes, with a "live" pulse so a recruiter can see
-// the numbers are real and updating. Two layouts: a compact one-liner for the
-// home hero, and a small card strip for the /committed page.
+// Live Hugging Face download counter for the whole Committed project. Reads our
+// own /api/hf-stats route (which fronts the HF public API and sums every project
+// artifact — both GGUF builds, both LoRA adapters, and the dataset) into one
+// honest total, re-polling every minute with a "live" pulse. Two layouts: a
+// compact one-liner for the home hero, and a small card for the /committed page.
+// The per-repo breakdown stays visible on each Hub card.
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 type Count = { downloads: number; downloadsAllTime: number } | null;
-type Stats = { model: Count; dataset: Count } | null;
+type Stats = { total: Count } | null;
 
 const POLL_MS = 60_000; // match the route's revalidate window (~1 min)
 
@@ -18,6 +19,9 @@ const POLL_MS = 60_000; // match the route's revalidate window (~1 min)
 // background, so the "live" indicators use a contrasting color. Amber reads as
 // "active/attention" without the alarm connotation of a red dot.
 const LIVE_COLOR = '#f5a623';
+
+// The honest umbrella label — the figure spans models, adapters, and the dataset.
+const TOTAL_LABEL = "across the project's artifacts — models, adapters & dataset";
 
 function fmt(n: number | undefined | null) {
   return typeof n === 'number' ? n.toLocaleString('en-US') : '—';
@@ -37,7 +41,7 @@ function useHfStats() {
     let active = true;
 
     // No stale seed: on mount we show a loading state (— / "connecting") and
-    // only display real numbers once a live fetch returns, so a returning
+    // only display a real number once a live fetch returns, so a returning
     // visitor never sees a frozen figure.
     const load = async () => {
       try {
@@ -47,18 +51,12 @@ function useHfStats() {
         if (!res.ok) return;
         const data = (await res.json()) as Stats;
         if (!active || !data) return;
-        setStats((prev) => {
-          // Merge per-field: if HF didn't return one count this cycle, keep the
-          // last real one instead of wiping it to null.
-          const merged: Stats = {
-            model: data.model ?? prev?.model ?? null,
-            dataset: data.dataset ?? prev?.dataset ?? null,
-          };
-          return merged;
-        });
+        // Keep the last real total if a cycle returns null (partial failure)
+        // instead of wiping the number back to a dash.
+        setStats((prev) => ({ total: data.total ?? prev?.total ?? null }));
         setLive(true);
       } catch {
-        /* keep the last good values */
+        /* keep the last good value */
       }
     };
     load();
@@ -106,14 +104,9 @@ export default function LiveDownloads({
   href?: string;
 }) {
   const { stats, live } = useHfStats();
-  const model = pick(stats?.model ?? null);
-  const dataset = pick(stats?.dataset ?? null);
+  const total = pick(stats?.total ?? null);
 
   if (variant === 'cards') {
-    const cards = [
-      { value: model, label: 'model downloads', sub: 'Hugging Face' },
-      { value: dataset, label: 'dataset downloads', sub: 'Hugging Face' },
-    ];
     return (
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
@@ -123,29 +116,26 @@ export default function LiveDownloads({
           </span>
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-          {cards.map((c) => (
-            <div key={c.label} style={{ flex: '1 1 160px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1rem 1.25rem' }}>
-              <div style={{ fontFamily: mono, fontSize: 'clamp(17px, 2.4vw, 24px)', fontWeight: 700, color: 'var(--accent)', lineHeight: 1.15 }}>{fmt(c.value)}</div>
-              <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text-primary)', marginTop: '8px' }}>{c.label}</div>
-              <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text-muted)', marginTop: '3px' }}>{c.sub}</div>
-            </div>
-          ))}
+          <div style={{ flex: '1 1 260px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '1rem 1.25rem' }}>
+            <div style={{ fontFamily: mono, fontSize: 'clamp(17px, 2.4vw, 24px)', fontWeight: 700, color: 'var(--accent)', lineHeight: 1.15 }}>{fmt(total)}</div>
+            <div style={{ fontFamily: mono, fontSize: '12px', color: 'var(--text-primary)', marginTop: '8px' }}>total downloads</div>
+            <div style={{ fontFamily: mono, fontSize: '11px', color: 'var(--text-muted)', marginTop: '3px' }}>{TOTAL_LABEL}</div>
+          </div>
         </div>
         <style>{dotStyle}</style>
       </div>
     );
   }
 
-  // inline (home hero): the live pulse leads as the attention signal; the
-  // actual counts trail as quiet supporting detail rather than bold headline
-  // numbers, so the line reads "this is live" first and the figures second.
+  // inline (home hero): the live pulse leads as the attention signal; the total
+  // trails as quiet supporting detail rather than a bold headline number.
   const inner = (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', fontFamily: mono, fontSize: 'clamp(12px, 1.4vw, 13px)', color: 'var(--text-muted)' }}>
       <LiveDot active={live} />
       <span style={{ color: live ? LIVE_COLOR : 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', fontSize: '11px' }}>live</span>
       <span style={{ color: 'var(--text-muted)' }}>·</span>
       <span>
-        {fmt(model)} model / {fmt(dataset)} dataset downloads on Hugging Face
+        {fmt(total)} total downloads {TOTAL_LABEL}
       </span>
     </span>
   );

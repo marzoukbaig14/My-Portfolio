@@ -58,8 +58,8 @@ export default function StorySections() {
   // Local-CLI run command per model — switches with the shared toggle, like the
   // demo. Install is identical for both sizes (shown separately).
   const RUN: Record<ModelId, { cmd: string; note: string; size: string }> = {
-    '0.6b': { cmd: 'git diff | committed', note: '0.6B GGUF, ~397 MB', size: '~397 MB' },
-    '1.7b': { cmd: 'git diff | committed --model 1.7b', note: '1.7B GGUF, ~1 GB', size: '~1 GB' },
+    '0.6b': { cmd: 'git diff | committed', note: `0.6B GGUF, ${MODELS['0.6b'].download}`, size: MODELS['0.6b'].download },
+    '1.7b': { cmd: 'git diff | committed --model 1.7b', note: `1.7B GGUF, ${MODELS['1.7b'].download}`, size: MODELS['1.7b'].download },
   };
 
   return (
@@ -334,9 +334,10 @@ export default function StorySections() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
               {[
                 { label: 'GitHub repo', href: 'https://github.com/marzoukbaig14/Committed' },
-                { label: 'Model card (adapter)', href: 'https://huggingface.co/marzoukbaig14/committed-qwen3-1.7b-lora' },
-                { label: 'Model card (1.7B GGUF)', href: 'https://huggingface.co/marzoukbaig14/committed-gguf' },
-                { label: 'Model card (0.6B GGUF)', href: 'https://huggingface.co/marzoukbaig14/committed-gguf-0.6b' },
+                { label: '0.6B GGUF', href: 'https://huggingface.co/marzoukbaig14/committed-gguf-0.6b' },
+                { label: '0.6B adapter', href: 'https://huggingface.co/marzoukbaig14/committed-qwen3-0.6b-lora' },
+                { label: '1.7B GGUF', href: 'https://huggingface.co/marzoukbaig14/committed-gguf' },
+                { label: '1.7B adapter', href: 'https://huggingface.co/marzoukbaig14/committed-qwen3-1.7b-lora' },
                 { label: 'Dataset', href: 'https://huggingface.co/datasets/marzoukbaig14/committed-train' },
               ].map(link => (
                 <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', padding: '8px 16px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'border-color 0.2s, color 0.2s' }}

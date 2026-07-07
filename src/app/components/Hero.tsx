@@ -23,41 +23,41 @@ export default function Hero() {
   const scrambleRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    let i = 0;
+    // All three hero lines type in parallel (not sequentially) at one snappy
+    // speed, so the whole hero lands in ~1.5s instead of drawn-out line-by-line
+    // typing. The longest line (headline) finishes last and gates the CTAs +
+    // the live-downloads line via showCtas.
+    const SPEED = 10; // ms per character
+    const timers: ReturnType<typeof setInterval>[] = [];
+    let ctaTimer: ReturnType<typeof setTimeout>;
+
     const start = setTimeout(() => {
-      const nameInterval = setInterval(() => {
-        setDisplayName(profile.name.slice(0, i + 1));
-        i++;
-        if (i >= profile.name.length) {
-          clearInterval(nameInterval);
-          setNameTyped(true);
-          setTimeout(() => {
-            let j = 0;
-            const roleInterval = setInterval(() => {
-              setDisplayRole(ROLE.slice(0, j + 1));
-              j++;
-              if (j >= ROLE.length) {
-                clearInterval(roleInterval);
-                setRoleTyped(true);
-                setTimeout(() => {
-                  let k = 0;
-                  const headlineInterval = setInterval(() => {
-                    setDisplayHeadline(profile.headline.slice(0, k + 1));
-                    k++;
-                    if (k >= profile.headline.length) {
-                      clearInterval(headlineInterval);
-                      setHeadlineTyped(true);
-                      setTimeout(() => setShowCtas(true), 400);
-                    }
-                  }, 12); // headline typing speed
-                }, 300);
-              }
-            }, 18); // role typing speed
-          }, 400);
-        }
-      }, 40); // name typing speed (20% faster)
+      const type = (text: string, setText: (s: string) => void, onDone: () => void) => {
+        let i = 0;
+        const id = setInterval(() => {
+          i += 1;
+          setText(text.slice(0, i));
+          if (i >= text.length) {
+            clearInterval(id);
+            onDone();
+          }
+        }, SPEED);
+        timers.push(id);
+      };
+
+      type(profile.name, setDisplayName, () => setNameTyped(true));
+      type(ROLE, setDisplayRole, () => setRoleTyped(true));
+      type(profile.headline, setDisplayHeadline, () => {
+        setHeadlineTyped(true);
+        ctaTimer = setTimeout(() => setShowCtas(true), 250);
+      });
     }, 100);
-    return () => clearTimeout(start);
+
+    return () => {
+      clearTimeout(start);
+      clearTimeout(ctaTimer);
+      timers.forEach(clearInterval);
+    };
   }, []);
 
   const handleScramble = () => {
@@ -114,12 +114,12 @@ export default function Hero() {
 
           <p style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: 'clamp(14px, 2vw, 20px)', color: 'var(--accent)', marginBottom: '1.75rem', minHeight: '1.4em' }}>
             {displayRole}
-            {nameTyped && !roleTyped && cursor(true)}
+            {!roleTyped && cursor(true)}
           </p>
 
           <p style={{ fontSize: 'clamp(14px, 1.8vw, 18px)', color: 'var(--text-secondary)', lineHeight: 1.75, maxWidth: '620px', marginBottom: '2.5rem', minHeight: '3em' }}>
             {displayHeadline}
-            {roleTyped && cursor(true)}
+            {cursor(true)}
           </p>
 
           {showCtas && (

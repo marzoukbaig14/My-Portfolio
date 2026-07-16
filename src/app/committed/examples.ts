@@ -1,5 +1,7 @@
-// Real example diffs for the Committed demo, curated from the test split and
-// verified through the live model. Each chip loads its diff into the demo.
+// Example diffs for the Committed demo. The first entries are curated from the
+// test split; the later ones are representative single-file changes crafted to
+// resemble real-world diffs. Every entry is verified through the live model to
+// produce a well-formed Conventional Commit. Each chip loads its diff into the demo.
 //
 // Shape: { id, label, language, diff }. `label` is the chip text; `language`
 // is shown as a small tag on the chip.
@@ -99,6 +101,109 @@ assertPressedKeyCodeEvent(Key.RIGHT, KeyEvent.KEYCODE_DPAD_RIGHT)
 +
 private fun assertPressedKeyCodeEvent(expectedKeyCode: Key, keyToHold: Int){
 var keyCode: String? = null
+`,
+  },
+  {
+    id: "dedupe-inflight-loads",
+    label: "dedupe in-flight user loads",
+    language: "TypeScript",
+    diff: `@@ -8,19 +8,31 @@ export class UserLoader {
+private cache = new Map<string, User>();
++ private inflight = new Map<string, Promise<User>>();
+
+- async load(id: string): Promise<User> {
+- if (this.cache.has(id)) return this.cache.get(id)!;
+- const res = await fetch(\`/api/users/\${id}\`);
+- const user = (await res.json()) as User;
+- this.cache.set(id, user);
+- return user;
+- }
++ async load(id: string): Promise<User> {
++ const cached = this.cache.get(id);
++ if (cached) return cached;
++ const pending = this.inflight.get(id);
++ if (pending) return pending;
++ const request = fetch(\`/api/users/\${id}\`)
++ .then(async (res) => {
++ if (!res.ok) throw new Error(\`failed to load user \${id}: \${res.status}\`);
++ const user = (await res.json()) as User;
++ this.cache.set(id, user);
++ return user;
++ })
++ .finally(() => this.inflight.delete(id));
++ this.inflight.set(id, request);
++ return request;
++ }
+}
+`,
+  },
+  {
+    id: "result-error-enum",
+    label: "return Result instead of panicking",
+    language: "Rust",
+    diff: `@@ -1,16 +1,29 @@
+use std::fs;
++ use std::num::ParseIntError;
++
++ #[derive(Debug)]
++ enum ConfigError {
++ Io(std::io::Error),
++ Parse(ParseIntError),
++ Missing(&'static str),
++ }
++
++ impl From<std::io::Error> for ConfigError {
++ fn from(e: std::io::Error) -> Self { ConfigError::Io(e) }
++ }
++ impl From<ParseIntError> for ConfigError {
++ fn from(e: ParseIntError) -> Self { ConfigError::Parse(e) }
++ }
+
+- fn load_port(path: &str) -> u16 {
+- let text = fs::read_to_string(path).unwrap();
+- let line = text.lines().find(|l| l.starts_with("port=")).unwrap();
+- line["port=".len()..].parse().unwrap()
+- }
++ fn load_port(path: &str) -> Result<u16, ConfigError> {
++ let text = fs::read_to_string(path)?;
++ let line = text.lines().find(|l| l.starts_with("port="))
++ .ok_or(ConfigError::Missing("port"))?;
++ Ok(line["port=".len()..].parse()?)
++ }
+`,
+  },
+  {
+    id: "unique-ptr-scene-nodes",
+    label: "use unique_ptr for scene nodes",
+    language: "C++",
+    diff: `@@ -6,7 +6,7 @@ struct Node {
+std::string name;
+- std::vector<Node*> children;
++ std::vector<std::unique_ptr<Node>> children;
+};
+
+@@ -18,19 +18,16 @@ class Scene {
+public:
+- Scene() : root_(new Node()) {}
+- ~Scene() { delete root_; }
++ Scene() : root_(std::make_unique<Node>()) {}
+
+- Node* addChild(Node* parent) {
+- Node* child = new Node();
+- parent->children.push_back(child);
+- return child;
+- }
++ Node* addChild(Node* parent) {
++ auto child = std::make_unique<Node>();
++ Node* raw = child.get();
++ parent->children.push_back(std::move(child));
++ return raw;
++ }
+
+private:
+- Node* root_;
++ std::unique_ptr<Node> root_;
+};
 `,
   },
 ];

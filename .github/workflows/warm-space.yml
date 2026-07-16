@@ -1,0 +1,66 @@
+name: Warm Committed Space
+
+# Keeps the Committed inference Space warm so visitors never hit a cold start.
+#
+# Free Hugging Face Spaces sleep after ~48h idle, and a slept Space reloads its
+# model weights on the next request (a 30-60s wait for whoever shows up next).
+# This job hits the Space every 6 hours: a /health ping to reset the idle timer,
+# then a tiny generation against BOTH model sizes so each stays resident and hot
+# in the inference path.
+#
+# Triggers:
+#   - schedule: every 6h. NOTE GitHub only runs scheduled workflows from the
+#     DEFAULT branch, so this starts firing once this file is merged to main.
+#     Cron timing is best-effort (GitHub can delay on-the-hour runs under load),
+#     so the minute is offset off-the-hour.
+#   - workflow_dispatch: a manual "Run workflow" button for on-demand warming.
+#
+# The Space URL is public (the same value the site ships in
+# NEXT_PUBLIC_COMMITTED_API_URL). Override it without editing this file by
+# setting a repository variable named COMMITTED_API_URL.
+
+on:
+  schedule:
+    - cron: '23 */6 * * *' # 00:23, 06:23, 12:23, 18:23 UTC
+  workflow_dispatch:
+
+# Never let two warm-up runs overlap.
+concurrency:
+  group: warm-committed-space
+  cancel-in-progress: false
+
+jobs:
+  warm:
+    runs-on: ubuntu-latest
+    env:
+      BASE: ${{ vars.COMMITTED_API_URL || 'https://marzoukbaig14-committed-api.hf.space' }}
+    steps:
+      - name: Ping /health (wake the Space, reset its idle timer)
+        run: |
+          echo "GET $BASE/health"
+          curl -sS --max-time 120 --retry 3 --retry-all-errors --retry-delay 10 \
+            -w '\n-> HTTP %{http_code} in %{time_total}s\n' \
+            "$BASE/health" || echo "health ping failed (continuing)"
+
+      - name: Warm both models via /generate
+        run: |
+          set -u
+          DIFF='@@ -1,3 +1,4 @@\n def add(a, b):\n-    return a + b\n+    return a + b  # keep-warm ping\n'
+          warmed=0
+          for model in 1.7b 0.6b; do
+            echo "== warming model: $model =="
+            if curl -sS --max-time 180 --retry 2 --retry-all-errors --retry-delay 15 \
+                 -w '\n-> HTTP %{http_code} in %{time_total}s\n' \
+                 -X POST "$BASE/generate" \
+                 -H 'Content-Type: application/json' \
+                 -d "{\"diff\":\"$DIFF\",\"model\":\"$model\"}"; then
+              warmed=$((warmed + 1))
+            else
+              echo "!! $model warm failed"
+            fi
+          done
+          echo "warmed $warmed/2 models"
+          # Succeed if at least one model responded; fail (and notify) only when
+          # the Space is completely unreachable, so a single slow cold boot does
+          # not spam failure emails.
+          test "$warmed" -ge 1

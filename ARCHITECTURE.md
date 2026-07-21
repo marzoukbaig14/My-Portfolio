@@ -68,9 +68,11 @@ my-portfolio/
 │  │  ├─ api.ts              [*] CLIENT-SIDE API WRAPPER (talks to system #2)
 │  │  └─ cc.ts               [*] Conventional-Commit helpers — unit-tested
 │  │
-│  └─ api/committed-mock/    LOCAL FALLBACK BACKEND (same shapes as the Space)
-│     ├─ generate/route.ts   POST mock: heuristic commit message
-│     └─ health/route.ts     GET mock: always {status:'ok', model_loaded:true}
+│  ├─ api/committed-mock/    LOCAL FALLBACK BACKEND (same shapes as the Space)
+│  │  ├─ generate/route.ts   POST mock: heuristic commit message
+│  │  └─ health/route.ts     GET mock: always {status:'ok', model_loaded:true}
+│  ├─ api/hf-stats/route.ts  Live HF download total (sums all-time downloads across artifacts)
+│  └─ api/warm/route.ts      KEEP-WARM ping (GET → /health + generate on both models); see §6
 │
 ├─ src/data/                 CONTENT (typed data, not code — easy to edit)
 │  ├─ profile.ts   projects.ts   experience.ts   (each exports an interface)
@@ -222,7 +224,41 @@ tests/
 Run with `npm test`. The split (pure logic in Node, components in jsdom) is what
 keeps the suite fast. Type-check with `npx tsc --noEmit`. See [tests/](tests/)
 and [vitest.config.mjs](vitest.config.mjs). CI runs lint + test + build on every
-push and PR (`.github/workflows/ci.yml`).
+push and PR (`.github/workflows/ci.yml`); a separate scheduled job keeps the
+model Spaces warm (see §6, `.github/workflows/warm-space.yml`).
+
+---
+
+## 6. Keeping the Spaces warm (no cold starts)
+
+Free Hugging Face Spaces sleep after ~48h idle; the next visitor then waits
+~30–60s while the model reloads. Two Spaces serve this project's model — the
+FastAPI API Space (system #2) and a separate Gradio demo Space
+(`marzoukbaig14/committed-demo`) — and both are kept hot by a scheduled job.
+
+**Scheduled GitHub Action** — [.github/workflows/warm-space.yml](.github/workflows/warm-space.yml):
+- Runs every 6 hours (`cron: '23 */6 * * *'`, offset off-the-hour because GitHub
+  delays on-the-hour crons) plus a manual **Run workflow** button
+  (`workflow_dispatch`). Scheduled runs fire only from the **default branch**.
+- FastAPI Space: `GET /health`, then a tiny `POST /generate` on **both** model
+  sizes (`1.7b` and `0.6b`). Fails the run only if the Space is fully
+  unreachable, so a single slow cold boot does not spam failure emails.
+- Gradio Space: a real generation on **both** sizes via Gradio's two-step call
+  API (`POST /gradio_api/call/commit_message` → `event_id`, then `GET` the
+  result stream). Real inference is required here because the Gradio app warms
+  `1.7b` at startup but **lazy-loads `0.6b` on first use**, so a plain ping is
+  not enough. This step is `continue-on-error` — a transient Gradio hiccup never
+  fails the run; the FastAPI Space is the primary success signal.
+- Both Space URLs are public and overridable via repo variables
+  `COMMITTED_API_URL` / `COMMITTED_GRADIO_URL`.
+
+**Front-end equivalent** — [api/warm/route.ts](src/app/api/warm/route.ts): a
+`GET` route that pings `/health` and warms both models (bounded, best-effort).
+Safe to hit manually or wire to a Vercel Cron — note Vercel's Hobby plan caps
+cron at once/day, which is why the every-6h schedule lives in GitHub Actions.
+
+The in-app health poll (§2) is a third, finer-grained nudge: while a visitor has
+`/committed` open it re-pings `/health` and wakes the Space if it dozed off.
 
 ---
 

@@ -213,10 +213,11 @@ GitHub repo, LoRA adapter card, GGUF card, and dataset card on Hugging Face.
 ```
 tests/
 ├─ highlightTokens.test.ts   pure tokenizer (node)      ─┐
-├─ cc.test.ts                CC helpers (node)            │ 30 logic tests
+├─ cc.test.ts                CC helpers (node)            │ 32 logic tests
 ├─ mockGenerate.test.ts      mock classifier (node)       │ (fast, no DOM)
 ├─ api.test.ts               API wrapper, mocked fetch    ─┘
-└─ components/               jsdom + Testing Library      ─┐ 7 render tests
+└─ components/               jsdom + Testing Library      ─┐
+   ├─ NeuralBackground.test.tsx canvas node-graph          │ 15 render tests
    ├─ CodeHighlight.test.tsx render → colored spans        │
    └─ Projects.test.tsx      data → cards render          ─┘
 ```

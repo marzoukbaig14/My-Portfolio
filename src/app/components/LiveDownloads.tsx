@@ -21,7 +21,7 @@ const POLL_MS = 60_000; // match the route's revalidate window (~1 min)
 const LIVE_COLOR = '#f5a623';
 
 // The honest umbrella label — the figure spans models, adapters, and the dataset.
-const TOTAL_LABEL = "across the project's artifacts — models, adapters & dataset";
+const TOTAL_LABEL = "across the project's artifacts: models, adapters & dataset";
 
 function fmt(n: number | undefined | null) {
   return typeof n === 'number' ? n.toLocaleString('en-US') : '—';

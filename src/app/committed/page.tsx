@@ -63,11 +63,11 @@ export default function CommittedPage() {
 
             <p style={{ fontSize: 'clamp(14px, 1.7vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '620px' }}>
               I built Committed on Qwen3-1.7B, then tested whether a model a third the size could do
-              the same job — and it essentially can. The 0.6B fine-tune matches the 1.7B on picking the
+              the same job, and it essentially can. The 0.6B fine-tune matches the 1.7B on picking the
               right commit type and staying faithful to the diff, at roughly a third the parameters, a
               smaller download, and faster local inference. The one honest trade is specificity: it
-              writes slightly vaguer messages. So the 0.6B is the default here — for most commits it&apos;s
-              the better deal — and the 1.7B stays available as the bigger sibling when you want maximum
+              writes slightly vaguer messages. So the 0.6B is the default here (for most commits it&apos;s
+              the better deal), and the 1.7B stays available as the bigger sibling when you want maximum
               specificity. Both are the same QLoRA fine-tune recipe on ~58k real commits, served as a
               quantized GGUF through llama.cpp, CPU-only, so your diffs never leave your machine. A GBNF
               grammar constrains decoding, so every output is a valid commit by construction. Paste a

@@ -223,7 +223,7 @@ export default function CommittedDemo() {
             </div>
             <ModelToggle disabled={isGenerating} />
             <div style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>
-              Same recipe and data, two sizes — see the full comparison in{' '}
+              Same recipe and data, two sizes. See the full comparison in{' '}
               <a href="#results" style={{ color: 'var(--accent)', textDecoration: 'none' }}>results</a>.
             </div>
           </div>

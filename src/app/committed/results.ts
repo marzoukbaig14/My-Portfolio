@@ -57,7 +57,7 @@ export const EVAL_META = {
 // toggle. Values are the fine-tune column from METRICS above.
 export const SUMMARY: Record<ModelId, { blurb: string; stats: { label: string; value: string }[] }> = {
   '1.7b': {
-    blurb: 'The bigger sibling. Same recipe on a larger base — a little more specific (0.67 vs 0.55) at about 3x the parameters. Reach for it when you want maximum specificity.',
+    blurb: 'The bigger sibling. Same recipe on a larger base: a little more specific (0.67 vs 0.55) at about 3x the parameters. Reach for it when you want maximum specificity.',
     stats: [
       { label: 'graded mean (0–3)', value: '2.139' },
       { label: 'type-correctness', value: '0.778' },
@@ -66,7 +66,7 @@ export const SUMMARY: Record<ModelId, { blurb: string; stats: { label: string; v
     ],
   },
   '0.6b': {
-    blurb: 'The default. It matches the 1.7B on commit-type and faithfulness at roughly a third the parameters — a smaller download and faster local inference. The honest trade: slightly vaguer messages (specificity 0.55 vs 0.67).',
+    blurb: 'The default. It matches the 1.7B on commit-type and faithfulness at roughly a third the parameters, a smaller download and faster local inference. The honest trade: slightly vaguer messages (specificity 0.55 vs 0.67).',
     stats: [
       { label: 'graded mean (0–3)', value: '2.094' },
       { label: 'type-correctness', value: '0.726' },

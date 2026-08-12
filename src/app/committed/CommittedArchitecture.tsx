@@ -24,7 +24,7 @@ import {
 // assignments at the end highlight the load-bearing nodes (model artifact and
 // the "you are here" front end) in the accent color.
 const DIAGRAM = `flowchart TB
-  subgraph training["1 · Training pipeline — offline, iterable"]
+  subgraph training["1 · Training pipeline: offline, iterable"]
     direction TB
     A["CommitChronicle<br/>~10.7M real commits"]
     B["Filter to Conventional Commits<br/>~58k single-file diffs, 16 languages"]
@@ -41,7 +41,7 @@ const DIAGRAM = `flowchart TB
     GH["GitHub repo<br/>prompts · inference code · GBNF grammar"]
   end
 
-  subgraph local["3 · Inference · local — CPU, no network"]
+  subgraph local["3 · Inference · local: CPU, no network"]
     direction TB
     CLI["CLI / git hook"]
     VSCODE["VS Code extension<br/>(planned) · installed, runs locally"]
@@ -55,7 +55,7 @@ const DIAGRAM = `flowchart TB
     E --> F --> G --> H --> I
   end
 
-  subgraph online["4 · Inference · hosted demo — over the network, not local"]
+  subgraph online["4 · Inference · hosted demo: over the network, not local"]
     direction TB
     WEB["★ Website / Vercel front end ★<br/>(you are here)"]
     GRADIO["Gradio front end"]

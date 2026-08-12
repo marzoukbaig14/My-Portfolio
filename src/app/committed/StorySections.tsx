@@ -73,8 +73,8 @@ export default function StorySections() {
               Committed is a complete pipeline, not just a model. I started from CommitChronicle
               (roughly 10.7M real GitHub commits) and wrote a filter to extract clean, single-file diffs
               paired with well-formed Conventional Commit subjects, normalizing them into a consistent
-              training target. I fine-tuned Qwen3 with QLoRA on the result — first the 1.7B, then the
-              0.6B on the identical recipe — evaluated each against its un-tuned base on a multi-metric
+              training target. I fine-tuned Qwen3 with QLoRA on the result (first the 1.7B, then the
+              0.6B on the identical recipe), evaluated each against its un-tuned base on a multi-metric
               harness with an LLM judge I validated against my own hand-ratings, then served them locally
               through llama.cpp with grammar-constrained decoding that guarantees every output is
               syntactically valid. Most of the work was the data, not the model, and all four stages
@@ -99,7 +99,7 @@ export default function StorySections() {
           <SectionHeading>results</SectionHeading>
           <motion.div {...reveal}>
             <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px', marginBottom: '1.5rem' }}>
-              I fine-tuned two sizes on the identical pipeline — Qwen3-1.7B and a smaller Qwen3-0.6B —
+              I fine-tuned two sizes on the identical pipeline (Qwen3-1.7B and a smaller Qwen3-0.6B)
               and evaluated each against its un-tuned base on a {EVAL_META.sample}-example test sample,
               scored by a {EVAL_META.judge} judge on four orthogonal axes and reweighted to the test
               split&apos;s true commit-type distribution. All four arms share the same judge, so every
@@ -110,7 +110,7 @@ export default function StorySections() {
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', marginBottom: '1rem' }}>
               <ModelToggle ariaLabel="Model to spotlight" />
               <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)' }}>
-                spotlighting {MODELS[model].label} — synced with the demo
+                spotlighting {MODELS[model].label}, synced with the demo
               </span>
             </div>
 
@@ -167,13 +167,13 @@ export default function StorySections() {
             </div>
 
             <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '700px', marginBottom: '1.25rem' }}>
-              Both base models share the same dominant failure mode — &ldquo;feat-collapse&rdquo;: they
+              Both base models share the same dominant failure mode, &ldquo;feat-collapse&rdquo;: they
               label the overwhelming majority of diffs as <code style={inlineCode}>feat</code> (86.7% for
               the 0.6B base, 95.5% for the 1.7B), regardless of what the change actually did. Because{' '}
               <code style={inlineCode}>fix</code> commits alone make up about 49% of real-world commits, a
               model that almost never predicts <code style={inlineCode}>fix</code> scores below a trivial
               always-<code style={inlineCode}>fix</code> baseline ({EVAL_META.floor}) on reweighted type
-              accuracy — which is exactly what both bases do (0.15 and 0.13). Fine-tuning breaks the
+              accuracy, which is exactly what both bases do (0.15 and 0.13). Fine-tuning breaks the
               collapse: feat-share drops under 10% and type accuracy clears the floor for both sizes.
             </p>
 
@@ -182,7 +182,7 @@ export default function StorySections() {
               down from its base (0.81 → 0.67) as it adopts the terse, normalized subject style of the
               training targets, and the smaller 0.6B is vaguer still (0.55). It&apos;s a real trade-off,
               traceable to a normalization choice in the training data, and the next iteration targets it.
-              Otherwise the two fine-tunes are close — graded 2.09 (0.6B) vs 2.14 (1.7B) — so the 0.6B gets
+              Otherwise the two fine-tunes are close, graded 2.09 (0.6B) vs 2.14 (1.7B), so the 0.6B gets
               most of the quality at roughly a third the size.
             </p>
 
@@ -277,7 +277,7 @@ export default function StorySections() {
           <SectionHeading>run it locally</SectionHeading>
           <motion.div {...reveal}>
             <p style={{ fontSize: 'clamp(14px, 1.6vw, 16px)', color: 'var(--text-secondary)', lineHeight: 1.8, maxWidth: '640px', marginBottom: '1.5rem' }}>
-              Committed runs entirely on your machine — no API, no diff ever leaving your laptop. It
+              Committed runs entirely on your machine: no API, no diff ever leaving your laptop. It
               defaults to the 0.6B (a smaller, faster download); the 1.7B is available when you want
               maximum specificity. Install it once, pipe a diff in, and get a commit message back:
             </p>
@@ -298,7 +298,7 @@ export default function StorySections() {
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', margin: '1rem 0 0.75rem' }}>
               <ModelToggle ariaLabel="Local model" />
               <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--text-muted)' }}>
-                showing {MODELS[model].label} — {RUN[model].size} download
+                showing {MODELS[model].label}, {RUN[model].size} download
               </span>
             </div>
             <div style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
@@ -313,7 +313,7 @@ export default function StorySections() {
             </div>
 
             <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-muted)', lineHeight: 1.8, maxWidth: '640px', marginTop: '1.25rem' }}>
-              Both serve as a quantized GGUF through llama.cpp on CPU — the first run downloads the
+              Both serve as a quantized GGUF through llama.cpp on CPU; the first run downloads the
               weights once ({RUN[model].size}), then it&apos;s fully offline. The hosted demo above runs
               the model you pick with the toggle.
             </p>

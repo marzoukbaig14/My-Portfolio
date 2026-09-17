@@ -106,6 +106,19 @@ export const projects: Project[] = [
     command: "$ python train.py"
   },
   {
+    id: "dvcs",
+    title: "Distributed Version Control System",
+    subtitle: "Collaborative project, University of Rochester. Fall 2023.",
+    description: "A distributed version control system built in Rust from the ground up. Modular architecture with clean separation across object storage, commit history, branching, merging, and conflict detection. I worked on the conflict-resolution logic and keeping distributed state consistent across nodes. A good forcing function for memory-safe systems programming and distributed-systems design.",
+    tags: ["Rust", "Distributed Systems", "Systems Programming"],
+    tier: "tier2",
+    // No public repo, so the card renders without links (same as the
+    // gentrification entry above).
+    github: "",
+    paper: null,
+    command: "$ dvcs merge feature/main"
+  },
+  {
     // Consolidates the former micrograd (autograd engine) and nanoLM
     // (language-modeling progression) cards into one fundamentals track, so the
     // projects list reads as a deliberate progression rather than three

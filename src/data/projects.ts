@@ -5,6 +5,10 @@ export interface Project {
   description: string;
   tags: string[];
   tier: "featured" | "tier1" | "tier2";
+  // Eyebrow label on a featured card. More than one project can be featured, so
+  // each names its own kind ("Featured Research", "Featured Project"). Defaults
+  // to "Featured Research" when omitted.
+  label?: string;
   github: string;
   paper: string | null;
   demo?: string;
@@ -12,6 +16,10 @@ export interface Project {
   // Optional secondary repo/demo links rendered alongside the main GitHub link
   // (used when one card covers more than one repo).
   extraLinks?: { label: string; href: string }[];
+  // Optional live site for a featured card, rendered as its own button. Set
+  // `underConstruction` while the page is still a preview build; the card then
+  // shows a quiet animated badge instead of implying a finished site.
+  siteLink?: { label: string; href: string; underConstruction?: boolean };
 }
 
 export const projects: Project[] = [

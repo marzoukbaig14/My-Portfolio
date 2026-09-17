@@ -50,7 +50,9 @@ function TiltCard({ children, style }: { children: React.ReactNode; style?: Reac
 const committedEnabled = process.env.NEXT_PUBLIC_COMMITTED_ENABLED === 'true';
 const visibleProjects = projects.filter(p => p.id !== 'committed' || committedEnabled);
 
-const featured = visibleProjects.find(p => p.tier === 'featured');
+// More than one project can be featured; each renders its own elevated card in
+// array order, labelled by its own `label` field.
+const featuredCards = visibleProjects.filter(p => p.tier === 'featured');
 // Committed is the interactive centerpiece, pulled out of the tier1 grid and
 // rendered as its own elevated, whole-card-clickable demo card below.
 const committed = visibleProjects.find(p => p.id === 'committed');
@@ -66,17 +68,17 @@ export default function Projects() {
           <span style={{ color: 'var(--accent)' }}>//</span>{' projects'}
         </h2>
 
-        {featured && (
-          <TiltCard style={{ marginBottom: '2rem' }}>
+        {featuredCards.map(featured => (
+          <TiltCard key={featured.id} style={{ marginBottom: '2rem' }}>
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'clamp(1.5rem, 3vw, 2.5rem)', position: 'relative', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', top: 0, right: 0, width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(var(--accent-rgb), 0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
                 <div>
-                  <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>Featured Research</span>
+                  <span style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>{featured.label ?? 'Featured Research'}</span>
                   <h3 style={{ fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>{featured.title}</h3>
                   <p style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '12px', color: 'var(--text-muted)' }}>{featured.subtitle}</p>
                 </div>
-                <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
+                <div style={{ display: 'flex', gap: '10px', flexShrink: 0, flexWrap: 'wrap', alignItems: 'center' }}>
                   {featured.github && (
                     <a href={featured.github} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', fontWeight: 600, padding: '8px 18px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', color: 'var(--text-primary)', textDecoration: 'none', transition: 'border-color 0.2s' }}
                       onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
@@ -89,6 +91,21 @@ export default function Projects() {
                       onMouseLeave={e => e.currentTarget.style.background = 'var(--accent)'}
                     >Paper PDF</a>
                   )}
+                  {featured.siteLink && (
+                    <a href={featured.siteLink.href} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'var(--font-geist-mono), monospace', fontSize: '13px', fontWeight: 600, padding: '8px 18px', borderRadius: '8px', background: 'var(--accent)', color: '#fff', textDecoration: 'none', transition: 'background 0.2s' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--accent-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'var(--accent)'}
+                    >{featured.siteLink.label}</a>
+                  )}
+                  {/* Honest state for a link that isn't a finished page yet. The
+                      dot pulses and the cone nudges only when motion is welcome. */}
+                  {featured.siteLink?.underConstruction && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '11px', color: '#e0b752', background: 'rgba(224,183,82,0.08)', border: '1px solid rgba(224,183,82,0.3)', borderRadius: '20px', padding: '4px 12px', whiteSpace: 'nowrap' }}>
+                      <span className="wip-dot" style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#e0b752', boxShadow: '0 0 8px #e0b752', flexShrink: 0 }} />
+                      <span className="wip-cone" aria-hidden style={{ display: 'inline-block' }}>🚧</span>
+                      under construction
+                    </span>
+                  )}
                 </div>
               </div>
               <p style={{ fontSize: 'clamp(13px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.75, marginBottom: '1.5rem', maxWidth: '720px' }}>{featured.description}</p>
@@ -98,8 +115,16 @@ export default function Projects() {
                 ))}
               </div>
             </div>
+            <style>{`
+              @keyframes wipPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+              @keyframes wipNudge { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+              @media (prefers-reduced-motion: no-preference) {
+                .wip-dot { animation: wipPulse 1.8s ease-in-out infinite; }
+                .wip-cone { animation: wipNudge 2.4s ease-in-out infinite; }
+              }
+            `}</style>
           </TiltCard>
-        )}
+        ))}
 
         {/* Committed: elevated centerpiece. Whole card links to the live demo;
             the GitHub link sits above the overlay so it stays independently clickable. */}

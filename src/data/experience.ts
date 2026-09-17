@@ -30,7 +30,7 @@ export const experience: Job[] = [
       "Co-founded a low-cost computer-vision system that makes automated in/out line calls for padel, running real-time inference at the edge on an NVIDIA Jetson fed by two off-to-the-side cameras, so calls happen on the court with no cloud round-trip.",
       "Awarded the Alpha Fund, Northeastern Mosaic's (NUCEE) advanced-prototype grant, to move the system from working prototype toward a deployable product.",
       "Built a config-driven, agentic ML workflow on an HPC cluster where training, evaluation, and experiment tracking run from plain-English specs, with graph-based orchestration that logs every run for reproducibility and keeps the pipeline fault-tolerant when individual steps fail.",
-      "Lead the computer-vision and ML side; a co-founder leads hardware."
+      "Focus mostly on the computer-vision and training work, while a co-founder does more of the data collection and the physical build, with overlap in both directions."
     ]
   },
   {

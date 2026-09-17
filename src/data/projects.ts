@@ -30,7 +30,7 @@ export const projects: Project[] = [
     id: "committed",
     title: "Committed",
     subtitle: "Fine-tuned commit-message model. 2026.",
-    description: "A 1.7B model I fine-tuned to turn a git diff into a Conventional Commits message. On a 442-diff held-out eval, fine-tuning lifted commit-type accuracy from 0.13 to 0.64 and faithfulness from 0.43 to 0.86 over the base model. It serves as a ~1 GB quantized GGUF on llama.cpp, CPU-only, so nothing leaves your machine, and a GBNF grammar makes every output a valid commit by construction.",
+    description: "A 1.7B model I fine-tuned to turn a git diff into a Conventional Commits message. On a 442-diff held-out eval, fine-tuning lifted commit-type accuracy from 0.13 to 0.64 and faithfulness from 0.49 to 0.85 over the base model. It serves as a ~1 GB quantized GGUF on llama.cpp, CPU-only, so nothing leaves your machine, and a GBNF grammar makes every output a valid commit by construction. The same recipe also produced a 0.6B version at about a third the size, which is the default in the live demo.",
     tags: ["Fine-tuning", "QLoRA", "LLMs", "MLOps"],
     tier: "tier1",
     github: "https://github.com/marzoukbaig14/Committed",

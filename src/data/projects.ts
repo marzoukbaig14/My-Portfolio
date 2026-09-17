@@ -45,9 +45,29 @@ export const projects: Project[] = [
     description: "Standard genetic algorithms die on tight Multidimensional Knapsack instances. Every solution in the initial population is infeasible, selection never operates, and the search is dead on arrival. I built a different initialization approach using combinatorial generating functions to derive per-item sampling probabilities. No objective values needed, no LP relaxation. GPU Monte Carlo estimates all 100 probabilities in about 6 seconds on a T4. On the tight benchmark: uniform initialization gets 0% feasibility. This gets 52.5% and converges to 96.5% of the reference best. Confirmed novelty through correspondence with Hill (1999), the closest prior work. Paper and code on GitHub.",
     tags: ["Python", "PyTorch", "GPU", "Genetic Algorithms", "Combinatorial Optimization", "Research"],
     tier: "featured",
+    label: "Featured Research",
     github: "https://github.com/marzoukbaig14/MKP-using-Genetic-Algorithm",
     paper: "/paper.pdf",
     command: "$ python ga_init.py"
+  },
+  {
+    id: "lineguard",
+    title: "LineGuard",
+    subtitle: "Co-founder & ML lead. 2025 to now.",
+    description: "Automated in/out line calling for padel. Overhead stadium rigs are expensive and see the court as a top-down diagram; LineGuard watches low and side-on, the angle a player actually sees the line from, which is exactly where the sport's one real dispute lives (the back-corner \"glass first or floor first?\"). Two cheap cameras off to the side feed a small NVIDIA Jetson that runs everything at the edge, so the call happens on the court in under a second with nothing leaving it. I co-founded it and lead the ML; my co-founder handles hardware. Beyond the model, I built a config-driven, agentic ML workflow on an HPC cluster where training, evaluation, and tracking all run from plain-English specs, with graph-based orchestration that logs every run and survives individual step failures. Backed by the Alpha Fund, Northeastern's advanced-prototype grant.",
+    tags: ["Computer Vision", "NVIDIA Jetson", "Edge Inference", "PyTorch", "Agentic ML Workflow", "HPC"],
+    tier: "featured",
+    label: "Featured Project",
+    // No public repo yet; the landing page is still a preview build, so the
+    // card links it with an explicit under-construction badge.
+    github: "",
+    paper: null,
+    command: "$ linecall --edge cam0 cam1",
+    siteLink: {
+      label: "Visit LineGuard →",
+      href: "https://lineguard-web-two.vercel.app/",
+      underConstruction: true
+    }
   },
   {
     id: "united-way-nlp",

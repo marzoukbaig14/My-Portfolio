@@ -9,6 +9,31 @@ export interface Job {
 
 export const experience: Job[] = [
   {
+    id: "roux",
+    role: "Research Assistant, Applied Machine Learning",
+    company: "The Roux Institute at Northeastern University",
+    location: "Portland, ME",
+    period: "Jul 2026 – Present",
+    bullets: [
+      "Scope an entity-resolution and record-linkage problem on large-scale operational data end to end, from an ambiguous initial definition through approach design and evaluation, on an industry-sponsored project with a multinational corporation.",
+      "Build and benchmark record-matching algorithms across separate data systems in Databricks with PySpark, measured against an existing production approach to establish a baseline.",
+      "Define success metrics with the partner team, weighing accuracy against efficiency and production-readiness, and document findings and code for handoff."
+    ]
+  },
+  {
+    id: "lineguard",
+    role: "Co-Founder & Machine Learning Lead",
+    company: "LineGuard",
+    location: "Portland, ME",
+    period: "2025 – Present",
+    bullets: [
+      "Co-founded a low-cost computer-vision system that makes automated in/out line calls for padel, running real-time inference at the edge on an NVIDIA Jetson fed by two off-to-the-side cameras, so calls happen on the court with no cloud round-trip.",
+      "Awarded the Alpha Fund, Northeastern Mosaic's (NUCEE) advanced-prototype grant, to move the system from working prototype toward a deployable product.",
+      "Built a config-driven, agentic ML workflow on an HPC cluster where training, evaluation, and experiment tracking run from plain-English specs, with graph-based orchestration that logs every run for reproducibility and keeps the pipeline fault-tolerant when individual steps fail.",
+      "Lead the computer-vision and ML side; a co-founder leads hardware."
+    ]
+  },
+  {
     id: "simon",
     role: "IT Support Consultant",
     company: "Simon Business School, University of Rochester",
